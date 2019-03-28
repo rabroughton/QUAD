@@ -5,7 +5,7 @@ that the following conditions are met:
 following disclaimer.
 2. Redistributions in binary form must reproduce the above copyright notice, this list of conditions and 
 the following disclaimer in the documentation and/or other materials provided with the distribution.
-3. The names ìNorth Carolina State Universityî, ìNCSUî and any trade-name, personal name, 
+3. The names ‚ÄúNorth Carolina State University‚Äù, ‚ÄúNCSU‚Äù and any trade-name, personal name, 
 trademark, trade device, service mark, symbol, image, icon, or any abbreviation, contraction or 
 simulation thereof owned by North Carolina State University must not be used to endorse or promote 
 products derived from this software without prior written permission.
@@ -25,14 +25,14 @@ All rights reserved
 
 OPEN SOURCE LICENSE (Permissive)
 
-Subject to the conditions of this License, UT-Battelle, LLC (the ìLicensorî) hereby grants, free of charge, 
-to any person (the ìLicenseeî) obtaining a copy of this software and associated documentation files (the 
+Subject to the conditions of this License, UT-Battelle, LLC (the ‚ÄúLicensor‚Äù) hereby grants, free of charge, 
+to any person (the ‚ÄúLicensee‚Äù) obtaining a copy of this software and associated documentation files (the 
 "Software"), a perpetual, worldwide, non-exclusive, no-charge, royalty-free, irrevocable copyright 
 license to use, copy, modify, merge, publish, distribute, and/or sublicense copies of the Software.
 
 1. Redistributions of Software must retain the above open source license grant, copyright and license 
 notices, this list of conditions, and the disclaimer listed below.  Changes or modifications to, or 
-derivative works of the Software must be noted with comments and the contributor and organizationís 
+derivative works of the Software must be noted with comments and the contributor and organization‚Äôs 
 name.
 
 2. Neither the names of Licensor, the Department of Energy, or their employees may be used to endorse 
