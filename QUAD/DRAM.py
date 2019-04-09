@@ -390,7 +390,7 @@ def nlDRAM(GPXfile, paramList, variables, init_z, lower, upper, initCov=None, y=
         ## Keep track of everything
         if i >= burn:
             # Store posterior draws if appropriate
-            if (i-burn) % thin is 0:
+            if (i-burn) % thin == 0:
                 keep_params[curr_keep] = params
                 keep_gamma[curr_keep] = gamma
                 keep_b[curr_keep] = b
@@ -398,7 +398,7 @@ def nlDRAM(GPXfile, paramList, variables, init_z, lower, upper, initCov=None, y=
                 keep_tau_b[curr_keep] = tau_b
                 curr_keep += 1
             
-            if curr_keep % update is 0:
+            if curr_keep % update == 0:
                 # Print an update if necessary
                 accept_rate_S1,accpet_rate_S2 = print_update(curr_keep=curr_keep,update=update,n_keep=n_keep,accept_S1=accept_S1,attempt_S1=attempt_S1,accept_S2=accept_S2,attempt_S2=attempt_S2,accept_rate_S1=accept_rate_S1,accept_rate_S2=accept_rate_S2)
                 # Produce trace plots
@@ -407,7 +407,8 @@ def nlDRAM(GPXfile, paramList, variables, init_z, lower, upper, initCov=None, y=
     tock = timer()
 
     # Gather output into a tuple
-    #output = (keep_params, varS1, keep_b, 1.0/keep_tau_y, keep_gamma, (tock-tick)/60)
-    output = (keep_params, curr_keep, varS1, keep_b, 1.0/keep_tau_y, keep_gamma, (tock-tick)/60,accept_rate_S1,accept_rate_S2)
+    # output = (keep_params, varS1, keep_b, 1.0/keep_tau_y, keep_gamma, 
+    # (tock-tick)/60)
+    output = (keep_params, curr_keep, varS1, keep_b, 1.0/keep_tau_y,
+              keep_gamma, (tock-tick)/60, accept_rate_S1, accept_rate_S2)
     return output
-
