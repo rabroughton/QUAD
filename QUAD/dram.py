@@ -65,8 +65,8 @@ from scipy.stats import norm               # Normal distribution
 from scipy.stats import multivariate_normal as mvnorm  # Multivariate normal distribution
 import statsmodels.api as sm               # Library for lowess smoother
 lowess = sm.nonparametric.lowess           # Lowess smoothing function
-from bspline import Bspline                # Bspline function
-from splinelab import augknt               # Bspline helper function
+from .bspline import Bspline                # Bspline function
+from .splinelab import augknt               # Bspline helper function
 
 # Import entire modules
 import numpy as np
