@@ -91,7 +91,8 @@ def z2par(z, lower, upper, grad=False):
 # Log likelihood of the parameters based on the prior distributions
 def prior_loglike(par, m0, sd0):
     '''
-    Define the prior in z-space as the log of the product of normal distributions with mean m0 and standard deviation sd0 for each z-value.
+    Define the prior in z-space as the log of the product of normal
+    distributions with mean m0 and standard deviation sd0 for each z-value.
 
     Args:
         * **par** (:class:`~numpy.ndarray`): Array of parameter values in z-space - size (qx1).
