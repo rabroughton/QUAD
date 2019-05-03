@@ -1,32 +1,41 @@
-from __future__ import division
+# -*- coding: utf-8 -*-
+'''
+Python/Numpy implementation of Bspline basis functions via Cox - de Boor algorithm.
 
+Saved from: https://github.com/johntfoster/bspline/blob/master/bspline.py on 5-31-17
+'''
+from __future__ import division
 from functools import partial
 import numpy as np
 
-# -*- coding: utf-8 -*-
-"""Python/Numpy implementation of Bspline basis functions via Cox - de Boor algorithm."""
-
-''' Saved from: https://github.com/johntfoster/bspline/blob/master/bspline.py on 5-31-17 '''
 
 class memoize(object):
-    """
-       Cache the return value of a method
-       This class is meant to be used as a decorator of methods. The return value
-       from a given method invocation will be cached on the instance whose method
-       was invoked. All arguments passed to a method decorated with memoize must
-       be hashable.
-       If a memoized method is invoked directly on its class the result will not
-       be cached. Instead the method will be invoked like a static method:
-       class Obj(object):
-           @memoize
-           def add_to(self, arg):
-               return self + arg
-       Obj.add_to(1) # not enough arguments
-       Obj.add_to(1, 2) # returns 3, result is not cached
-       Script borrowed from here:
-       MIT Licensed, attributed to Daniel Miller, Wed, 3 Nov 2010
-       http://code.activestate.com/recipes/577452-a-memoize-decorator-for-instance-methods/
-    """
+    '''
+    Cache the return value of a method
+    
+    This class is meant to be used as a decorator of methods. The return value
+    from a given method invocation will be cached on the instance whose method
+    was invoked. All arguments passed to a method decorated with memoize must
+    be hashable.
+
+    If a memoized method is invoked directly on its class the result will not
+    be cached. Instead the method will be invoked like a static method:
+
+    ::
+
+        class Obj(object):
+
+            @memoize
+            def add_to(self, arg):
+                return self + arg
+
+        Obj.add_to(1)  # not enough arguments
+        Obj.add_to(1, 2)  # returns 3, result is not cached
+       
+    Script borrowed from here:
+    MIT Licensed, attributed to Daniel Miller, Wed, 3 Nov 2010
+    http://code.activestate.com/recipes/577452-a-memoize-decorator-for-instance-methods/
+    '''
     def __init__(self, func):
         self.func = func
     def __get__(self, obj, objtype=None):
@@ -49,20 +58,24 @@ class memoize(object):
 
 
 class Bspline():
-    """
-       Numpy implementation of Cox - de Boor algorithm in 1D
-       inputs:
-           knot_vector: Python list or Numpy array containing knot vector
-                        entries
-           order: Order of interpolation, e.g. 0 -> piecewise constant between
-                  knots, 1 -> piecewise linear between knots, etc.
-       outputs:
-           basis object that is callable to evaluate basis functions at given
-           values of knot span
-    """
+    '''
+    Numpy implementation of Cox - de Boor algorithm in 1D
+
+    Args:
+        * **knot_vector** (:py:class:`int` or :class:`~numpy.ndarray`):
+            Knot vector entries
+        * **order** (:py:class:`int`):
+            Order of interpolation, e.g. 0 -> \
+            piecewise constant between knots, 1 -> piecewise \
+            linear between knots, etc.
+
+    Returns:
+        * Basis object that is callable to evaluate basis \
+        functions at given values of knot span
+    '''
 
     def __init__(self, knot_vector, order):
-        """Initialize attributes"""
+        '''Initialize attributes'''
         self.knot_vector = np.array(knot_vector)
         self.p = order
 
@@ -72,15 +85,15 @@ class Bspline():
 
 
     def __basis0(self, xi):
-        """Order zero basis"""
+        '''Order zero basis'''
         return np.where(np.all([self.knot_vector[:-1] <=  xi,
                                 xi < self.knot_vector[1:]],axis=0), 1.0, 0.0)
 
     def __basis(self, xi, p, compute_derivatives=False):
-        """
-           Recursive Cox - de Boor function to compute basis functions and
-           optionally their derivatives
-        """
+        '''
+        Recursive Cox - de Boor function to compute basis functions and
+        optionally their derivatives
+        '''
 
         if p == 0:
             return self.__basis0(xi)
@@ -116,25 +129,25 @@ class Bspline():
 
     @memoize
     def __call__(self, xi):
-        """
-           Convenience function to make the object callable.  Also 'memoized'
-           for speed.
-        """
+        '''
+        Convenience function to make the object callable.  Also 'memoized'
+        for speed.
+        '''
         return self.__basis(xi, self.p, compute_derivatives=False)
 
     @memoize
     def d(self, xi):
-        """
-           Convenience function to compute derivate of basis functions.
-           'Memoized' for speed.
-        """
+        '''
+        Convenience function to compute derivate of basis functions.
+        'Memoized' for speed.
+        '''
         return self.__basis(xi, self.p, compute_derivatives=True)
 
     def plot(self):
-        """
-           Convenience function to plot basis functions over full
-           range of knots.
-        """
+        '''
+        Convenience function to plot basis functions over full
+        range of knots.
+        '''
 
         import matplotlib.pyplot as plt
 
@@ -152,10 +165,10 @@ class Bspline():
         return plt.show()
 
     def dplot(self):
-        """
-           Convenience function to plot derivatives of basis functions over
-           full range of knots.
-        """
+        '''
+        Convenience function to plot derivatives of basis functions over
+        full range of knots.
+        '''
 
         import matplotlib.pyplot as plt
 
@@ -174,18 +187,19 @@ class Bspline():
 
 
     def __diff_internal(self):
-        """Differentiate a B-spline once, and return the resulting coefficients and Bspline objects.
-This preserves the Bspline object nature of the data, enabling recursive implementation
-of higher-order differentiation (see `diff`).
-The value of the first derivative of `B` at a point `x` can be obtained as::
-    def diff1(B, x):
-        terms = B.__diff_internal()
-        return sum( ci*Bi(x) for ci,Bi in terms )
-Returns:
-    tuple of tuples, where each item is (coefficient, Bspline object).
-See:
-    `diff`: differentiation of any order >= 0
-"""
+        '''
+        Differentiate a B-spline once, and return the resulting coefficients and Bspline objects.
+        This preserves the Bspline object nature of the data, enabling recursive implementation
+        of higher-order differentiation (see `diff`).
+        The value of the first derivative of `B` at a point `x` can be obtained as::
+            def diff1(B, x):
+                terms = B.__diff_internal()
+                return sum( ci*Bi(x) for ci,Bi in terms )
+        Returns:
+            tuple of tuples, where each item is (coefficient, Bspline object).
+        See:
+            `diff`: differentiation of any order >= 0
+        '''
         assert self.p > 0, "order of Bspline must be > 0"  # we already handle the other case in diff()
 
         # https://www.cs.mtu.edu/~shene/COURSES/cs3621/NOTES/spline/B-spline/bspline-derv.html
@@ -208,13 +222,17 @@ See:
 
 
     def diff(self, order=1):
-        """Differentiate a B-spline `order` number of times.
-Parameters:
-    order:
-        int, >= 0
-Returns:
-    **lambda** `x`: ... that evaluates the `order`-th derivative of `B` at the point `x`.
-"""
+        '''
+        Differentiate a B-spline `order` number of times.
+
+        Kwargs:
+            * **order** (:py:class:`int`): 1
+                >= 0, order of differentiation
+
+        Returns:
+            * lambda `x`: ... that evaluates the \
+            `order`-th derivative of `B` at the point `x`.
+        '''
         order = int(order)
         if order < 0:
             raise ValueError("order must be >= 0, got %d" % (order))
@@ -245,26 +263,38 @@ Returns:
 
 
     def collmat(self, tau, deriv_order=0):
-        """Compute collocation matrix.
-Parameters:
-    tau:
-        Python list or rank-1 array, collocation sites
-    deriv_order:
-        int, >=0, order of derivative for which to compute the collocation matrix.
-        The default is 0, which means the function value itself.
-Returns:
-    A:
-        rank-2 array such that
-            A[i,j] = D**deriv_order B_j(tau[i])
-        where
-            D**k  = kth derivative (0 for function value itself)
-Example:
-    If the coefficients of a spline function are given in the vector c, then::
-        sum( A[i,:] * c[:] )
-    will give a rank-1 array of function values at the sites tau[i] that were supplied
-    to `collmat`.
-    Similarly for derivatives (if the supplied `deriv_order`> 0).
-"""
+        '''
+        Compute collocation matrix.
+
+        Args:
+            * **tau** (:py:class:`list` or rank-1 array):
+                Collocation sites
+            * **deriv_order** (:py:class:`int`):
+                >=0, order of derivative for which to compute the collocation matrix.
+                The default is 0, which means the function value itself.
+        
+        Returns:
+            * **A** (rank-2 array):
+                rank-2 array such that
+                
+                .. math::
+                    
+                    A_{ij} = D^k B_j(\\tau_i)
+                
+                where :math:`D^k` is the :math:`k^{th}` derivative (0 for function value itself)
+        
+        .. note::
+            If the coefficients of a spline function are given in the vector c, then
+
+            ::
+
+                sum( A[i,:] * c[:] )
+
+            will give a rank-1 array of function values at the sites **tau** that were supplied
+            to :func:`collmat`.
+            Similarly for derivatives (if the supplied **deriv_order**> 0).
+
+        '''
         # get number of basis functions and output dtype
         dummy = self.__call__(0.)
         nbasis = dummy.shape[0]
