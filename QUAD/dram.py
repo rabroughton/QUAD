@@ -117,10 +117,11 @@ def logf(y, x, BG, Calc, paramList, z, lower, upper, scale, tau_y, m0, sd0):
         * **BG** (:class:`~numpy.ndarray`): Vector of background intensity values - size (nx1).
         * **Calc** (:class:`~numpy.ndarray`): GSAS-II calculator operator WHAT IS THIS???
         * **paramList** (:py:class:`list`): List of parameter names for refinement. 
-        * **z**(:clas:`~numpy.ndarray`): Current parameter values in z-space. 
+        * **z**(:class:`~numpy.ndarray`): Current parameter values in z-space. 
         
 
     Returns:
+        * **posterior** (:py:class:`float`): Value of prior times likelihood distribution given current z-values.         
     '''  
     
     # Update the calculator to reflect the current parameter estimates
