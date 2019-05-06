@@ -97,7 +97,7 @@ def prior_loglike(par, m0, sd0):
     Args:
         * **par** (:class:`~numpy.ndarray`): Array of parameter values in z-space - size (qx1).
         * **m0** (:py:class:`float`): Mean of prior normal distribution on z. Default is 0. 
-        * **sd0** (:py:class:`float`): Standard deviationn of prior normal distribution on z. Default is 1. 
+        * **sd0** (:py:class:`float`): Standard deviation of prior normal distribution on z. Default is 1. 
 
     Returns:
         * **prior** (:py:class:`float`): Value of prior distribution given current z-values. 
@@ -121,15 +121,13 @@ def logf(y, x, BG, Calc, paramList, z, lower, upper, scale, tau_y, m0, sd0):
         * **z**(:class:`~numpy.ndarray`): Current parameter values in z-space. 
         * **lower** (:class:`~numpy.ndarray`): Vector of uniform prior distribution lower limits in parameter space.
         * **upper** (:class:`~numpy.ndarray`): Vector of uniform prior distribution lower limits in parameter space.     
-        * **scale** (:py:class:`float`): Vector that scales with the intensity of data, heteroscedastic. 
-        See function :meth:`~initialize_intensity_weight`
+        * **scale** (:py:class:`float`): Vector that scales with the intensity of data, heteroscedastic. See function :meth:`~initialize_intensity_weight`
         * **tau_y** (:py:class:`float`): Model precision. Default initial valus is 1. 
         * **m0** (:py:class:`float`): Mean of prior normal distribution on z. Default is 0.       
-        * **sd0** (:py:class:`float`): Standard deviationn of prior normal distribution on z. Default is 1.
+        * **sd0** (:py:class:`float`): Standard deviation of prior normal distribution on z. Default is 1.
         
     Returns:
-        * **posterior** (:py:class:`float`): Value of the prior times likelihood  
-        given current z-space candidate values.         
+        * **posterior** (:py:class:`float`): Value of the prior times likelihood given current z-space candidate values.         
     '''  
     
     # Update the calculator to reflect the current parameter estimates
