@@ -97,7 +97,7 @@ def prior_loglike(par, m0, sd0):
     Args:
         * **par** (:class:`~numpy.ndarray`): Array of parameter values in z-space - size (qx1).
         * **m0** (:py:class:`float`): Mean of prior normal distribution on z. Default is 0. 
-        * **sd0** (:py:class:`float`):Standard deviationn of prior normal distribution on z. Default is 1. 
+        * **sd0** (:py:class:`float`): Standard deviationn of prior normal distribution on z. Default is 1. 
 
     Returns:
         * **prior** (:py:class:`float`): Value of prior distribution given current z-values. 
@@ -109,28 +109,35 @@ def prior_loglike(par, m0, sd0):
 # Log of the posterior distribution
 def logf(y, x, BG, Calc, paramList, z, lower, upper, scale, tau_y, m0, sd0):
     '''
-    Define the log of the posterior distribution with a log-likelihood of normal distributions and the prior as defined in prior_loglike.
+    Define the log of the posterior values with a log-likelihood of normal
+    distributions multiplied by the prior, as defined in prior_loglike.
 
     Args:
         * **y** (:class:`~numpy.ndarray`): Vector of diffraction pattern intensities - size (nx1).
         * **x** (:class:`~numpy.ndarray`): Vector of 2-theta values - size (nx1).
         * **BG** (:class:`~numpy.ndarray`): Vector of background intensity values - size (nx1).
-        * **Calc** (:class:`~numpy.ndarray`): GSAS-II calculator operator WHAT IS THIS???
+        * **Calc** (:class:`~numpy.ndarray`): GSAS-II calculator operator :code:`WHAT IS THIS`
         * **paramList** (:py:class:`list`): List of parameter names for refinement. 
         * **z**(:class:`~numpy.ndarray`): Current parameter values in z-space. 
+        * **lower** (:class:`~numpy.ndarray`): Vector of uniform prior distribution lower limits in parameter space.
+        * **upper** (:class:`~numpy.ndarray`): Vector of uniform prior distribution lower limits in parameter space.     
+        * **scale** (:py:class:`float`): Vector that scales with the intensity of data, heteroscedastic. 
+        See function :meth:`~initialize_intensity_weight`
+        * **tau_y** (:py:class:`float`): Model precision. Default initial valus is 1. 
+        * **m0** (:py:class:`float`): Mean of prior normal distribution on z. Default is 0.       
+        * **sd0** (:py:class:`float`): Standard deviationn of prior normal distribution on z. Default is 1.
         
-
     Returns:
-        * **posterior** (:py:class:`float`): Value of prior times likelihood distribution given current z-values.         
+        * **posterior** (:py:class:`float`): Value of the prior times likelihood  
+        given current z-space candidate values.         
     '''  
     
     # Update the calculator to reflect the current parameter estimates
     params = z2par(z=z, lower=lower, upper=upper)
     Calc.UpdateParameters(dict(zip(paramList, params)))
-    # Calculate the potential energy
     R = y-BG-Calc.Calculate()                         # Calculate residuals
     S = np.inner(R/np.sqrt(scale), R/np.sqrt(scale))  # Calculate weighted SSE
-    l = 0.5*tau_y*S - prior_loglike(par=z, m0=m0, sd0=sd0)
+    l = 0.5*tau_y*S - prior_loglike(par=z, m0=m0, sd0=sd0) # Add log-prior and log-likelihood values
     return (-1)*l
 
 def calculate_bsplinebasis(x,L):
