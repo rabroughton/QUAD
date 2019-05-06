@@ -117,10 +117,10 @@ def logf(y, x, BG, Calc, paramList, z, lower, upper, scale, tau_y, m0, sd0):
         * **x** (:class:`~numpy.ndarray`): Vector of 2-theta values - size (nx1).
         * **BG** (:class:`~numpy.ndarray`): Vector of background intensity values - size (nx1).
         * **Calc** (:class:`~numpy.ndarray`): GSAS-II calculator operator :code:`WHAT IS THIS`
-        * **paramList** (:py:class:`list`): List of parameter names for refinement. 
-        * **z**(:class:`~numpy.ndarray`): Current parameter values in z-space. 
-        * **lower** (:class:`~numpy.ndarray`): Vector of uniform prior distribution lower limits in parameter space.
-        * **upper** (:class:`~numpy.ndarray`): Vector of uniform prior distribution lower limits in parameter space.     
+        * **paramList** (:py:class:`list`): List of parameter names for refinement - size (qx1). 
+        * **z**(:class:`~numpy.ndarray`): Current parameter values in z-space - size (qx1). 
+        * **lower** (:class:`~numpy.ndarray`): Vector of uniform prior distribution lower limits in parameter space - size (qx1).
+        * **upper** (:class:`~numpy.ndarray`): Vector of uniform prior distribution lower limits in parameter space - size (qx1).     
         * **scale** (:py:class:`float`): Vector that scales with the intensity of data, heteroscedastic. See function :meth:`~initialize_intensity_weight`
         * **tau_y** (:py:class:`float`): Model precision. Default initial valus is 1. 
         * **m0** (:py:class:`float`): Mean of prior normal distribution on z. Default is 0.       
@@ -161,6 +161,17 @@ def diffraction_file_data(x,y,Calc):
     return x,y
 
 def smooth_ydata(x,y):
+    '''
+    Smooth diffraction data intensities at 2-theta values with lowess function. 
+    :code:`How to refer to lowess?`
+
+    Args:
+        * **y** (:class:`~numpy.ndarray`): Vector of diffraction pattern intensities - size (nx1).
+        * **x** (:class:`~numpy.ndarray`): Vector of 2-theta values from diffraction pattern- size (nx1).
+
+    Returns:
+        * **y_sm** (:class:`~numpy.ndarray`): Vector of smoothed intensity data - size (nx1).
+    ''' 
     # Smooth the observed Ys on the Xs, patch for negative or 0 values
     y_sm = lowess(endog=y, exog=x, frac=6.0/len(x), return_sorted=False)
     y_sm = np.array([max(0, sm) for sm in y_sm])
@@ -272,6 +283,21 @@ def _check_parameter_initialization(paramList, init_z):
         raise ValueError("Initial value specification for Z is not valid.")
         
 def initialize_intensity_weight(x, y, scaling_factor=1 ):
+    '''
+    Define a heteroscedastic vector to scale the residuals between the model 
+    and the data with the intensity of the smoothed data. 
+
+    Args:
+        * **y** (:class:`~numpy.ndarray`): Vector of diffraction pattern intensities - size (nx1).
+        * **x** (:class:`~numpy.ndarray`): Vector of 2-theta values from diffraction pattern- size (nx1).
+        * **scaling factor** (:py:class:`float`): Default is 1. 
+
+    Attributes:
+        * :meth:`smooth_ydata`
+
+    Returns:
+        * **var_scale** (:class:`~numpy.ndarray`): Vector of scaling factors corresponding to intensity data- size (nx1).
+    '''    
     y_sm = smooth_ydata(x=x,y=y)
     scaling_factor = 1                                          # Contribution of y_sm
     var_scale = scaling_factor*y_sm + 1                        # Scale for y_sm/tau_y
