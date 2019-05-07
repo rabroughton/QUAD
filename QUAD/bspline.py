@@ -1,11 +1,11 @@
 # -*- coding: utf-8 -*-
 '''
 Python/Numpy implementation of Bspline basis functions
- via Cox - de Boor algorithm.
+via Cox - de Boor algorithm.
 
-Saved from:
-https://github.com/johntfoster/bspline/blob/master/bspline.py
-on 5-31-17
+Saved (5-31-17):
+    * https://github.com/johntfoster/bspline/blob/master/bspline.py
+
 '''
 from __future__ import division
 from functools import partial

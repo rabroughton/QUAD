@@ -4,17 +4,17 @@ Utility functions for B-splines, potentially useful for converting
 MATLAB codes to Python.
 
 CAVEATS:
-* Only a very minimal set of functionality is implemented here.
-* Some technical details differ from the MATLAB equivalents.
+    * Only a very minimal set of functionality is implemented here.
+    * Some technical details differ from the MATLAB equivalents.
 
 Particularly, we use spline order `p` **as-is** instead of
 MATLAB's `k` parameter (`k` = `p` + 1) in the function parameters.
 Created on Fri Mar 24 13:52:37 2017
 @author: Juha Jeronen, juha.jeronen@tut.fi
 
-Copied from
-https://github.com/johntfoster/bspline/blob/master/splinelab.py
-on 5-31-2017
+Copied (5-31-2017):
+    * https://github.com/johntfoster/bspline/blob/master/splinelab.py
+
 '''
 from __future__ import division
 import numpy as np
