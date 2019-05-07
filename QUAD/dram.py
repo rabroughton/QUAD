@@ -1,16 +1,15 @@
 # -*- coding: utf-8 -*-
 '''
-Created on Wed Feb 13 13:41:34 2019
-###############################################################################
 Quantitative Uncertainty Analysis for Diffraction (QUAD)
-###############################################################################
-Description: This is a research tool that allows analysis of X-ray and neutron
+========================================================
+
+This is a research tool that allows analysis of X-ray and neutron
 diffraction data to infer the structure of materials with quantifiable 
 uncertainty. QUAD uses Bayesian statistics and Markov chain sampling 
 algorithms, together with components from the open source GSAS-II package, 
 to create posterior probability distributions on all material structure 
 parameters modeled by researchers. 
-###############################################################################
+
 Copyright (c) 2018, North Carolina State University
 All rights reserved.
 Redistribution and use in source and binary forms, with or without 
@@ -35,19 +34,18 @@ SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER
 CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, 
 OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE 
 OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
-###############################################################################
-Authors: Susheela Singh, Christopher M. Fancher, Alyson Wilson, Brian Reich, 
+
+**Authors:** Susheela Singh, Christopher M. Fancher, Alyson Wilson, Brian Reich, 
 Zhen Han, Ralph C. Smith, and Jacob L. Jones
-License File: license_QUAD.txt
-## Funding:  NSF: DMR-1445926 (RADAR Project ID 2014-2831)
-Consortium for Nonproliferation Enabling Capabilities 
-[Department of Energy, National Nuclear Security Administration]:  
-DE-NA0002576 (RADAR Project ID 2014-0501)
-Acknowledgement: This product includes software produced by UChicago Argonne, LLC 
+
+**Funding:**
+  * NSF: DMR-1445926 (RADAR Project ID 2014-2831)
+  * Consortium for Nonproliferation Enabling Capabilities 
+    [Department of Energy, National Nuclear Security Administration]:
+    DE-NA0002576 (RADAR Project ID 2014-0501)
+
+**Acknowledgement:** This product includes software produced by UChicago Argonne, LLC 
 under Contract No. DE-AC02-06CH11357 with the Department of Energy.
-Version: 1.0.0
-Maintainer: Jacob L. Jones
-Email: JacobJones@ncsu.edu 
 ###############################################################################
 '''
 # Import specific functions
@@ -107,7 +105,7 @@ def logf(y, x, BG, Calc, paramList, z, lower, upper, scale, tau_y, m0, sd0):
         * **BG** (:class:`~numpy.ndarray`): Vector of background intensity values - size (nx1).
         * **Calc** (:class:`~numpy.ndarray`): GSAS-II calculator operator :code:`WHAT IS THIS`
         * **paramList** (:py:class:`list`): List of parameter names for refinement - size (qx1). 
-        * **z**(:class:`~numpy.ndarray`): Current parameter values in z-space - size (qx1). 
+        * **z** (:class:`~numpy.ndarray`): Current parameter values in z-space - size (qx1). 
         * **lower** (:class:`~numpy.ndarray`): Vector of uniform prior distribution 
           lower limits in parameter space - size (qx1).
         * **upper** (:class:`~numpy.ndarray`): Vector of uniform prior distribution 
