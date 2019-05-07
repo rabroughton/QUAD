@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-"""
+'''
 Created on Wed Feb 13 13:41:34 2019
 ###############################################################################
 Quantitative Uncertainty Analysis for Diffraction (QUAD)
@@ -49,29 +49,20 @@ Version: 1.0.0
 Maintainer: Jacob L. Jones
 Email: JacobJones@ncsu.edu 
 ###############################################################################
-"""
-
-from __future__ import division  # Use "real" division
-
-# Add another filepath to the Python path
-import sys
-sys.path.insert(1, r'C:\Users\Rachel\g2conda\GSASII')
-sys.path.insert(2, r'C:\Users\Rachel\g2conda\GSASII\bindist')
-
+'''
 # Import specific functions
+from __future__ import division  # Use "real" division
 from timeit import default_timer as timer  # Timing function
-from scipy.stats import norm               # Normal distribution
+from scipy.stats import norm  # Normal distribution
 from scipy.stats import multivariate_normal as mvnorm  # Multivariate normal distribution
-import statsmodels.api as sm               # Library for lowess smoother
-lowess = sm.nonparametric.lowess           # Lowess smoothing function
-from bspline import Bspline                # Bspline function
-from bspline.splinelab import augknt               # Bspline helper function
-
-# Import entire modules
+import statsmodels.api as sm  # Library for lowess smoother
+lowess = sm.nonparametric.lowess  # Lowess smoothing function
+from bspline import Bspline  # Bspline function
+from bspline.splinelab import augknt  # Bspline helper function
+from .gsas_tools import Calculator as gsas_calculator
+# Import modules
 import numpy as np
 import matplotlib.pyplot as plt
-
-from .gsas_tools import Calculator as gsas_calculator
 
 ## Helper functions
 # Transform between bounded parameter space and continuous space
