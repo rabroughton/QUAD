@@ -14,6 +14,7 @@
 #
 import os
 import sys
+import re
 sys.path.insert(0, os.path.abspath(os.path.join('..','..')))
 
 
@@ -24,10 +25,22 @@ copyright = '2019, Rachel Broughton'
 author = 'Rachel Broughton'
 
 # The short X.Y version
-version = ''
-# The full version, including alpha/beta/rc tags
-release = ''
+def get_version():
+    VERSIONFILE = os.path.join('..', '..', 'QUAD', '__init__.py')
+    with open(VERSIONFILE, 'rt') as f:
+        lines = f.readlines()
+    vgx = '^__version__ = \"\d+\.\d+\.\d.*\"'
+    for line in lines:
+        mo = re.search(vgx, line, re.M)
+        if mo:
+            return mo.group().split('"')[1]
+    raise RuntimeError('Unable to find version in %s.' % (VERSIONFILE,))
 
+# The full version, including alpha/beta/rc tags
+release = get_version()
+# The short X.Y version
+tmp = release.split('.')
+version = str('{}.{}'.format(tmp[0], tmp[1]))
 
 # -- General configuration ---------------------------------------------------
 
