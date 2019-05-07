@@ -64,8 +64,8 @@ from scipy.stats import norm               # Normal distribution
 from scipy.stats import multivariate_normal as mvnorm  # Multivariate normal distribution
 import statsmodels.api as sm               # Library for lowess smoother
 lowess = sm.nonparametric.lowess           # Lowess smoothing function
-from .bspline import Bspline                # Bspline function
-from .splinelab import augknt               # Bspline helper function
+from bspline import Bspline                # Bspline function
+from bspline.splinelab import augknt               # Bspline helper function
 
 # Import entire modules
 import numpy as np
@@ -117,15 +117,19 @@ def logf(y, x, BG, Calc, paramList, z, lower, upper, scale, tau_y, m0, sd0):
         * **Calc** (:class:`~numpy.ndarray`): GSAS-II calculator operator :code:`WHAT IS THIS`
         * **paramList** (:py:class:`list`): List of parameter names for refinement - size (qx1). 
         * **z**(:class:`~numpy.ndarray`): Current parameter values in z-space - size (qx1). 
-        * **lower** (:class:`~numpy.ndarray`): Vector of uniform prior distribution lower limits in parameter space - size (qx1).
-        * **upper** (:class:`~numpy.ndarray`): Vector of uniform prior distribution lower limits in parameter space - size (qx1).     
-        * **scale** (:py:class:`float`): Vector that scales with the intensity of data, heteroscedastic. See function :meth:`~initialize_intensity_weight`
+        * **lower** (:class:`~numpy.ndarray`): Vector of uniform prior distribution 
+          lower limits in parameter space - size (qx1).
+        * **upper** (:class:`~numpy.ndarray`): Vector of uniform prior distribution 
+          upper limits in parameter space - size (qx1).     
+        * **scale** (:py:class:`float`): Vector that scales with the intensity of data, heteroscedastic. 
+          See function :meth:`~initialize_intensity_weight`
         * **tau_y** (:py:class:`float`): Model precision. Default initial valus is 1.
         * **m0** (:py:class:`float`): Mean of prior normal distribution on z. Default is 0.
         * **sd0** (:py:class:`float`): Standard deviation of prior normal distribution on z. Default is 1.
         
     Returns:
-        * **posterior** (:py:class:`float`): Value of the prior times likelihood given current z-space candidate values.
+        * **posterior** (:py:class:`float`): Value of the prior times likelihood given current 
+          z-space candidate values.
 
     '''  
     
@@ -161,8 +165,8 @@ def diffraction_file_data(x,y,Calc):
 
 def smooth_ydata(x,y):
     '''
-    Smooth diffraction data intensities at 2-theta values with lowess function. 
-    :code:`How to refer to lowess?`
+    Smooth diffraction data intensities at 2-theta values with
+    :class:`~statsmodels.api.nonparametric.lowess` function. 
 
     Args:
         * **y** (:class:`~numpy.ndarray`): Vector of diffraction pattern intensities - size (nx1).
