@@ -1,15 +1,20 @@
 # -*- coding: utf-8 -*-
 '''
-Utility functions for B-splines, potentially useful for converting MATLAB codes to Python.
+Utility functions for B-splines, potentially useful for converting
+MATLAB codes to Python.
+
 CAVEATS:
 * Only a very minimal set of functionality is implemented here.
 * Some technical details differ from the MATLAB equivalents.
-Particularly, we use spline order `p` **as-is** instead of MATLAB's `k` parameter (`k` = `p` + 1)
-in the function parameters.
+
+Particularly, we use spline order `p` **as-is** instead of
+MATLAB's `k` parameter (`k` = `p` + 1) in the function parameters.
 Created on Fri Mar 24 13:52:37 2017
 @author: Juha Jeronen, juha.jeronen@tut.fi
 
-Copied from https://github.com/johntfoster/bspline/blob/master/splinelab.py on 5-31-2017
+Copied from
+    https://github.com/johntfoster/bspline/blob/master/splinelab.py
+on 5-31-2017
 '''
 from __future__ import division
 import numpy as np
@@ -36,19 +41,20 @@ def augknt(knots, order):
         and existing knots are never deleted.
         The knot vector always becomes longer by calling this function.
     '''
-    if isinstance(knots, np.ndarray)  and  knots.ndim > 1:
+    if isinstance(knots, np.ndarray) and knots.ndim > 1:
         raise ValueError("knots must be a list or a rank-1 array")
     knots = list(knots)  # ensure Python list
 
     # One copy of knots[0] and knots[-1] will come from "knots" itself,
     # so we only need to prepend/append "order" copies.
     #
-    return np.array( [knots[0]] * order  +  knots  +  [knots[-1]] * order )
+    return np.array([knots[0]] * order + knots + [knots[-1]] * order)
 
 
 def aveknt(t, k):
     '''
-    Compute the running average of `k` successive elements of `t`. Return the averaged array.
+    Compute the running average of `k` successive elements of `t`.
+    Return the averaged array.
 
     Args:
         * **t** (:py:class:`list` or rank-1 array):
@@ -57,7 +63,8 @@ def aveknt(t, k):
             >= 2, how many successive elements to average
 
     Returns:
-        rank-1 array, averaged data. If k > len(t), returns a zero-length array.
+        rank-1 array, averaged data. If k > len(t),
+        returns a zero-length array.
 
     .. note::
         This is slightly different from MATLAB's aveknt, which returns the\
@@ -70,12 +77,12 @@ def aveknt(t, k):
         raise ValueError("t must be a list or a rank-1 array")
 
     n = t.shape[0]
-    u = max(0, n - (k-1))  # number of elements in the output array
-    out = np.empty( (u,), dtype=t.dtype )
+    # number of elements in the output array
+    u = max(0, n - (k - 1))
+    out = np.empty((u,), dtype=t.dtype)
 
     for j in range(u):
-        out[j] = sum( t[j:(j+k)] ) / k
-
+        out[j] = sum(t[j:(j + k)]) / k
     return out
 
 
@@ -98,11 +105,13 @@ def aptknt(tau, order):
             >= 0, order of spline
 
     Returns:
-        rank-1 array, `k` copies of ``tau[0]``, then ``aveknt(tau[1:-1], k-1)``,
-        and finally `k` copies of ``tau[-1]``, where ``k = min(order+1, len(tau))``.
+        rank-1 array, `k` copies of ``tau[0]``,
+        then ``aveknt(tau[1:-1], k-1)``,
+        and finally `k` copies of ``tau[-1]``,
+        where ``k = min(order+1, len(tau))``.
     '''
     tau = np.atleast_1d(tau)
-    k   = order + 1
+    k = order + 1
 
     if tau.ndim > 1:
         raise ValueError("tau must be a list or a rank-1 array")
@@ -125,22 +134,22 @@ def aptknt(tau, order):
     #
     u = len(tau) - k
     for i in range(u):
-        if tau[i+k-1] == tau[i]:
-            raise ValueError("k-fold (or higher) repeated sites not allowed, but tau[i+k-1] == tau[i] for i = %d, k = %d" % (i,k))
-
+        if tau[i + k - 1] == tau[i]:
+            raise ValueError("k-fold (or higher) repeated sites not allowed,"
+                             + "but tau[i+k-1] == tau[i] "
+                             + "for i = %d, k = %d" % (i, k))
     # form the output sequence
     #
-    prefix = [ tau[0]  ] * k
-    suffix = [ tau[-1] ] * k
-
+    prefix = [tau[0]] * k
+    suffix = [tau[-1]] * k
     # https://se.mathworks.com/help/curvefit/aveknt.html
     # MATLAB's aveknt():
     #  - averages successive k-1 entries, but ours averages k
     #  - seems to ignore the endpoints
     #
-    tmp    = aveknt(tau[1:-1], k-1)
+    tmp = aveknt(tau[1:-1], k - 1)
     middle = tmp.tolist()
-    return np.array( prefix + middle + suffix, dtype=tmp.dtype )
+    return np.array(prefix + middle + suffix, dtype=tmp.dtype)
 
 
 def knt2mlt(t):
@@ -160,15 +169,15 @@ def knt2mlt(t):
 
     Example:
     If
-    
+
     ::
 
         t = [1, 1, 2, 3, 3, 3]
-    
+
     then
-    
+
     ::
-        
+
         out = [0, 1, 0, 0, 1, 2]
 
     .. note::
@@ -178,17 +187,16 @@ def knt2mlt(t):
     if t.ndim > 1:
         raise ValueError("t must be a list or a rank-1 array")
 
-    out   = []
-    e     = None
+    out = []
+    e = None
     for k in range(t.shape[0]):
         if t[k] != e:
-            e     = t[k]
+            e = t[k]
             count = 0
         else:
             count += 1
         out.append(count)
-
-    return np.array( out )
+    return np.array(out)
 
 
 def spcol(knots, order, tau):
@@ -199,7 +207,8 @@ def spcol(knots, order, tau):
 
     Args:
         * **knots** (rank-1 array):
-            knot vector (with appropriately repeated endpoints; see `augknt`, `aptknt`)
+            knot vector (with appropriately repeated endpoints;
+            see `augknt`, `aptknt`)
         * **order** (:py:class:`int`):
             >= 0, order of spline
         * **tau** (rank-1 array):
@@ -209,22 +218,21 @@ def spcol(knots, order, tau):
         rank-2 array A such that
 
         .. math::
-            
+
             A[i,j] = D^{m(i)} B_j(\\tau[i])
 
         where :math:`m(i)` is the multiplicity of site :math:`\\tau[i]` \
-        and :math:`D^k` is the :math:`k^{th}` derivative (0 for function value itself)
+        and :math:`D^k` is the :math:`k^{th}` derivative
+        (0 for function value itself)
     '''
     m = knt2mlt(tau)
     B = Bspline(knots, order)
-
     dummy = B(0.)
-    nbasis = len(dummy)  # perform dummy evaluation to get number of basis functions
-
-    A = np.empty( (tau.shape[0], nbasis), dtype=dummy.dtype )
-    for i,item in enumerate(zip(tau,m)):
-        taui,mi = item
-        f       = B.diff(order=mi)
-        A[i,:]  = f(taui)
-
+    # perform dummy evaluation to get number of basis functions
+    nbasis = len(dummy)
+    A = np.empty((tau.shape[0], nbasis), dtype=dummy.dtype)
+    for i, item in enumerate(zip(tau, m)):
+        taui, mi = item
+        f = B.diff(order=mi)
+        A[i, :] = f(taui)
     return A
