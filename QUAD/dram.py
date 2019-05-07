@@ -71,8 +71,7 @@ from .splinelab import augknt               # Bspline helper function
 import numpy as np
 import matplotlib.pyplot as plt
 
-# Source mean function process from GSAS_Calculator_Opt.py
-import gsas_tools as gsas
+from .gsas_tools import Calculator as gsas_calculator
 
 ## Helper functions
 # Transform between bounded parameter space and continuous space
@@ -394,7 +393,7 @@ def nlDRAM(GPXfile, paramList, variables, init_z, lower, upper, initCov=None,
 
     '''
     # Initialize the calculator based on the provided GPX file
-    Calc = gsas.Calculator(GPXfile=GPXfile)
+    Calc = gsas_calculator(GPXfile=GPXfile)
     Calc._varyList = variables
     # Set the scaling parameter
     s_p = ((2.4**2)/len(paramList))
