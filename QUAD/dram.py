@@ -121,12 +121,13 @@ def logf(y, x, BG, Calc, paramList, z, lower, upper, scale, tau_y, m0, sd0):
         * **lower** (:class:`~numpy.ndarray`): Vector of uniform prior distribution lower limits in parameter space - size (qx1).
         * **upper** (:class:`~numpy.ndarray`): Vector of uniform prior distribution lower limits in parameter space - size (qx1).     
         * **scale** (:py:class:`float`): Vector that scales with the intensity of data, heteroscedastic. See function :meth:`~initialize_intensity_weight`
-        * **tau_y** (:py:class:`float`): Model precision. Default initial valus is 1. 
-        * **m0** (:py:class:`float`): Mean of prior normal distribution on z. Default is 0.       
+        * **tau_y** (:py:class:`float`): Model precision. Default initial valus is 1.
+        * **m0** (:py:class:`float`): Mean of prior normal distribution on z. Default is 0.
         * **sd0** (:py:class:`float`): Standard deviation of prior normal distribution on z. Default is 1.
         
     Returns:
-        * **posterior** (:py:class:`float`): Value of the prior times likelihood given current z-space candidate values.         
+        * **posterior** (:py:class:`float`): Value of the prior times likelihood given current z-space candidate values.
+
     '''  
     
     # Update the calculator to reflect the current parameter estimates
@@ -308,116 +309,133 @@ def nlDRAM(GPXfile, paramList, variables, init_z, lower, upper, initCov=None,
            y=None, x=None, L=20, shrinkage=0.2, s_p=(2.4**2), epsilon=1e-4,
            m0=0, sd0=1, c_y=0.1, d_y=0.1, c_g=0.1, d_g=0.1, c_b=0.1, d_b=0.1,
            adapt=20, thin=1, iters=5000, burn=2000, update=500, plot=True, fix=False):
-    # Args:
-    #   GPXfile - string, filepath for the GPX file underlying the current data
-    #   paramList - (q x 1) list of GSASII parameter names in the same order as
-    #               the upper and lower limits being provided
-    #   init_z - (q x 1) vector of initial values in the z-space
-    #   lower - (q x 1) vector of lower bounds for the parameter values
-    #   upper - (q x 1) vector of upper bounds for the parameter values
-    #   initCov - (q x q) matrix to be used as the covariance matrix for the
-    #             proposal distribution, default value is None.  If there is no
-    #             matrix specified, the function will use a diagonal matrix with
-    #             0.05 on the diagonal
-    #   y - (n x 1) vector of intensities, default value is None. If no values
-    #       are specified, the function uses the values from the provided GPX
-    #       file
-    #   x - (n x 1) vector of angles (2*theta), default value is None. If no
-    #       values are specified, the function uses the values from the provided
-    #       GPX file
-    #   L - scalar, number of B-spline basis functions to model the background
-    #       intensity, default is 20
-    #   shrinkage - scalar, governs covariance change between proposal stages,
-    #               default is 0.2
-    #   s_p - scalar, scaling parameter for the adaptive covariance, default is
-    #         set to (2.4**2)/d as in Gelman (1995), where d is the dimension of
-    #         the parameter space
-    #   epsilon - scalar, ridge constant to prevent singularity of the adaptive
-    #             covariance, default is 0.0001
-    #   m0, sd0 - scalars, govern the prior distribution on the latent Zs,
-    #             default is a standard normal distribution
-    #   c_y, d_y - scalars, govern the prior Gamma distribution for the error
-    #              variance, default value is 0.1 for both
-    #   c_g, d_g - scalars, govern the prior Gamma distribution for the error
-    #              in the prior distribution for the basis function loadings,
-    #   c_b, d_b - scalars, govern the prior Gamma distribution for scale of
-    #              the proportional contribution to the error variance, default
-    #              value is 0.1 for both
-    #   adapt - scalar, controls the adaptation period, default is 20
-    #   thin - scalar, degree of thinning, default is 1
-    #   iters - scalar, number of total iterations to run, default is 5000
-    #   burn - scalar, number of samples to consider as burn-in, default is 2000
-    #   update - scalar, period between updates printed to the console, default
-    #            is 500
-    #   plot - boolean, indicator for whether or not to create trace plots as
-    #          the sampler progresses, default is True
-    #
-    # Returns: 5-tuple containing the posterior samples for the parameters and
-    #          the model timing, tuple entries are
-    #            1 - (nSamples x q) matrix of posterior samples for the mean
-    #                process parameters of interest
-    #            2 - (nSamples x 1) vector of posterior samples for the constant
-    #                factor on the smoothed observations in the proportional
-    #                variance
-    #            3 - (nSamples x 1) vector of posterior samples for the overall
-    #                variance / temperature
-    #            4 - (nSamples x L) matrix of posterior samples for the basis
-    #                function loadings modeling the background intensity
-    #            5 - scalar, number of minutes the sampler took to complete
+    '''
+    Args:
+        * **GPXfile** (:py:class:`str`):
+          Filepath for the GPX file underlying the current data
+        * **paramList** (:py:class:`list`):
+          (q x 1) list of GSASII parameter names in the same order
+          as the upper and lower limits being provided
+        * **init_z** (:class:`~numpy.ndarray`):
+          (q x 1) vector of initial values in the z-space
+        * **lower** (:class:`~numpy.ndarray`):
+          (q x 1) vector of lower bounds for the parameter values
+        * **upper** (:class:`~numpy.ndarray`):
+          (q x 1) vector of upper bounds for the parameter values
 
+    Kwargs:
+        * **initCov** (:class:`~numpy.ndarray`) - `None`: (q x q) matrix to
+          be used as the covariance matrix for the
+          proposal distribution, default value is None.  If there is no
+          matrix specified, the function will use a diagonal matrix with
+          0.05 on the diagonal
+        * **y** (:class:`~numpy.ndarray`) - `None`:
+          (n x 1) vector of intensities. If no values
+          are specified, the function uses the values from the provided GPX
+          file
+        * **x** (:class:`~numpy.ndarray`) - `None`:
+          (n x 1) vector of angles (2*theta). If no
+          values are specified, the function uses the values from the provided
+          GPX file
+        * **L** (:py:class:`float`) - `20`:
+          number of B-spline basis functions to
+          model the background intensity.
+        * **shrinkage** (:py:class:`float`) - `0.2`:
+          Governs covariance change between proposal stages,
+          default is 0.2
+        * **s_p** (:py:class:`float`): `2.4**2/d`
+          Scaling parameter for the adaptive covariance, default is
+          set to (2.4**2)/d as in Gelman (1995), where d is the dimension of
+          the parameter space
+        * **epsilon** (:py:class:`float`) - `0.0001`:
+          Ridge constant to prevent singularity of the adaptive
+          covariance.
+        * **m0** (:py:class:`float`) - `0`: Governs the mean value on the latent
+          Zs.
+        * **sd0** (:py:class:`float`) - `1`: Governs the standard deviation
+          on the latent Zs
+        * **c_y** (:py:class:`float`) - 0.1: Shape parameter for Gamma distribution
+          of the error variance.
+        * **d_y** (:py:class:`float`) - 0.1: Scale parameter for Gamma distribution
+          of the error variance.
+        * **c_g** (:py:class:`float`) - 0.1: Shape parameter for Gamma distribution
+          for the error in the prior distribution for the basis function loadings.
+        * **d_g** (:py:class:`float`) - 0.1: Scale parameter for Gamma distribution
+          for the error in the prior distribution for the basis function loadings.
+        * **c_b** (:py:class:`float`) - 0.1: Shape parameter for Gamma distribution
+          for scale of the proportional constribution to the error variance.
+        * **d_b** (:py:class:`float`) - 0.1: Scale parameter for Gamma distribution
+          for scale of the proportional constribution to the error variance.  
+        * **adapt** (:py:class:`float`): `20`
+          Controls the adaptation period.
+        * **thin** (:py:class:`float`) - `1`: Degree of thinning.
+        * **iters** (:py:class:`float`) - `5000`: Number of total iterations to run.
+        * **burn** (:py:class:`float`) - `2000`: Number of samples to consider
+          as burn-in.
+        * **update** (:py:class:`float`) - `500`: Period between updates
+          printed to the console.
+        * **plot** (:py:class:`bool`) - `True`: Indicator for whether or not to
+          create trace plots as the sampler progresses.
+
+    Returns:
+        * 5-tuple containing the posterior samples for the parameters and
+          the model timing, tuple entries are
+
+        #. (:class:`~numpy.ndarray`): Matrix of posterior samples for the mean
+           process parameters of interest - (nSamples x q)
+        #. (:class:`~numpy.ndarray`): Vector of posterior samples for the constant
+           factor on the smoothed observations in the proportional
+           variance - (nSamples x 1)
+        #. (:class:`~numpy.ndarray`): Vector of posterior samples for the overall
+           variance / temperature - (nSamples x 1)
+        #. (:class:`~numpy.ndarray`): Matrix of posterior samples for the basis
+           function loadings modeling the background intensity - (nSamples x L)
+        #. (:py:class:`float`): Number of minutes the sampler took to complete
+
+    '''
     # Initialize the calculator based on the provided GPX file
     Calc = gsas.Calculator(GPXfile=GPXfile)
     Calc._varyList = variables
-    
     # Set the scaling parameter
     s_p = ((2.4**2)/len(paramList))
-    
-    # Assign the intensity vector (y) and 2-theta angles (x) from the GPX file if no values are provided
-    x,y = diffraction_file_data(x=x,y=y,Calc=Calc)
-    
+    # Assign the intensity vector (y) and 2-theta angles (x) from 
+    # the GPX file if no values are provided
+    x, y = diffraction_file_data(x=x, y=y, Calc=Calc)
     # Calculate a B-spline basis for the range of x
-    B = calculate_bsplinebasis(x=x,L=L)
-
+    B = calculate_bsplinebasis(x=x, L=L)
     # Save dimensions
     n = len(y)       # Number of observations
     q = len(init_z)  # Number of parameters of interest
-
     # Smooth the observed Ys on the Xs with lowess
-    var_scale = initialize_intensity_weight(x=x, y=y)
-    
+    var_scale = initialize_intensity_weight(x=x, y=y)    
     _check_parameter_specification(Calc=Calc, paramList=paramList)
-
     _check_parameter_initialization(paramList=paramList, init_z=init_z)
-
     # Initialize parameter values
-    z = np.array(init_z, copy=True)                     # Latent process
-    params = z2par(z=init_z, lower=lower, upper=upper)  # Parameters of interest
-    tau_y = 1                                           # Error variance for Y
-    gamma = np.ones(L)                                  # Loadings
-    tau_b = 1                                           # Variance for loadings
-    BG = np.matmul(B, gamma)                            # Background intensity
-    Calc.UpdateParameters(dict(zip(paramList, params))) # Calculator
-
+    z = np.array(init_z, copy=True)                      # Latent process
+    params = z2par(z=init_z, lower=lower, upper=upper)   # Parameters of interest
+    tau_y = 1                                            # Error variance for Y
+    gamma = np.ones(L)                                   # Loadings
+    tau_b = 1                                            # Variance for loadings
+    BG = np.matmul(B, gamma)                             # Background intensity
+    Calc.UpdateParameters(dict(zip(paramList, params)))  # Calculator
     # Initialize covariance for proposal distribution
     varS1 = initialize_cov(initCov=initCov, q=q)
-
     # Set up counters for the parameters of interest
-    attempt_S1 = attempt_S2 = accept_S1 = accept_S2 = 0  # Attempts / acceptances counters
-
+    # Attempts / acceptances counters
+    attempt_S1 = attempt_S2 = accept_S1 = accept_S2 = 0
     # Calculate the number of thinned samples to keep
-    n_keep = np.floor_divide(iters-burn-1, thin) + 1
+    n_keep = np.floor_divide(iters - burn - 1, thin) + 1
     curr_keep = 0
-
     # Initialize output objects
-    (all_Z, keep_params, keep_gamma, keep_b, keep_tau_y, keep_tau_b, accept_rate_S1,
-     accept_rate_S2) = initialize_output(iters=iters, q=q, n_keep=n_keep, L=L, update=update)
-    
+    (all_Z, keep_params, keep_gamma, keep_b, keep_tau_y, keep_tau_b,
+     accept_rate_S1, accept_rate_S2) = initialize_output(
+             iters=iters, q=q, n_keep=n_keep, L=L, update=update)
+   
     tick = timer()
     for i in range(iters):
-        
         ## Update basis function loadings and then background values
-        gamma,BG = update_background(B,var_scale,tau_y,tau_b,L,Calc,y)
-
+        gamma, BG = update_background(B, var_scale, tau_y,
+                                      tau_b, L, Calc, y)
         ## Update mean process parameters using 2-stage DRAM
         attempt_S1 += 1
         # Stage 1:
@@ -437,9 +455,19 @@ def nlDRAM(GPXfile, paramList, variables, init_z, lower, upper, initCov=None,
             can_z2 = np.random.multivariate_normal(mean=z, cov=shrinkage*varS1)
             # Accept or reject the candidate
             if np.sum(np.abs(can_z2) > 3)==0: # Ensures significant distance away from the bounds
-                can2_post = logf(y=y, x=x, BG=BG, Calc=Calc, paramList=paramList, z=can_z2, lower=lower, upper=upper, scale=var_scale, tau_y=tau_y, m0=m0, sd0=sd0)
+                can2_post = logf(
+                        y=y, x=x, BG=BG, Calc=Calc,
+                        paramList=paramList, z=can_z2,
+                        lower=lower, upper=upper, scale=var_scale,
+                        tau_y=tau_y, m0=m0, sd0=sd0)
                 # Calculate the acceptance probability
-                R2 = stage2_acceptprob(can1_post=can1_post,can2_post=can2_post,cur_post=cur_post,can_z1=can_z1,can_z2=can_z2,z=z,varS1=varS1)
+                R2 = stage2_acceptprob(
+                        can1_post=can1_post,
+                        can2_post=can2_post,
+                        cur_post=cur_post,
+                        can_z1=can_z1,
+                        can_z2=can_z2,
+                        z=z,varS1=varS1)
                 if np.log(np.random.uniform()) < R2:
                     accept_S2 += 1
                     z = np.array(can_z2, copy=True)                # Update latent
@@ -450,16 +478,19 @@ def nlDRAM(GPXfile, paramList, variables, init_z, lower, upper, initCov=None,
                 del can_z2
         del can_z1, can1_post, cur_post, R1
         all_Z[i] = z
-
         ## Adapt the proposal distribution covariance matrix
-        varS1 = adapt_covariance(i=i,adapt=adapt,s_p=s_p,all_Z=all_Z,epsilon=epsilon,q=q,varS1=varS1)
-            
+        varS1 = adapt_covariance(
+                i=i, adapt=adapt, s_p=s_p, all_Z=all_Z,
+                epsilon=epsilon, q=q, varS1=varS1)
         ## Update tau_b
-        tau_b = update_taub(d_g=d_g,gamma=gamma,c_g=c_g,L=L)
-
+        tau_b = update_taub(d_g=d_g,
+                            gamma=gamma,
+                            c_g=c_g,
+                            L=L)
         ## Update tau_y
-        tau_y = update_tauy(y=y,BG=BG,Calc=Calc,var_scale=var_scale,d_y=d_y,c_y=c_y,n=n)
-
+        tau_y = update_tauy(
+                y=y, BG=BG, Calc=Calc,
+                var_scale=var_scale, d_y=d_y, c_y=c_y, n=n)
         ## Keep track of everything
         if i >= burn:
             # Store posterior draws if appropriate
@@ -470,17 +501,22 @@ def nlDRAM(GPXfile, paramList, variables, init_z, lower, upper, initCov=None,
                 keep_tau_y[curr_keep] = tau_y
                 keep_tau_b[curr_keep] = tau_b
                 curr_keep += 1
-            
             if curr_keep % update is 0:
                 # Print an update if necessary
-                accept_rate_S1,accpet_rate_S2 = print_update(curr_keep=curr_keep,update=update,n_keep=n_keep,accept_S1=accept_S1,attempt_S1=attempt_S1,accept_S2=accept_S2,attempt_S2=attempt_S2,accept_rate_S1=accept_rate_S1,accept_rate_S2=accept_rate_S2)
+                accept_rate_S1, accpet_rate_S2 = print_update(
+                        curr_keep=curr_keep, update=update, n_keep=n_keep,
+                        accept_S1=accept_S1, attempt_S1=attempt_S1,
+                        accept_S2=accept_S2, attempt_S2=attempt_S2,
+                        accept_rate_S1=accept_rate_S1,
+                        accept_rate_S2=accept_rate_S2)
                 # Produce trace plots
-                traceplots(plot=plot,q=q,keep_params=keep_params,curr_keep=curr_keep,paramList=paramList,n_keep=n_keep,update=update)
-                
+                traceplots(
+                        plot=plot, q=q, keep_params=keep_params,
+                        curr_keep=curr_keep, paramList=paramList,
+                        n_keep=n_keep, update=update)                
     tock = timer()
-
     # Gather output into a tuple
     #output = (keep_params, varS1, keep_b, 1.0/keep_tau_y, keep_gamma, (tock-tick)/60)
-    output = (keep_params, curr_keep, varS1, 1.0/keep_tau_y, keep_gamma, (tock-tick)/60, accept_rate_S1, accept_rate_S2)
+    output = (keep_params, curr_keep, varS1, 1.0/keep_tau_y, keep_gamma,
+              (tock-tick)/60, accept_rate_S1, accept_rate_S2)
     return output
-

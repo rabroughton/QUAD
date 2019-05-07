@@ -1,6 +1,8 @@
 QUAD package
 ============
 
+Submodules
+----------
 
 QUAD.bspline module
 -------------------
@@ -14,6 +16,14 @@ QUAD.dram module
 ----------------
 
 .. automodule:: QUAD.dram
+    :members:
+    :undoc-members:
+    :show-inheritance:
+
+QUAD.gsas\_tools module
+-----------------------
+
+.. automodule:: QUAD.gsas_tools
     :members:
     :undoc-members:
     :show-inheritance:
