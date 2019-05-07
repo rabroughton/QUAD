@@ -166,7 +166,10 @@ def diffraction_file_data(x,y,Calc):
 def smooth_ydata(x,y):
     '''
     Smooth diffraction data intensities at 2-theta values with
-    :class:`~statsmodels.api.nonparametric.lowess` function. 
+    Locally Weighted Scatterplot Smoothing (lowess) function from statsmodels_.
+
+    .. _statsmodels: https://www.statsmodels.org/dev/generated/statsmodels
+       .nonparametric.smoothers_lowess.lowess.html
 
     Args:
         * **y** (:class:`~numpy.ndarray`): Vector of diffraction pattern intensities - size (nx1).
