@@ -13,7 +13,7 @@ Created on Fri Mar 24 13:52:37 2017
 @author: Juha Jeronen, juha.jeronen@tut.fi
 
 Copied from
-    https://github.com/johntfoster/bspline/blob/master/splinelab.py
+https://github.com/johntfoster/bspline/blob/master/splinelab.py
 on 5-31-2017
 '''
 from __future__ import division

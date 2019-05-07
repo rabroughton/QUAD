@@ -4,7 +4,7 @@ Python/Numpy implementation of Bspline basis functions
  via Cox - de Boor algorithm.
 
 Saved from:
-    https://github.com/johntfoster/bspline/blob/master/bspline.py
+https://github.com/johntfoster/bspline/blob/master/bspline.py
 on 5-31-17
 '''
 from __future__ import division
