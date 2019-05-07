@@ -10,15 +10,8 @@ parameters modeled by researchers.
 
 While the tool has been used for several research projects, a formal Python package is still under development.  A useable version of the package is expected to be available by May 31, 2019.
 
-
-`License`_
-
-.. _License: license.txt
-
 **Authors:** Susheela Singh, Christopher M. Fancher, Alyson Wilson, Brian Reich, 
 Zhen Han, Ralph C. Smith, and Jacob L. Jones
-
-**License**
 
 **Funding:**
   * NSF: DMR-1445926 (RADAR Project ID 2014-2831)
@@ -26,3 +19,9 @@ Zhen Han, Ralph C. Smith, and Jacob L. Jones
 
 **Acknowledgement:** This product includes software produced by UChicago Argonne, LLC 
 under Contract No. DE-AC02-06CH11357 with the Department of Energy.
+
+**License:**
+
+  * `NCSU`_
+
+.. _NCSU: license.txt
