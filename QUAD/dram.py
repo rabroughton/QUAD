@@ -55,7 +55,6 @@ from __future__ import division  # Use "real" division
 
 # Add another filepath to the Python path
 import sys
-sys.path.insert(0, r'C:\Users\Rachel\Documents\QUAD_Python3_7\calculatorfunctions')
 sys.path.insert(1, r'C:\Users\Rachel\g2conda\GSASII')
 sys.path.insert(2, r'C:\Users\Rachel\g2conda\GSASII\bindist')
 
@@ -73,7 +72,7 @@ import numpy as np
 import matplotlib.pyplot as plt
 
 # Source mean function process from GSAS_Calculator_Opt.py
-import GSAS_Calculator_v3_1_0 as gsas
+import gsas_tools as gsas
 
 ## Helper functions
 # Transform between bounded parameter space and continuous space
