@@ -2,14 +2,6 @@
 '''
 Quantitative Uncertainty Analysis for Diffraction (QUAD)
 ========================================================
-
-This is a research tool that allows analysis of X-ray and neutron
-diffraction data to infer the structure of materials with quantifiable 
-uncertainty. QUAD uses Bayesian statistics and Markov chain sampling 
-algorithms, together with components from the open source GSAS-II package, 
-to create posterior probability distributions on all material structure 
-parameters modeled by researchers. 
-
 Copyright (c) 2018, North Carolina State University
 All rights reserved.
 Redistribution and use in source and binary forms, with or without 
@@ -34,18 +26,6 @@ SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER
 CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, 
 OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE 
 OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
-
-**Authors:** Susheela Singh, Christopher M. Fancher, Alyson Wilson, Brian Reich, 
-Zhen Han, Ralph C. Smith, and Jacob L. Jones
-
-**Funding:**
-  * NSF: DMR-1445926 (RADAR Project ID 2014-2831)
-  * Consortium for Nonproliferation Enabling Capabilities 
-    [Department of Energy, National Nuclear Security Administration]:
-    DE-NA0002576 (RADAR Project ID 2014-0501)
-
-**Acknowledgement:** This product includes software produced by UChicago Argonne, LLC 
-under Contract No. DE-AC02-06CH11357 with the Department of Energy.
 ###############################################################################
 '''
 # Import specific functions
