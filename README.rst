@@ -8,7 +8,7 @@ algorithms, together with components from the open source GSAS-II package,
 to create posterior probability distributions on all material structure 
 parameters modeled by researchers.
 
-While the tool has been used for several research projects, a formal Python package is still under development.  A useable version of the package is expected to be available in Summer 2019.
+While the tool has been used for several research projects, a formal Python package is still under development.  A useable version of the package is expected to be available in the summer of 2019.
 
 **Authors:** Susheela Singh, Christopher M. Fancher, Alyson Wilson, Brian Reich, 
 Zhen Han, Ralph C. Smith, and Jacob L. Jones
