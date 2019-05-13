@@ -70,8 +70,7 @@ def prior_loglike(par, m0, sd0):
 
     Returns:
         * **prior** (:py:class:`float`): Value of prior distribution given current z-values. 
-    '''
-    
+    '''   
     return -0.5*(sd0**(-2))*np.inner(par-m0, par-m0)
 
 
@@ -85,7 +84,8 @@ def logf(y, x, BG, Calc, paramList, z, lower, upper, scale, tau_y, m0, sd0):
         * **y** (:class:`~numpy.ndarray`): Vector of diffraction pattern intensities - size (nx1).
         * **x** (:class:`~numpy.ndarray`): Vector of 2-theta values - size (nx1).
         * **BG** (:class:`~numpy.ndarray`): Vector of background intensity values - size (nx1).
-        * **Calc** (:class:`~numpy.ndarray`): GSAS-II calculator operator :code:`WHAT IS THIS`
+        * **Calc**(Class): calculator operator that interacts with the designated 
+          GPX file by referencing GSAS-II libraries.
         * **paramList** (:py:class:`list`): List of parameter names for refinement - size (qx1). 
         * **z** (:class:`~numpy.ndarray`): Current parameter values in z-space - size (qx1). 
         * **lower** (:class:`~numpy.ndarray`): Vector of uniform prior distribution 
@@ -102,11 +102,9 @@ def logf(y, x, BG, Calc, paramList, z, lower, upper, scale, tau_y, m0, sd0):
         * **posterior** (:py:class:`float`): Value of the prior times likelihood given current 
           z-space candidate values.
 
-    '''  
-    
-    # Update the calculator to reflect the current parameter estimates
+    '''      
     params = z2par(z=z, lower=lower, upper=upper)
-    Calc.UpdateParameters(dict(zip(paramList, params)))
+    Calc.UpdateParameters(dict(zip(paramList, params))) # Update the calculator to reflect the current parameter estimates
     R = y-BG-Calc.Calculate()                         # Calculate residuals
     S = np.inner(R/np.sqrt(scale), R/np.sqrt(scale))  # Calculate weighted SSE
     l = 0.5*tau_y*S - prior_loglike(par=z, m0=m0, sd0=sd0) # Add log-prior and log-likelihood values
@@ -121,7 +119,20 @@ def calculate_bsplinebasis(x,L):
     return B
 
 def diffraction_file_data(x,y,Calc):
-    
+    '''
+    Extract the intensity values (y) and 2-theta angles (x) from the underlying GPX file
+    or set the user-defined data values.
+
+    Args:
+        * **x** (:class:`~numpy.ndarray`): Predefined vector of 2-theta values, if it exists. 
+        * **y** (:class:`~numpy.ndarray`): Predefined vector of diffraction pattern intensities, if it exists.   
+        * **Calc**(Class): calculator operator that interacts with the designated 
+          GPX file by referencing GSAS-II libraries.
+
+    Returns:
+        * **x,y** (:class:`~numpy.ndarray`, :class:`~numpy.ndarray`): vector of 2-theta values - size (nx1), 
+          vector of diffraction pattern intensities - size (nx1).   
+    '''     
     # Assign the intensity vector (y) from the GPX file, if necessary
     if y is None:
         Index = np.where((Calc._tth>Calc._lowerLimit) & (Calc._tth<Calc._upperLimit) == True)
@@ -201,8 +212,25 @@ def stage2_acceptprob(can1_post,can2_post,cur_post,can_z1,can_z2,z,varS1):
     return R2
 
 def adapt_covariance(i,adapt,s_p,all_Z,epsilon,q,varS1):
-    ## Adapt the proposal distribution covariance matrix
-    if (0 < i) & (i % adapt is 0):
+    '''
+    Adapt the covariance matrix. 
+
+    Args:
+        * **i** (:py:class:`int`): Iteration number.
+        * **adapt** (:py:class:`int`): Adaption interval, user-defined. Default is 20. 
+        * **s_p** (:py:class:`float`): Scaling parameter for adapting the covariance. 
+          Default is :math:`\\frac{2.4^2}{q}` where q is the size of the parameter space.
+        * **all_Z** (:class:`~numpy.ndarray`): Storage of z-space samples for each iteration - size(iters x q)
+        * **epsilon** (:py:class:`float`): Constant to prevent singularity of adaptive covariance. 
+          Default is 0.0001. 
+        * **q** (:py:class:`int`): Number of parameters. 
+        * **varS1** (:class:`~numpy.ndarray`): Current covariance matrix - size(qxq).           
+
+    Returns:
+        * **varS1** (:class:`~numpy.ndarray`): Adapted covariance matrix - size(qxq).
+    '''  
+    ## Adapt the proposal distribution covariance matrix if necessary
+    if (0 < i) & (i % adapt == 0):
         varS1 = s_p*np.cov(all_Z[range(i+1)].transpose()) + s_p*epsilon*np.diag(np.ones(q))
     else:
         varS1=varS1
