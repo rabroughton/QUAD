@@ -19,7 +19,7 @@ import matplotlib.pyplot as plt
 import seaborn as sns
 from scipy.stats import norm
 from QUAD import gsas_tools as gsas  # GSAS calculator
-from estimate_covariance import estimatecovariance 
+#from estimate_covariance import estimatecovariance 
 # Source the MCMC function
 from QUAD import dram 
 
@@ -70,7 +70,8 @@ init_z = norm.ppf((start-lower)/(upper-lower))
 #init_cov = np.diag(0.0002*np.ones(len(init_z)))
 
 ## estimated covariance marix from sensitivity matrix
-eco = estimatecovariance(paramList=paramList,start=start,init_z=init_z,Calc=Calc,upper=upper,lower=lower) #estimated covariance matrix function
+eco = dram.estimatecovariance(paramList=paramList,start=start,init_z=init_z,x=None,y=None,Calc=Calc,
+                              upper=upper,lower=lower,L=20,delta=1e-3) 
 init_cov = eco["cov"]
 #init_cov = 0.95*eco["cov"] + 0.05*np.identity(len(init_z)) #adjust to prevent singularity
 
@@ -132,6 +133,5 @@ np.savetxt(path + '/Stage 2 acceptance', accept_rate2)
 
 # Save DRAM fitting input values
 f= open(path + "\DRAM_inputs.txt","w+")
-#f.write("shrinkage: %05.2f\r\n adaption interval: %10.0f\r\n upper and lower bounds: =/- %05.2f\r\n number of samples: %10.0f\r\n burn-in: %10.0f\r\n" % (shrinkage, adapt, bound, samples, burn))
 f.write("shrinkage: %05.2f\r\n adaption interval: %10.0f\r\n number of samples: %10.0f\r\n burn-in: %10.0f\r\n" % (shrinkage, adapt, samples, burn))
 f.close()
