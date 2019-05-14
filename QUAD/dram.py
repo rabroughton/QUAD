@@ -367,52 +367,59 @@ def update_taub(d_g,gamma,c_g,L):
           model the background intensity. Default is 20. 
           
     Returns:
-        * **tau_b** (:py:class:`float`): Loadings precision for background.  
+        * **tau_b** (:py:class:`float`): Loadings precision for background.
     '''
     rate = d_g + 0.5*np.inner(gamma, gamma)
     tau_b = np.random.gamma(shape=(c_g + 0.5*L), scale=1/rate)
     return tau_b
 
-def update_tauy(y,BG,Calc,var_scale,d_y,c_y,n):
+def update_tauy(y, BG, Calc, var_scale, d_y, c_y, n):
     '''
-    Adapt the model precision.  
+    Adapt the model precision.
 
     Args:
-        * **y** (:class:`~numpy.ndarray`): Vector of diffraction pattern intensities - size (nx1).
-        * **BG** (:class:`~numpy.ndarray`): Vector of background intensity values - size (nx1).
-        * **Calc**(Class): calculator operator that interacts with the designated 
-          GPX file by referencing GSAS-II libraries.
-        * **var_scale** (:class:`~numpy.ndarray`): Vector that scales with the 
-          intensity of data, heteroscedastic. See function :meth:`~initialize_intensity_weight`
+        * **y** (:class:`~numpy.ndarray`): Vector of diffraction pattern
+          intensities - size (nx1).
+        * **BG** (:class:`~numpy.ndarray`): Vector of background intensity
+          values - size (nx1).
+        * **Calc**(Class): calculator operator that interacts with the
+          designated GPX file by referencing GSAS-II libraries.
+        * **var_scale** (:class:`~numpy.ndarray`): Vector that scales with the
+          intensity of data, heteroscedastic.
+          See function :meth:`~initialize_intensity_weight`
         * **d_y** (:py:class:`float`): Scale parameter for Gamma distribution
           of the error variance. Default is 0.1
         * **c_y** (:py:class:`float`): Shape parameter for Gamma distribution
           of the error variance.
-        * **n** (:py:class:`int`): Number data points (length of intensities vector, y).         
+        * **n** (:py:class:`int`): Number data points
+          (equivalent to the length of intensities vector, y).     
 
     Returns:
-        * **tau_y** (:py:class:`float`): Updated model precision
-    ''' 
+        * **tau_y** (:py:class:`float`): Updated model precision.
+    '''
     ## Update tau_y, the model precision
     err = (y-BG-Calc.Calculate())/np.sqrt(var_scale)
     rate = d_y + 0.5*np.inner(err, err)
     tau_y = np.random.gamma(shape=(c_y + 0.5*n), scale=1/rate)
     return tau_y
 
-def print_update(curr_keep,update,n_keep,accept_S1,attempt_S1,accept_S2,attempt_S2,accept_rate_S1,accept_rate_S2):
+def print_update(curr_keep, update, n_keep, accept_S1, attempt_S1, accept_S2, 
+                 attempt_S2, accept_rate_S1, accept_rate_S2):
     # Print an update if necessary
     print("Collected %d of %d samples" % (curr_keep, n_keep))
-    print('  %03.2f acceptance rate for Stage 1 (%d attempts)' % (accept_S1/attempt_S1, attempt_S1))
+    print('  %03.2f acceptance rate for Stage 1 (%d attempts)' 
+          % (accept_S1/attempt_S1, attempt_S1))
     if attempt_S2 > 0:
         rate_S2 = accept_S2/attempt_S2
     else:
         rate_S2 = 0
-    print('  %03.2f acceptance rate for Stage 2 (%d attempts)' % (rate_S2, attempt_S2))
+    print('  %03.2f acceptance rate for Stage 2 (%d attempts)' 
+          % (rate_S2, attempt_S2))
     accept_rate_S1[(curr_keep//update)-1] = accept_S1/attempt_S1
     accept_rate_S2[(curr_keep//update)-1] = rate_S2
     return accept_rate_S1,accept_rate_S2
  
-def traceplots(plot,q,keep_params,curr_keep,paramList,n_keep,update):    
+def traceplots(plot, q, keep_params, curr_keep, paramList, n_keep, update): 
     # Produce trace plots
     if plot is True:
         plt.figure(1, figsize=(20, 10))
@@ -425,42 +432,44 @@ def traceplots(plot,q,keep_params,curr_keep,paramList,n_keep,update):
         if ((n_keep-curr_keep) < update):
             plt.savefig('DRAM_Trace.png')
         plt.pause(0.1)
-        
+ 
 def _check_parameter_specification(Calc, paramList):
     # Get indices of parameters to refine, even if they are "fixed" by bounds
     useInd = [np.asscalar(np.where(np.array(Calc._varyList)==par)[0]) for par in paramList]
     if (any(np.array(Calc._varyList)[useInd] != paramList)):
         raise ValueError("Parameter list specification is not valid.")
-        
+     
 def _check_parameter_initialization(paramList, init_z):
     # Make sure initial z values are given for every parameter in paramList
-    if len(paramList)!=len(init_z):
+    if len(paramList) != len(init_z):
         raise ValueError("Initial value specification for Z is not valid.")
-        
-def initialize_intensity_weight(x, y, scaling_factor=1 ):
+
+def initialize_intensity_weight(x, y, scaling_factor=1):
     '''
-    Define a heteroscedastic vector to scale the residuals between the model 
-    and the data with the intensity of the smoothed data. 
+    Define a heteroscedastic vector to scale the residuals between the model
+    and the data with the intensity of the smoothed data.
 
     Args:
-        * **y** (:class:`~numpy.ndarray`): Vector of diffraction pattern intensities - size (nx1).
-        * **x** (:class:`~numpy.ndarray`): Vector of 2-theta values from diffraction pattern- size (nx1).
-        * **scaling factor** (:py:class:`float`): Default is 1. 
+        * **y** (:class:`~numpy.ndarray`): Vector of diffraction pattern
+          intensities - size (nx1).
+        * **x** (:class:`~numpy.ndarray`): Vector of 2-theta values from
+          diffraction pattern- size (nx1).
+        * **scaling factor** (:py:class:`float`): Default is 1.
 
     Attributes:
         * :meth:`smooth_ydata`
 
     Returns:
-        * **var_scale** (:class:`~numpy.ndarray`): Vector of scaling factors 
+        * **var_scale** (:class:`~numpy.ndarray`): Vector of scaling factors
           corresponding to intensity data- size (nx1).
-    '''    
-    y_sm = smooth_ydata(x=x,y=y)
-    scaling_factor = 1                                          # Contribution of y_sm
-    var_scale = scaling_factor*y_sm + 1                        # Scale for y_sm/tau_y
+    '''
+    y_sm = smooth_ydata(x=x, y=y)
+    scaling_factor = 1                                  # Contribution of y_sm
+    var_scale = scaling_factor*y_sm + 1                 # Scale for y_sm/tau_y
     return var_scale
-    
 
-## MCMC function
+
+# MCMC function
 def nlDRAM(GPXfile, paramList, variables, init_z, lower, upper, initCov=None,
            y=None, x=None, L=20, shrinkage=0.2, s_p=(2.4**2), epsilon=1e-4,
            m0=0, sd0=1, c_y=0.1, d_y=0.1, c_g=0.1, d_g=0.1, c_b=0.1, d_b=0.1,
@@ -521,7 +530,7 @@ def nlDRAM(GPXfile, paramList, variables, init_z, lower, upper, initCov=None,
         * **c_b** (:py:class:`float`) - 0.1: Shape parameter for Gamma distribution
           for scale of the proportional constribution to the error variance.
         * **d_b** (:py:class:`float`) - 0.1: Scale parameter for Gamma distribution
-          for scale of the proportional constribution to the error variance.  
+          for scale of the proportional constribution to the error variance.
         * **adapt** (:py:class:`float`): `20`
           Controls the adaptation period.
         * **thin** (:py:class:`float`) - `1`: Degree of thinning.
@@ -554,7 +563,7 @@ def nlDRAM(GPXfile, paramList, variables, init_z, lower, upper, initCov=None,
     Calc._varyList = variables
     # Set the scaling parameter
     s_p = ((2.4**2)/len(paramList))
-    # Assign the intensity vector (y) and 2-theta angles (x) from 
+    # Assign the intensity vector (y) and 2-theta angles (x) from
     # the GPX file if no values are provided
     x, y = diffraction_file_data(x=x, y=y, Calc=Calc)
     # Calculate a B-spline basis for the range of x
@@ -563,7 +572,7 @@ def nlDRAM(GPXfile, paramList, variables, init_z, lower, upper, initCov=None,
     n = len(y)       # Number of observations
     q = len(init_z)  # Number of parameters of interest
     # Smooth the observed Ys on the Xs with lowess
-    var_scale = initialize_intensity_weight(x=x, y=y)    
+    var_scale = initialize_intensity_weight(x=x, y=y)
     _check_parameter_specification(Calc=Calc, paramList=paramList)
     _check_parameter_initialization(paramList=paramList, init_z=init_z)
     # Initialize parameter values
@@ -586,24 +595,24 @@ def nlDRAM(GPXfile, paramList, variables, init_z, lower, upper, initCov=None,
     (all_Z, keep_params, keep_gamma, keep_b, keep_tau_y, keep_tau_b,
      accept_rate_S1, accept_rate_S2) = initialize_output(
              iters=iters, q=q, n_keep=n_keep, L=L, update=update)
-   
+
     tick = timer()
     for i in range(iters):
-        ## Update basis function loadings and then background values
+        # Update basis function loadings and then background values
         gamma, BG = update_background(B, var_scale, tau_y,
                                       tau_b, L, Calc, y)
-        ## Update mean process parameters using 2-stage DRAM
+        # Update mean process parameters using 2-stage DRAM
         attempt_S1 += 1
         # Stage 1:
         can_z1 = np.random.multivariate_normal(mean=z, cov=varS1)
-        can1_post = logf(y=y, x=x, BG=BG, Calc=Calc, paramList=paramList, 
-                         z=can_z1, lower=lower, upper=upper, scale=var_scale, 
+        can1_post = logf(y=y, x=x, BG=BG, Calc=Calc, paramList=paramList,
+                         z=can_z1, lower=lower, upper=upper, scale=var_scale,
                          tau_y=tau_y, m0=m0, sd0=sd0)
-        cur_post = logf(y=y, x=x, BG=BG, Calc=Calc, paramList=paramList, 
-                        z=z, lower=lower, upper=upper, scale=var_scale, 
+        cur_post = logf(y=y, x=x, BG=BG, Calc=Calc, paramList=paramList,
+                        z=z, lower=lower, upper=upper, scale=var_scale,
                         tau_y=tau_y, m0=m0, sd0=sd0)
         R1 = can1_post - cur_post
-        if (np.log(np.random.uniform()) < R1) & (np.sum(np.abs(can_z1) > 3)==0):
+        if (np.log(np.random.uniform()) < R1) & (np.sum(np.abs(can_z1) > 3) == 0):
             accept_S1 += 1
             z = np.array(can_z1, copy=True)                # Update latent
             params = z2par(z=z, lower=lower, upper=upper)  # Update params
@@ -614,7 +623,7 @@ def nlDRAM(GPXfile, paramList, variables, init_z, lower, upper, initCov=None,
             # Propose the candidate
             can_z2 = np.random.multivariate_normal(mean=z, cov=shrinkage*varS1)
             # Accept or reject the candidate
-            if np.sum(np.abs(can_z2) > 3)==0: # Ensures significant distance away from the bounds
+            if np.sum(np.abs(can_z2) > 3) == 0:  # Ensures away from the bounds
                 can2_post = logf(
                         y=y, x=x, BG=BG, Calc=Calc,
                         paramList=paramList, z=can_z2,
@@ -627,37 +636,37 @@ def nlDRAM(GPXfile, paramList, variables, init_z, lower, upper, initCov=None,
                         cur_post=cur_post,
                         can_z1=can_z1,
                         can_z2=can_z2,
-                        z=z,varS1=varS1)
+                        z=z, varS1=varS1)
                 if np.log(np.random.uniform()) < R2:
                     accept_S2 += 1
-                    z = np.array(can_z2, copy=True)                # Update latent
-                    params = z2par(z=z, lower=lower, upper=upper)  # Update params
+                    z = np.array(can_z2, copy=True)
+                    params = z2par(z=z, lower=lower, upper=upper)
                     Calc.UpdateParameters(dict(zip(paramList, params)))
                 del can_z2, can2_post, R2
             else:
                 del can_z2
         del can_z1, can1_post, cur_post, R1
         all_Z[i] = z
-        ## Adapt the proposal distribution covariance matrix
+        # Adapt the proposal distribution covariance matrix
         varS1 = adapt_covariance(
                 i=i, adapt=adapt, s_p=s_p, all_Z=all_Z,
                 epsilon=epsilon, q=q, varS1=varS1)
-        ## Update tau_b
+        # Update tau_b
         tau_b = update_taub(d_g=d_g,
                             gamma=gamma,
                             c_g=c_g,
                             L=L)
-        ## Update tau_y
+        # Update tau_y
         tau_y = update_tauy(
                 y=y, BG=BG, Calc=Calc,
                 var_scale=var_scale, d_y=d_y, c_y=c_y, n=n)
-        ## Keep track of everything
+        # Keep track of everything
         if i >= burn:
             # Store posterior draws if appropriate
             if (i-burn) % thin == 0:
                 keep_params[curr_keep] = params
                 keep_gamma[curr_keep] = gamma
-                #keep_b[curr_keep] = b
+                # keep_b[curr_keep] = b
                 keep_tau_y[curr_keep] = tau_y
                 keep_tau_b[curr_keep] = tau_b
                 curr_keep += 1
@@ -673,10 +682,9 @@ def nlDRAM(GPXfile, paramList, variables, init_z, lower, upper, initCov=None,
                 traceplots(
                         plot=plot, q=q, keep_params=keep_params,
                         curr_keep=curr_keep, paramList=paramList,
-                        n_keep=n_keep, update=update)                
+                        n_keep=n_keep, update=update)
     tock = timer()
     # Gather output into a tuple
-    #output = (keep_params, varS1, keep_b, 1.0/keep_tau_y, keep_gamma, (tock-tick)/60)
     output = (keep_params, curr_keep, varS1, 1.0/keep_tau_y, keep_gamma,
               (tock-tick)/60, accept_rate_S1, accept_rate_S2)
     return output
