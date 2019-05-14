@@ -44,15 +44,63 @@ from .gsas_tools import Calculator as gsas_calculator
 import numpy as np
 import matplotlib.pyplot as plt
 
-## Helper functions
-# Transform between bounded parameter space and continuous space
+def estimatecovariance(paramList,start,init_z,Calc,upper,lower,x=None,y=None,
+                       L=20,delta=1e-3): 
+    # Initialize inputs
+    Calc.UpdateParameters(dict(zip(paramList, start)))
+    f0 = Calc.Calculate()
+    x,y = diffraction_file_data(x=x, y=y, Calc=Calc)
+    n=np.shape(y)[0]
+    p = np.shape(init_z)[0]
+    gamma = np.ones(L)
+    BG = np.matmul(calculate_bsplinebasis(x=x, L=L), gamma)
+    #Finit difference calculation
+    def finitediff(ii,init_z,paramList,f0,delta): 
+        q_star = np.copy(init_z)
+        q_star[ii] = np.copy(init_z[ii])*(1+delta)
+        params_perturb = z2par(q_star,lower,upper)
+        Calc.UpdateParameters(dict(zip(paramList, params_perturb)))
+        f1 = Calc.Calculate()
+        diff = (f1-f0)/(delta*init_z[ii])
+        return diff
+    # Calculate sensitivity matrix
+    sensitivity = np.zeros([n,p])
+    for jj in range (0,np.shape(init_z)[0]):
+        sensitivity[:,jj] = finitediff(jj,init_z,paramList,f0,delta)   
+    #Calculate fisher information matrix    
+    fisher = np.dot(sensitivity.transpose(),sensitivity)
+    #Calcualte estimate for s^2  
+    R = y-BG-f0 #residuals
+    s2 = (1./(n-p))*np.dot(R,R.transpose())
+    #Calculate covariance matrix
+    covariance = s2*np.linalg.inv(fisher)    
+    evals = np.linalg.eig(covariance)
+    print("Covariance eignvalues:\n{}".format(evals[0]))
+    return dict(cov=covariance,s2=s2,evals=evals)
+
 def z2par(z, lower, upper, grad=False):
+    '''
+    Transform between the bounded parameter space and continuous z-space. 
+
+    Args:
+        * **z** (:class:`~numpy.ndarray`): Array of parameter values in z-space - size (qx1).
+        * **lower** (:class:`~numpy.ndarray`): Vector of lower limits on a 
+          uniform prior distribution in the parameter space - size (qx1).
+        * **upper** (:class:`~numpy.ndarray`): Vector of upper limits on a 
+          uniform prior distribution in the parameter space - size (qx1).
+        * **grad** (:py:class:`bool`): If True, function converts WHAT DOES THIS DO???
+          If False (default), converts from the z-space to the parameter space. 
+
+    Returns:
+        * **par** (:class:`~numpy.ndarray`): Array of parameter values in 
+          parameter space from the given z values- size (qx1).
+    '''  
     if (grad):
         d = (upper-lower)*norm.pdf(z)
         return d
     else:
         par = lower + (upper-lower)*norm.cdf(z)
-        # Fudge the parameter value if we've hit either boundary
+        # Avoid parameters approaching the boundaries
         par[np.array([par[j]==upper[j] for j in range(len(par))])] -= 1e-10
         par[np.array([par[j]==lower[j] for j in range(len(par))])] += 1e-10
         return par
@@ -88,11 +136,11 @@ def logf(y, x, BG, Calc, paramList, z, lower, upper, scale, tau_y, m0, sd0):
           GPX file by referencing GSAS-II libraries.
         * **paramList** (:py:class:`list`): List of parameter names for refinement - size (qx1). 
         * **z** (:class:`~numpy.ndarray`): Current parameter values in z-space - size (qx1). 
-        * **lower** (:class:`~numpy.ndarray`): Vector of uniform prior distribution 
-          lower limits in parameter space - size (qx1).
-        * **upper** (:class:`~numpy.ndarray`): Vector of uniform prior distribution 
-          upper limits in parameter space - size (qx1).     
-        * **scale** (:py:class:`float`): Vector that scales with the intensity of data, heteroscedastic. 
+        * **lower** (:class:`~numpy.ndarray`): Vector of lower limits on a 
+          uniform prior distribution in the parameter space - size (qx1).
+        * **upper** (:class:`~numpy.ndarray`): Vector of upper limits on a 
+          uniform prior distribution in the parameter space - size (qx1).   
+        * **scale** (:class:`~numpy.ndarray`): Vector that scales with the intensity of data, heteroscedastic. 
           See function :meth:`~initialize_intensity_weight`
         * **tau_y** (:py:class:`float`): Model precision. Default initial valus is 1.
         * **m0** (:py:class:`float`): Mean of prior normal distribution on z. Default is 0.
@@ -166,7 +214,17 @@ def smooth_ydata(x,y):
     return y_sm
 
 def initialize_cov(initCov, q):
-    # Initialize covariance for proposal distribution
+    '''
+    If not previously defined, initialize the covariance for the proposal distribution.
+
+    Args:
+        * **initCov** (:class:`~numpy.ndarray`): Pre-defined initial covariance 
+          matrix in z-space - size (qxq).
+        * **q** (:py:class:`int`): Number of parameters.
+
+    Returns:
+        * **varS1** (:class:`~numpy.ndarray`): Covariance matrix in z-space - size (qxq).
+    '''  
     if initCov is None:
         varS1 = np.diag(0.05*np.ones(q))
     elif initCov.shape == (q, q):
@@ -198,6 +256,17 @@ def update_background(B,var_scale,tau_y,tau_b,L,Calc,y):
     return gamma,BG
 
 def stage2_acceptprob(can1_post,can2_post,cur_post,can_z1,can_z2,z,varS1):
+    '''
+    Calculate the acceptance probability for stage 2 of DRAM
+
+    Args:
+        * **can1_post** (:class:`~numpy.ndarray`): Array of parameter values in z-space - size (qx1).
+        * **m0** (:py:class:`float`): Mean of prior normal distribution on z. Default is 0. 
+        * **sd0** (:py:class:`float`): Standard deviation of prior normal distribution on z. Default is 1. 
+
+    Returns:
+        * **prior** (:py:class:`float`): Value of prior distribution given current z-values. 
+    ''' 
     # Calculate the acceptance probability
     inner_n = 1 - np.min([1, np.exp(can1_post - can2_post)])
     inner_d = 1 - np.min([1, np.exp(can1_post - cur_post)])
@@ -243,6 +312,25 @@ def update_taub(d_g,gamma,c_g,L):
     return tau_b
 
 def update_tauy(y,BG,Calc,var_scale,d_y,c_y,n):
+    '''
+    Adapt the model precision.  
+
+    Args:
+        * **y** (:class:`~numpy.ndarray`): Vector of diffraction pattern intensities - size (nx1).
+        * **BG** (:class:`~numpy.ndarray`): Vector of background intensity values - size (nx1).
+        * **Calc**(Class): calculator operator that interacts with the designated 
+          GPX file by referencing GSAS-II libraries.
+        * **var_scale** (:class:`~numpy.ndarray`): Vector that scales with the 
+          intensity of data, heteroscedastic. See function :meth:`~initialize_intensity_weight`
+        * **d_y** (:py:class:`float`): Scale parameter for Gamma distribution
+          of the error variance. Default is 0.1
+        * **c_y** (:py:class:`float`): Shape parameter for Gamma distribution
+          of the error variance.
+        * **n** (:py:class:`int`): Number data points (length of intensities vector, y).         
+
+    Returns:
+        * **tau_y** (:py:class:`float`): Updated model precision
+    ''' 
     ## Update tau_y, the model precision
     err = (y-BG-Calc.Calculate())/np.sqrt(var_scale)
     rate = d_y + 0.5*np.inner(err, err)
@@ -301,7 +389,8 @@ def initialize_intensity_weight(x, y, scaling_factor=1 ):
         * :meth:`smooth_ydata`
 
     Returns:
-        * **var_scale** (:class:`~numpy.ndarray`): Vector of scaling factors corresponding to intensity data- size (nx1).
+        * **var_scale** (:class:`~numpy.ndarray`): Vector of scaling factors 
+          corresponding to intensity data- size (nx1).
     '''    
     y_sm = smooth_ydata(x=x,y=y)
     scaling_factor = 1                                          # Contribution of y_sm
@@ -445,8 +534,12 @@ def nlDRAM(GPXfile, paramList, variables, init_z, lower, upper, initCov=None,
         attempt_S1 += 1
         # Stage 1:
         can_z1 = np.random.multivariate_normal(mean=z, cov=varS1)
-        can1_post = logf(y=y, x=x, BG=BG, Calc=Calc, paramList=paramList, z=can_z1, lower=lower, upper=upper, scale=var_scale, tau_y=tau_y, m0=m0, sd0=sd0)
-        cur_post = logf(y=y, x=x, BG=BG, Calc=Calc, paramList=paramList, z=z, lower=lower, upper=upper, scale=var_scale, tau_y=tau_y, m0=m0, sd0=sd0)
+        can1_post = logf(y=y, x=x, BG=BG, Calc=Calc, paramList=paramList, 
+                         z=can_z1, lower=lower, upper=upper, scale=var_scale, 
+                         tau_y=tau_y, m0=m0, sd0=sd0)
+        cur_post = logf(y=y, x=x, BG=BG, Calc=Calc, paramList=paramList, 
+                        z=z, lower=lower, upper=upper, scale=var_scale, 
+                        tau_y=tau_y, m0=m0, sd0=sd0)
         R1 = can1_post - cur_post
         if (np.log(np.random.uniform()) < R1) & (np.sum(np.abs(can_z1) > 3)==0):
             accept_S1 += 1
@@ -499,14 +592,14 @@ def nlDRAM(GPXfile, paramList, variables, init_z, lower, upper, initCov=None,
         ## Keep track of everything
         if i >= burn:
             # Store posterior draws if appropriate
-            if (i-burn) % thin is 0:
+            if (i-burn) % thin == 0:
                 keep_params[curr_keep] = params
                 keep_gamma[curr_keep] = gamma
                 #keep_b[curr_keep] = b
                 keep_tau_y[curr_keep] = tau_y
                 keep_tau_b[curr_keep] = tau_b
                 curr_keep += 1
-            if curr_keep % update is 0:
+            if curr_keep % update == 0:
                 # Print an update if necessary
                 accept_rate_S1, accpet_rate_S2 = print_update(
                         curr_keep=curr_keep, update=update, n_keep=n_keep,
