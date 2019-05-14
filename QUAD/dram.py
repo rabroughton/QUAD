@@ -159,6 +159,21 @@ def logf(y, x, BG, Calc, paramList, z, lower, upper, scale, tau_y, m0, sd0):
     return (-1)*l
 
 def calculate_bsplinebasis(x,L):
+    '''
+    Calculate a B-spline basis for the 2-theta values. 
+
+    Args:
+        * **x** (:class:`~numpy.ndarray`): Vector of 2-theta values - size (nx1). 
+        * **L** (:py:class:`int`): Number of cubic B-spline basis functions to 
+          model the background intensity. Default is 20. 
+          
+    Attributes:
+        - Bspline
+        - augknt
+
+    Returns:
+        * **B** (:py:class:`float`): B-spline basis for data - size (nxL)
+    ''' 
     # Calculate a B-spline basis for the range of x
     unique_knots = np.percentile(a=x, q=np.linspace(0, 100, num=(L-2)))
     knots = augknt(unique_knots, 3)
@@ -178,7 +193,7 @@ def diffraction_file_data(x,y,Calc):
           GPX file by referencing GSAS-II libraries.
 
     Returns:
-        * **x,y** (:class:`~numpy.ndarray`, :class:`~numpy.ndarray`): vector of 2-theta values - size (nx1), 
+        * **x,y** (:class:`~numpy.ndarray`, :class:`~numpy.ndarray`): Vector of 2-theta values - size (nx1), 
           vector of diffraction pattern intensities - size (nx1).   
     '''     
     # Assign the intensity vector (y) from the GPX file, if necessary
@@ -246,6 +261,37 @@ def initialize_output(iters,q,n_keep,L,update):
     return all_Z,keep_params,keep_gamma,keep_b,keep_tau_y,keep_tau_b,accept_rate_S1,accept_rate_S2
 
 def update_background(B,var_scale,tau_y,tau_b,L,Calc,y):
+    '''
+    Update the basis function loadings and then background values.
+
+    Args:
+        * **B** (:py:class:`float`): B-spline basis for 2-theta range - size (nxL).
+          See :meth:`~calculate_bsplinebasis`. 
+        * **var_scale** (:class:`~numpy.ndarray`): Vector of scaling factors 
+          corresponding to intensity data- size (nx1). 
+          See function :meth:`~initialize_intensity_weight`
+        * **tau_y** (:py:class:`float`): Model precision. See :meth:`~updat_tauy`
+        * **tau_b** (:py:class:`float`): Loadings precision for background.
+          See :meth:`~update_taub`
+        * **L** (:py:class:`int`): Number of cubic B-spline basis functions to 
+          model the background intensity. Default is 20. 
+        * **Calc**(Class): calculator operator that interacts with the designated 
+          GPX file by referencing GSAS-II libraries.
+        * **y** (:class:`~numpy.ndarray`): Vector of diffraction pattern 
+          intensity data - size(nx1). See :meth:`~diffraction_file_data`. 
+    
+    Attributes: 
+        - :meth:`~calculate_bsplinebasis`
+        - :meth:`~initialize_intensity_weight`
+        - :meth:`~updat_tauy`
+        - :meth:`~update_taub`
+        - :meth:`~diffraction_file_data`
+
+    Returns:
+        * **gamma,BG** (:class:`~numpy.ndarray`, :class:`~numpy.ndarray`): 
+            Vector of updated basis loadings - size (Lx1), 
+            Vector of updated background intensity values - size (nx1).
+    ''' 
     ## Update basis function loadings and then background values
     BtB = np.matmul(np.transpose(B)/var_scale, B)
     VV = np.linalg.inv(tau_y*BtB + tau_b*np.identity(L))
@@ -306,7 +352,23 @@ def adapt_covariance(i,adapt,s_p,all_Z,epsilon,q,varS1):
     return varS1
 
 def update_taub(d_g,gamma,c_g,L):
-    ## Update tau_b, the background model precision
+    '''
+    Update the background model precision.
+
+    Args:
+        * **d_g** (:py:class:`float`): Scale parameter for Gamma distribution
+          for the error in the prior distribution for the basis function loadings.
+          Default is 0.1. 
+        * **gamma** (:class:`~numpy.ndarray`): Basis function loadings - size (Lx1). 
+        * **c_g** (:py:class:`float`): Shape parameter for Gamma distribution 
+          for the error in the prior distribution for the basis function loadings. 
+          Default is 0.1.
+        * **L** (:py:class:`int`): Number of cubic B-spline basis functions to 
+          model the background intensity. Default is 20. 
+          
+    Returns:
+        * **tau_b** (:py:class:`float`): Loadings precision for background.  
+    '''
     rate = d_g + 0.5*np.inner(gamma, gamma)
     tau_b = np.random.gamma(shape=(c_g + 0.5*L), scale=1/rate)
     return tau_b
