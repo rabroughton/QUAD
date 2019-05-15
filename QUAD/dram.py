@@ -45,7 +45,41 @@ import numpy as np
 import matplotlib.pyplot as plt
 
 def estimatecovariance(paramList,start,init_z,Calc,upper,lower,x=None,y=None,
-                       L=20,delta=1e-3): 
+                       L=20,delta=1e-3):
+    '''
+    Estimate the covariance of the initial parameter values to initialize the
+    proposal covarianc for DRAM. This is done by first calculating the 
+    sensitivity matrix through finite differences. Next, the Fisher Information
+    matrix is calulated as sensitivity^T*sensitivity. Finally, the estimated
+    covariance matrix is calculated as the product of the error variance
+    estimate and the Fisher Information matrix. 
+
+    Args:
+        * **paramList** (:py:class:`list`): List of parameter names for refinement - size (qx1).
+        * **start** (:class:`~numpy.ndarray`): Initial parameter values in parameter space - size (qx1). 
+        * **init_z** (:class:`~numpy.ndarray`): Initial parameter values in z-space - size (qx1).
+        * **Calc**(Class): calculator operator that interacts with the designated 
+          GPX file by referencing GSAS-II libraries.
+        * **upper** (:class:`~numpy.ndarray`): Vector of upper limits on a 
+          uniform prior distribution in the parameter space - size (qx1).
+        * **lower** (:class:`~numpy.ndarray`): Vector of lower limits on a 
+          uniform prior distribution in the parameter space - size (qx1).
+        * **x** (:class:`~numpy.ndarray`): Vector of 2-theta values - size (nx1).
+          Will be created from the GPX file if not user-defined.
+        * **y** (:class:`~numpy.ndarray`): Vector of diffraction pattern 
+          intensities - size (nx1). Will be created from the GPX file if not user-defined.
+        * **L** (:py:class:`int`): Number of cubic B-spline basis functions to
+          model the background intensity. Default is 20.
+        * **delta** (:py:class:`float`): Fraction by which the parameters are 
+          perturbed with respect to the initial values for finite difference calculation.
+        
+    Returns:
+        * (:py:class:`dict`): Dictionary containing the estimated covariance
+          matrix, estimated variance, and the eigenvalues and eigenvectors of
+          the covariance matrix. The eigenvalues can be examined to determine 
+          potentially non-indentifiable parameters by locating the eigenvalues
+          significantly close to zero in value. 
+    '''  
     # Initialize inputs
     Calc.UpdateParameters(dict(zip(paramList, start)))
     f0 = Calc.Calculate()
@@ -54,7 +88,7 @@ def estimatecovariance(paramList,start,init_z,Calc,upper,lower,x=None,y=None,
     p = np.shape(init_z)[0]
     gamma = np.ones(L)
     BG = np.matmul(calculate_bsplinebasis(x=x, L=L), gamma)
-    #Finit difference calculation
+    #Finite difference calculation
     def finitediff(ii,init_z,paramList,f0,delta): 
         q_star = np.copy(init_z)
         q_star[ii] = np.copy(init_z[ii])*(1+delta)
@@ -140,8 +174,8 @@ def logf(y, x, BG, Calc, paramList, z, lower, upper, scale, tau_y, m0, sd0):
           uniform prior distribution in the parameter space - size (qx1).
         * **upper** (:class:`~numpy.ndarray`): Vector of upper limits on a 
           uniform prior distribution in the parameter space - size (qx1).   
-        * **scale** (:class:`~numpy.ndarray`): Vector that scales with the intensity of data, heteroscedastic. 
-          See function :meth:`~initialize_intensity_weight`
+        * **scale** (:class:`~numpy.ndarray`): Vector that scales with the
+          intensity of data, heteroscedastic. See function :meth:`~initialize_intensity_weight`
         * **tau_y** (:py:class:`float`): Model precision. Default initial valus is 1.
         * **m0** (:py:class:`float`): Mean of prior normal distribution on z. Default is 0.
         * **sd0** (:py:class:`float`): Standard deviation of prior normal distribution on z. Default is 1.
@@ -149,7 +183,6 @@ def logf(y, x, BG, Calc, paramList, z, lower, upper, scale, tau_y, m0, sd0):
     Returns:
         * **posterior** (:py:class:`float`): Value of the prior times likelihood given current 
           z-space candidate values.
-
     '''      
     params = z2par(z=z, lower=lower, upper=upper)
     Calc.UpdateParameters(dict(zip(paramList, params))) # Update the calculator to reflect the current parameter estimates
@@ -164,9 +197,9 @@ def calculate_bsplinebasis(x,L):
 
     Args:
         * **x** (:class:`~numpy.ndarray`): Vector of 2-theta values - size (nx1). 
-        * **L** (:py:class:`int`): Number of cubic B-spline basis functions to 
-          model the background intensity. Default is 20. 
-          
+        * **L** (:py:class:`int`): Number of cubic B-spline basis functions to
+          model the background intensity. Default is 20.
+
     Attributes:
         - Bspline
         - augknt
