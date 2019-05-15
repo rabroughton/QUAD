@@ -49,6 +49,10 @@ from .gsas_tools import Calculator as gsas_calculator
 import numpy as np
 import matplotlib.pyplot as plt
 
+import sys
+sys.path.insert(1, r'C:\Users\Rachel\g2conda\GSASII\bindist')
+sys.path.insert(2, r'C:\Users\Rachel\g2conda\GSASII')
+
 def estimatecovariance(paramList,start,init_z,Calc,upper,lower,x=None,y=None,
                        L=20,delta=1e-3):
     '''
@@ -205,10 +209,6 @@ def calculate_bsplinebasis(x,L):
         * **L** (:py:class:`int`): Number of cubic B-spline basis functions to
           model the background intensity. Default is 20.
 
-    Attributes:
-        - Bspline
-        - augknt
-
     Returns:
         * **B** (:py:class:`float`): B-spline basis for data - size (nxL)
     ''' 
@@ -227,7 +227,7 @@ def diffraction_file_data(x,y,Calc):
     Args:
         * **x** (:class:`~numpy.ndarray`): Predefined vector of 2-theta values, if it exists. 
         * **y** (:class:`~numpy.ndarray`): Predefined vector of diffraction pattern intensities, if it exists.   
-        * **Calc**(Class): calculator operator that interacts with the designated 
+        * **Calc** (Class): calculator operator that interacts with the designated 
           GPX file by referencing GSAS-II libraries.
 
     Returns:
@@ -286,7 +286,7 @@ def initialize_cov(initCov, q):
         raise ValueError("Specification for initCov is not valid. Please provide a (%d x %d) matrix." % (q, q))
     return varS1
 
-def initialize_output(iters,q,n_keep,L,update):
+def _initialize_output(iters,q,n_keep,L,update):
     # Initialize output objects
     all_Z = np.zeros((iters, q))
     keep_params = np.zeros((n_keep, q))
