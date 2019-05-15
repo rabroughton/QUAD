@@ -49,9 +49,6 @@ from .gsas_tools import Calculator as gsas_calculator
 import numpy as np
 import matplotlib.pyplot as plt
 
-import sys
-sys.path.insert(1, r'C:\Users\Rachel\g2conda\GSASII\bindist')
-sys.path.insert(2, r'C:\Users\Rachel\g2conda\GSASII')
 
 def estimatecovariance(paramList,start,init_z,Calc,upper,lower,x=None,y=None,
                        L=20,delta=1e-3):
@@ -120,6 +117,7 @@ def estimatecovariance(paramList,start,init_z,Calc,upper,lower,x=None,y=None,
     evals = np.linalg.eig(covariance)
     print("Covariance eignvalues:\n{}".format(evals[0]))
     return dict(cov=covariance,s2=s2,evals=evals)
+
 
 def z2par(z, lower, upper, grad=False):
     '''
