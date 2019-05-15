@@ -20,9 +20,9 @@ setup(
       url='https://github.com/rabroughton/QUAD',
       download_url='https://github.com/rabroughton/QUAD',
       author='Rachel Broughton',
-      author_email = 'rabrough@ncsu.edu'
+      author_email = 'rabrough@ncsu.edu',
       package_dir={'QUAD': 'QUAD'},
       packages=find_packages(),
       zip_safe=False,
-      install_requires=['scipy>=1.0', 'statsmodels>=0.9.0', 'matplotlib>=2.2.0', 'bspline>=0.1.1']
+      install_requires=['scipy>=1.0', 'statsmodels>=0.9.0', 'matplotlib>=2.2.0', 'bspline>=0.1.1'],
       )
