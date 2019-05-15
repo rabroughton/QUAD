@@ -1,5 +1,5 @@
 Quantitative Uncertainty Analysis for Diffraction (QUAD)
-====
+========================================================
 
 This is a research tool that allows analysis of X-ray and neutron
 diffraction data to infer the structure of materials with quantifiable 

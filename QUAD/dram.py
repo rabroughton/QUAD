@@ -67,7 +67,7 @@ def estimatecovariance(paramList,start,init_z,Calc,upper,lower,x=None,y=None,
         * **paramList** (:py:class:`list`): List of parameter names for refinement - size (qx1).
         * **start** (:class:`~numpy.ndarray`): Initial parameter values in parameter space - size (qx1). 
         * **init_z** (:class:`~numpy.ndarray`): Initial parameter values in z-space - size (qx1).
-        * **Calc**(Class): calculator operator that interacts with the designated 
+        * **Calc** (:class:`.Calculator`): calculator operator that interacts with the designated 
           GPX file by referencing GSAS-II libraries.
         * **upper** (:class:`~numpy.ndarray`): Vector of upper limits on a 
           uniform prior distribution in the parameter space - size (qx1).
@@ -175,7 +175,7 @@ def logf(y, x, BG, Calc, paramList, z, lower, upper, scale, tau_y, m0, sd0):
         * **y** (:class:`~numpy.ndarray`): Vector of diffraction pattern intensities - size (nx1).
         * **x** (:class:`~numpy.ndarray`): Vector of 2-theta values - size (nx1).
         * **BG** (:class:`~numpy.ndarray`): Vector of background intensity values - size (nx1).
-        * **Calc**(Class): calculator operator that interacts with the designated 
+        * **Calc** (:class:`~.Calculator`): calculator operator that interacts with the designated 
           GPX file by referencing GSAS-II libraries.
         * **paramList** (:py:class:`list`): List of parameter names for refinement - size (qx1). 
         * **z** (:class:`~numpy.ndarray`): Current parameter values in z-space - size (qx1). 
@@ -227,7 +227,7 @@ def diffraction_file_data(x,y,Calc):
     Args:
         * **x** (:class:`~numpy.ndarray`): Predefined vector of 2-theta values, if it exists. 
         * **y** (:class:`~numpy.ndarray`): Predefined vector of diffraction pattern intensities, if it exists.   
-        * **Calc** (Class): calculator operator that interacts with the designated 
+        * **Calc** (:class:`~.Calculator`): calculator operator that interacts with the designated
           GPX file by referencing GSAS-II libraries.
 
     Returns:
@@ -313,7 +313,7 @@ def update_background(B,var_scale,tau_y,tau_b,L,Calc,y):
           See :meth:`~update_taub`
         * **L** (:py:class:`int`): Number of cubic B-spline basis functions to 
           model the background intensity. Default is 20. 
-        * **Calc**(Class): calculator operator that interacts with the designated 
+        * **Calc** (:class:`~.Calculator`): calculator operator that interacts with the designated 
           GPX file by referencing GSAS-II libraries.
         * **y** (:class:`~numpy.ndarray`): Vector of diffraction pattern 
           intensity data - size(nx1). See :meth:`~diffraction_file_data`. 
@@ -420,7 +420,7 @@ def update_tauy(y, BG, Calc, var_scale, d_y, c_y, n):
           intensities - size (nx1).
         * **BG** (:class:`~numpy.ndarray`): Vector of background intensity
           values - size (nx1).
-        * **Calc**(Class): calculator operator that interacts with the
+        * **Calc** (:class:`~.Calculator`): calculator operator that interacts with the
           designated GPX file by referencing GSAS-II libraries.
         * **var_scale** (:class:`~numpy.ndarray`): Vector that scales with the
           intensity of data, heteroscedastic.
