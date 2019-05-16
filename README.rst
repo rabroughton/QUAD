@@ -34,6 +34,8 @@ For use in a python script, the GSAS-II path must be appended.
 **Authors:** Susheela Singh, Christopher M. Fancher, Alyson Wilson, Brian Reich, 
 Zhen Han, Ralph C. Smith, and Jacob L. Jones
 
+**Maintainers:** Rachel A. Broughton and Paul R. Miles
+
 **Funding:**
   * NSF: DMR-1445926 (RADAR Project ID 2014-2831)
   * Consortium for Nonproliferation Enabling Capabilities [Department of Energy, National Nuclear Security Administration]: DE-NA0002576 (RADAR Project ID 2014-0501)
