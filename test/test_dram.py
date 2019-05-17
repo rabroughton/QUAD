@@ -65,3 +65,20 @@ class CalcBSplineBasis(unittest.TestCase):
         B = dram.calculate_bsplinebasis(x, L)
         self.assertTrue(isinstance(B, np.ndarray), msg='Expect numpy array')
         self.assertEqual(B.shape, (x.size, L), msg='Expect nxL')
+
+
+class SmoothYData(unittest.TestCase):
+
+    def test_io(self):
+        x = np.random.rand(10,)
+        y = np.random.rand(10,)
+        y_sm = dram.smooth_ydata(x, y)
+        self.assertTrue(isinstance(y, np.ndarray), msg='Expect numpy array')
+        self.assertEqual(y_sm.shape, y.shape, msg='Expect matching size array')
+
+    def test_wrong_size_array(self):
+        x = np.random.rand(10, 1)
+        y = np.random.rand(10, 1)
+        y_sm = dram.smooth_ydata(x, y)
+        self.assertTrue(isinstance(y, np.ndarray), msg='Expect numpy array')
+        self.assertEqual(y_sm.shape, (10,), msg='Expect matching size array')
