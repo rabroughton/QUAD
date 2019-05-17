@@ -66,8 +66,8 @@ import numpy as np
 import matplotlib.pyplot as plt
 
 
-def estimatecovariance(paramList,start,init_z,Calc,upper,lower,x=None,y=None,
-                       L=20,delta=1e-3):
+def estimatecovariance(paramList, start, init_z, Calc, upper, lower,
+                       x=None, y=None, L=20,delta=1e-3):
     '''
     Estimate the covariance of the initial parameter values to initialize the
     proposal covarianc for DRAM. This is done by first calculating the 
