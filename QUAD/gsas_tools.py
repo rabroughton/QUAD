@@ -106,7 +106,7 @@ class Calculator:
             self._tth = Histograms[list(Histograms.keys())[0]]['Data'][0][0:-1]
             self._tthsample = self._tth[np.where(
                     (self._tth > self._lowerLimit) &
-                    (self._tth < self._upperLimit) is True)]
+                    (self._tth < self._upperLimit) == True)]
             self._SingleXtal = False
         except:
             self._tth = None
