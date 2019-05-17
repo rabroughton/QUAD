@@ -44,7 +44,23 @@ try:  # Bspline helper function
     from .splinelab import augknt
 except ModuleNotFoundError:
     from bspline.splinelab import augknt
-from .gsas_tools import Calculator as gsas_calculator
+try:
+    from .gsas_tools import Calculator as gsas_calculator
+except ModuleNotFoundError:
+    print('When importing gsas_tools a "ModuleNotFoundError" occured.  '
+          + 'This usually occurs when GSAS-II has not been installed '
+          + 'or it has not been correctly added to the Python search '
+          + 'path.')
+    print('For details on how to install GSAS-II, please refer to the '
+          + 'software homepage:\n\t'
+          + 'https://subversion.xray.aps.anl.gov/trac/pyGSAS')
+    print('To add GSAS-II to the Python search path, appending the following'
+          + 'to your script:'
+          + '\n\timport sys'
+          + '\n\tsys.path.append("<path>/GSASII")'
+          + '\n\t# May need to append one or both of these paths as well'
+          + '\n\tsys.path.append("<path>/GSASII/fsource")'
+          + '\n\tsys.path.append("<path>/GSASII/bindist")')
 # Import modules
 import numpy as np
 import matplotlib.pyplot as plt
