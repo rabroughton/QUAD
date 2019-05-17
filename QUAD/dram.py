@@ -326,7 +326,8 @@ def smooth_ydata(x, y):
           data - size (nx1).
     '''
     # Smooth the observed Ys on the Xs, patch for negative or 0 values
-    y_sm = lowess(endog=y, exog=x, frac=6.0/len(x), return_sorted=False)
+    y_sm = lowess(endog=y.reshape(y.size,), exog=x.reshape(x.size,),
+                  frac=6.0/len(x), return_sorted=False)
     y_sm = np.array([max(0, sm) for sm in y_sm])
     return y_sm
 
