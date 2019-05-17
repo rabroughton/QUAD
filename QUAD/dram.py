@@ -222,7 +222,7 @@ def log_post(y, x, BG, Calc, paramList, z, lower, upper, scale, tau_y, m0, sd0):
     return (-1)*l
 
 
-def calculate_bsplinebasis(x,L):
+def calculate_bsplinebasis(x, L):
     '''
     Calculate a B-spline basis for the 2-theta values. 
 
@@ -235,14 +235,14 @@ def calculate_bsplinebasis(x,L):
         * **B** (:py:class:`float`): B-spline basis for data - size (nxL)
     ''' 
     # Calculate a B-spline basis for the range of x
-    unique_knots = np.percentile(a=x, q=np.linspace(0, 100, num=(L-2)))
+    unique_knots = np.percentile(a=x, q=np.linspace(0, 100, num=(L - 2)))
     knots = augknt(unique_knots, 3)
     objB = Bspline(knots, order=3)
     B = objB.collmat(x)
     return B
 
 
-def diffraction_file_data(x,y,Calc):
+def diffraction_file_data(x, y, Calc):
     '''
     Extract the intensity values (y) and 2-theta angles (x) from the underlying GPX file
     or set the user-defined data values.
@@ -264,7 +264,8 @@ def diffraction_file_data(x,y,Calc):
     '''     
     # Assign the intensity vector (y) from the GPX file, if necessary
     if y is None:
-        Index = np.where((Calc._tth>Calc._lowerLimit) & (Calc._tth<Calc._upperLimit) == True)
+        Index = np.where((Calc._tth>Calc._lowerLimit) &
+                         (Calc._tth<Calc._upperLimit) is True)
         y = np.array(Calc._Histograms[list(Calc._Histograms.keys())[0]]['Data'][1][Index], copy=True)
 
     # Assign the grid of angles (x) from the GPX file, if no values are provided.
@@ -277,7 +278,7 @@ def diffraction_file_data(x,y,Calc):
     return x,y
 
 
-def smooth_ydata(x,y):
+def smooth_ydata(x, y):
     '''
     Smooth diffraction data intensities at 2-theta values with
     Locally Weighted Scatterplot Smoothing (lowess) function from statsmodels_.
@@ -319,7 +320,7 @@ def initialize_cov(initCov, q):
     return varS1
 
 
-def _initialize_output(iters,q,n_keep,L,update):
+def _initialize_output(iters, q, n_keep, L, update):
     # Initialize output objects
     all_Z = np.zeros((iters, q))
     keep_params = np.zeros((n_keep, q))
@@ -329,10 +330,11 @@ def _initialize_output(iters,q,n_keep,L,update):
     keep_tau_b = np.zeros(n_keep)
     accept_rate_S1 = np.zeros(n_keep//update)
     accept_rate_S2 = np.zeros(n_keep//update)
-    return all_Z,keep_params,keep_gamma,keep_b,keep_tau_y,keep_tau_b,accept_rate_S1,accept_rate_S2
+    return (all_Z, keep_params, keep_gamma, keep_b,
+            keep_tau_y, keep_tau_b, accept_rate_S1, accept_rate_S2)
 
 
-def update_background(B,var_scale,tau_y,tau_b,L,Calc,y):
+def update_background(B, var_scale, tau_y, tau_b, L, Calc, y):
     '''
     Update the basis function loadings and then background values.
 
@@ -429,7 +431,8 @@ def stage1_acceptprob(z, varS1, y, x, BG, Calc, paramList, lower, upper,
     return can_z1, can1_post, cur_post, R1
 
 
-def stage2_acceptprob(can1_post,can2_post,cur_post,can_z1,can_z2,z,varS1):
+def stage2_acceptprob(can1_post, can2_post, cur_post,
+                      can_z1, can_z2, z, varS1):
     '''
     Calculate the acceptance probability for Stage 2 of the DRAM algorithm.
 
@@ -473,7 +476,7 @@ def stage2_acceptprob(can1_post,can2_post,cur_post,can_z1,can_z2,z,varS1):
     return R2
 
 
-def adapt_covariance(i,adapt,s_p,all_Z,epsilon,q,varS1):
+def adapt_covariance(i, adapt, s_p, all_Z, epsilon, q, varS1):
     '''
     Adapt the covariance matrix at the given adaption interval. 
 
@@ -498,7 +501,7 @@ def adapt_covariance(i,adapt,s_p,all_Z,epsilon,q,varS1):
     return varS1
 
 
-def update_taub(d_g,gamma,c_g,L):
+def update_taub(d_g, gamma, c_g, L):
     '''
     Update the background model precision.
 
@@ -617,7 +620,7 @@ def initialize_intensity_weight(x, y, scaling_factor=1):
           corresponding to intensity data - size (nx1).
     '''
     y_sm = smooth_ydata(x=x, y=y)
-    var_scale = scaling_factor*y_sm + 1                 # Scale for y_sm/tau_y
+    var_scale = scaling_factor*y_sm + 1  # Scale for y_sm/tau_y
     return var_scale
 
 
