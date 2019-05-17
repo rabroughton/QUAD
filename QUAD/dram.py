@@ -258,7 +258,7 @@ def calculate_bsplinebasis(x, L):
           model the background intensity. Default is 20.
 
     Returns:
-        * **B** (:py:class:`float`): B-spline basis for data - size (nxL)
+        * **B** (:class:`~numpy.ndarray`): B-spline basis for data - size (nxL)
     '''
     # Calculate a B-spline basis for the range of x
     unique_knots = np.percentile(a=x, q=np.linspace(0, 100, num=(L - 2)))
