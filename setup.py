@@ -24,5 +24,5 @@ setup(
       package_dir={'QUAD': 'QUAD'},
       packages=find_packages(),
       zip_safe=False,
-      install_requires=['scipy>=1.0', 'statsmodels>=0.9.0', 'matplotlib>=2.2.0', 'bspline>=0.1.1'],
+      install_requires=['scipy>=1.0', 'statsmodels>=0.9.0', 'matplotlib>=2.2.0', 'bspline>=0.1.1', 'seaborn>=0.9.0],
       )
