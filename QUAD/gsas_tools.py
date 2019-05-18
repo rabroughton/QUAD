@@ -1,10 +1,23 @@
 # Here load up the package outside of the function to make it a one time thing
 # minimal cost because this is only loaded once
-import GSASIIstrIO as G2stIO
 import pylab as plt
 import numpy as np
-import GSASIIlattice as G2latt
-import GSASIIstrMath as G2strMath
+from .utilities import gsas_install_display
+
+try:
+    import GSASIIstrIO as G2stIO
+except ModuleNotFoundError:
+    gsas_install_display(module='GSASIIstrIO')
+
+try:
+    import GSASIIlattice as G2latt
+except ModuleNotFoundError:
+    gsas_install_display(module='GSASIIlattice')
+
+try:
+    import GSASIIstrMath as G2strMath
+except ModuleNotFoundError:
+    gsas_install_display(module='GSASIIstrMath')
 
 
 class Calculator:
@@ -32,9 +45,11 @@ class Calculator:
     Phases contains information about the phases in the material
     (Space group, atom positions, Debye-Waller factors,
     preferred orientation, ....)
+    
     Change between isotropic and anisotropic Debye-Waller factors:
         Phases[Phases.keys()[0]]['Atoms'][X][9] = 'I' (isotropic)
         or 'A' (anisotropic) [X represents atom number (0 to n-1)]
+
     Debye-Waller factors are controled by:
         Phases[Phases.keys()[0]]['Atoms'][X][10-16]
         (isotropic case only used element 10)
