@@ -1,15 +1,17 @@
-# Here load up the package outside of the function to make it a one time thing
-# minimal cost because this is only loaded once
 import GSASIIstrIO as G2stIO
-import pylab as plt
 import numpy as np
 import GSASIIlattice as G2latt
 import GSASIIstrMath as G2strMath
+import GSASIIpath as G2path
 
 
 class Calculator:
     '''
-    How it works
+    This script calls the neccessary functions for QUAD from
+    the GSAS-II program which are regularly updated by the GSAS-II developers.
+    (https://subversion.xray.aps.anl.gov/trac/pyGSAS)
+    
+    How it works:
 
     Variables are stored in various python dictionaries
     (parmDict, calcControls, Phases, and Histograms)
@@ -41,10 +43,8 @@ class Calculator:
 
     Histograms contains information about the diffraction data
     file (this should not be changed)
-
-    This script calls the neccessary functions for QUAD from
-    the GSAS-II program which are regularly updated by the GSAS-II developers.
     '''
+    
     def __init__(self, GPXfile=None):
         '''
         Initialize the setup using an existing GPXfile
@@ -53,8 +53,7 @@ class Calculator:
             # TO DO: Raise name error
             raise NameError('Must input some GPX file')
         # Initallizing variables from input file GPXfile
-        # Code from Chris
-        # time0 = time.time()
+        G2path.SetBinaryPath()
         varyList = []
         parmDict = {}
         Controls = G2stIO.GetControls(GPXfile)
@@ -116,14 +115,11 @@ class Calculator:
             self._Fcsq = 0
             self._SingleXtal = True
 
-# print 'variable initallizing time: %.3fs...Successful'%(time.time()-time0)
 
     def Calculate(self):
         '''
-        Calculate the f and g for the current parameter setup
-        '''
-        # time0 = time.time()
-        '''
+        Calculate the profile fit for the current parameter setup
+
             #Load the parameters
             Histograms = self._Histograms
             varyList = self._varyList
@@ -134,207 +130,40 @@ class Calculator:
             restraintDict = self._restraintDict
             rbIds = self._rbIds
         '''
-        # getPowderProfile(parmDict, x, varylist, Histogram,
-        #                  Phases, calcControls, pawleyLookup):
         yc1 = G2strMath.getPowderProfile(
                 self._parmDict, self._tthsample, self._varyList,
                 self._Histograms[list(self._Histograms.keys())[0]],
                 self._Phases, self._calcControls, self._pawleyLookup)[0]
         return yc1
 
-    def CalculateSXtal(self):
-        G2strMath.GetFobsSq(self._Histograms, self._Phases,
-                            self._parmDict, self._calcControls)
-        Fosq, FoSig, Fcsq = [], [], []
-        for key in self._Histograms.keys():
-            for hkl in range(len(self._Histograms[key]['Data']['RefList'])):
-                # Diff = np.abs(Calc._Histograms[key]['Data']['RefList'][hkl][5] - Calc._Histograms[key]['Data']['RefList'][hkl][5]) / Calc._Histograms[key]['Data']['RefList'][hkl][6]
-                # if np.abs(self._Histograms[key]['Data']['RefList'][hkl][5] - self._Histograms[key]['Data']['RefList'][hkl][7]) / self._Histograms[key]['Data']['RefList'][hkl][6] < self._MaxDiffSig:
-                #   Fosq.append(self._Histograms[key]['Data']['RefList'][hkl][5])
-                #   Fcsq.append(self._Histograms[key]['Data']['RefList'][hkl][7])
-                #   FoSig.append(self._Histograms[key]['Data']['RefList'][hkl][6])
-
-                Fosq.append(self._Histograms[key]['Data']['RefList'][hkl][5])
-                Fcsq.append(self._Histograms[key]['Data']['RefList'][hkl][7])
-                FoSig.append(self._Histograms[key]['Data']['RefList'][hkl][6])
-
-        if self._MaxDiffSig:
-            print('Yes')
-            Fosq = np.array(Fosq)
-            Fcsq = np.array(Fcsq)
-            FoSig = np.array(FoSig)
-            Index = np.abs(Fosq-Fcsq)/FoSig < self._MaxDiffSig
-
-            self._Fosq = Fosq[Index]
-            self._Fcsq = Fcsq[Index]
-            self._FoSig = FoSig[Index]
-        else:
-            self._Fosq = np.array(Fosq)
-            self._Fcsq = np.array(Fcsq)
-            self._FoSig = np.array(FoSig)
-
-    def CalculateDeriv(self):
-        return np.sum(G2strMath.getPowderProfileDervMP(
-                self._parmDict, self._tthsample, self._varyList,
-                self._Histograms[self._Histograms.keys()[0]],
-                self._Phases, self._rigidbodyDict, self._calcControls,
-                self._pawleyLookup), axis=1)
-
-    def CalculateHessian(self):
-        values = np.array(G2strMath.Dict2Values(
-                self._parmDict, self._varyList))
-        Z = G2strMath.HessRefine(
-                values,
-                [self._Histograms, self._Phases,
-                 self._restraintDict, self._rigidbodyDict],
-                self._parmDict, self._varyList,
-                self._calcControls, self._pawleyLookup, None)
-        return Z[1]
-
-    def CalculateJacob(self):
-        values = np.array(G2strMath.Dict2Values(
-                self._parmDict, self._varyList))
-        Y = G2strMath.dervRefine(
-                values,
-                [self._Histograms, self._Phases,
-                 self._restraintDict, self._rigidbodyDict],
-                self._parmDict, self._varyList,
-                self._calcControls, self._pawleyLookup, None)
-        return Y
-#        return np.sum(Y, axis=1)
-
-    def pinv(a, rcond=1e-15):
-        '''
-        Compute the (Moore-Penrose) pseudo-inverse of a matrix.
-
-        Modified from numpy.linalg.pinv; \
-        Assumes a is Hessian & returns no. zeros found
-        Calculate the generalized inverse of a matrix using its
-        singular-value decomposition (SVD) and including all
-        *large* singular values.
-
-        :param array a: (M, M) array_like - here assumed to be LS Hessian
-          Matrix to be pseudo-inverted.
-        :param float rcond: Cutoff for small singular values.
-          Singular values smaller (in modulus) than
-          `rcond` * largest_singular_value (again, in modulus)
-          are set to zero.
-
-        :returns: B : (M, M) ndarray
-          The pseudo-inverse of `a`
-
-        Raises: LinAlgError
-          If the SVD computation does not converge.
-
-        .. note::
-          The pseudo-inverse of a matrix A, denoted :math:`A^+`, is
-          defined as: "the matrix that 'solves' [the least-squares problem]
-          :math:`Ax = b`," i.e., if :math:`\\bar{x}` is said solution, then
-          :math:`A^+` is that matrix such that :math:`\\bar{x} = A^+b`.
-
-        It can be shown that if :math:`Q_1 \\Sigma Q_2^T = A` is the singular
-        value decomposition of A, then
-        :math:`A^+ = Q_2 \\Sigma^+ Q_1^T`, where :math:`Q_{1,2}` are
-        orthogonal matrices, :math:`\\Sigma` is a diagonal matrix consisting
-        of A's so-called singular values, (followed, typically, by
-        zeros), and then :math:`\\Sigma^+` is simply the diagonal matrix
-        consisting of the reciprocals of A's singular values
-        (again, followed by zeros). [1]
-
-        References:
-        .. [1] G. Strang, *Linear Algebra and Its Applications*, \
-        2nd Ed., Orlando, FL, Academic Press, Inc., 1980, pp. 139-142.
-        '''
-        u, s, vt = np.linalg.svd(a, 0)
-        cutoff = rcond*np.maximum.reduce(s)
-        s = np.where(s > cutoff, 1./s, 0.)
-        nzero = s.shape[0] - np.count_nonzero(s)
-        # res = np.dot(np.transpose(vt),
-        #              np.multiply(s[:, np.newaxis], np.transpose(u)))
-        res = np.dot(vt.T, s[:, np.newaxis]*u.T)
-        return res, nzero
-
-    # Get CovMatrix
-    # There are alternate methods to pull the covariance matrix out
-    def getCovMatrix(self, ParmVarDict):
-        # [self._Histograms,self._Phases,self._restraintDict,self._rigidbodyDict],
-        # self._parmDict,ParmVarDict,self._calcControls,self._pawleyLookup
-        '''
-        Core optimization routines, shared between SeqRefine and Refine
-
-        :returns: 5-tuple of ifOk (bool), Rvals (dict),\
-        result, covMatrix, sig
-        '''
-        HistoPhases = (self._Histograms, self._Phases,
-                       self._restraintDict, self._rigidbodyDict)
-#        xtol = 1.e-6
-
-        values = np.array(G2strMath.Dict2Values(self._parmDict, ParmVarDict))
-        Chisq = G2strMath.errRefine(
-                values, HistoPhases, self._parmDict, ParmVarDict,
-                self._calcControls, self._pawleyLookup, None)
-        Nobs = len(self.Calculate())
-        Chisq = np.sum(Chisq**2)
-        GOF = np.sqrt(Chisq/(Nobs-len(ParmVarDict)))
-        Yvec, Amat = G2strMath.HessRefine(
-                values, HistoPhases, self._parmDict,
-                ParmVarDict, self._calcControls, self._pawleyLookup,
-                None)
-        Adiag = np.sqrt(np.diag(Amat))
-        Anorm = np.outer(Adiag, Adiag)
-        Amat = np.array(Amat/Anorm)
-        # Moore-Penrose inversion (via SVD) & count of zeros
-        Bmat, Nzero = self.pinv(Amat)
-        Bmat = Bmat/Anorm
-
-        covMatrix = Bmat*GOF**2
-        return covMatrix
-
-#    def SaveData(self,OutputFileName):
-#        x, yc, yb  = self.Calculate()
-#        outputFile = open( OutputFileName, 'w' )
-#        for i in xrange( len( x ) ):
-#            outputFile.write( str(x[i]) + '\t'
-#                             + str(yc[i]) + '\t' + str(yb[i]) + '\n')
-
-    def Draw(self, SaveFigure=None):
-        '''
-        Calculate the f and g for the current parameter setup
-        '''
-        x, yc, yb = self.Calculate()
-
-        plt.plot(x, yc + yb)
-        if SaveFigure:
-            plt.savefig(SaveFigure)
-        else:
-            plt.show()
 
     def UpdateLattice(self, parmVarDict):
+        '''
+        Update the lattice parameters in the current model
+        '''
         a, b, c, alpha, beta, gamma = None, None, None, None, None, None
         for key in parmVarDict.keys():
             if key == 'a':
                 a = parmVarDict[key]
                 parmVarDict.pop(key, None)
             elif key == 'b':
-                a = parmVarDict[key]
+                b = parmVarDict[key]
                 parmVarDict.pop(key, None)
             elif key == 'c':
                 c = parmVarDict[key]
                 parmVarDict.pop(key, None)
             elif key == 'alpha':
-                a = parmVarDict[key]
+                alpha = parmVarDict[key]
                 parmVarDict.pop(key, None)
             elif key == 'beta':
-                a = parmVarDict[key]
+                beta = parmVarDict[key]
                 parmVarDict.pop(key, None)
             elif key == 'gamma':
-                a = parmVarDict[key]
+                gamma = parmVarDict[key]
                 parmVarDict.pop(key, None)
 
-
 # Symmetry Options:
-# Cubic, Tetragonal, Hexagonal, Rhombohedral,
-# Orthorhombic, Monoclinic, Triclinic
+# Cubic, Tetragonal, Hexagonal, Rhombohedral, Orthorhombic, Monoclinic, Triclinic
 
         if self.Symmetry == 'Cubic':
             b = a
@@ -450,15 +279,3 @@ class Calculator:
             parmVarDict.pop('EXT', None)
 
         self._parmDict.update(parmVarDict)
-        '''
-            #Load the parameters
-            Histograms = self._Histograms
-            varyList = self._varyList
-            parmDict = self._parmDict
-            Phases = self._Phases
-            calcControls = self._calcControls
-            pawleyLookup = self._pawleyLookup
-            restraintDict = self._restraintDict
-            rbIds = self._rbIds
-        '''
-# print 'Successful'

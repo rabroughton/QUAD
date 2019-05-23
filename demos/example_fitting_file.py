@@ -10,19 +10,21 @@ from __future__ import division  # Use "real" division
 import sys
 import os
 
-sys.path.insert(1, r'C:\Users\Rachel\g2conda\GSASII\bindist')
-sys.path.insert(2, r'C:\Users\Rachel\g2conda\GSASII')
+#sys.path.insert(1, r'C:\Users\Rachel\g2conda\GSASII\bindist')
+#sys.path.insert(2, r'C:\Users\Rachel\g2conda\GSASII')
+
+sys.path.append('/Users/Rachel/g2conda/GSASII/bindist')
+sys.path.append('/Users/Rachel/g2conda/GSASII')
 
 # Import modules
 import numpy as np
 import matplotlib.pyplot as plt
 import seaborn as sns
 from scipy.stats import norm
-from QUAD import gsas_tools as gsas  # GSAS calculator
-#from estimate_covariance import estimatecovariance 
+from QUAD import gsas_tools as gsas  # GSAS calculator 
 # Source the MCMC function
-from QUAD import dram 
-
+from QUAD import dram
+import pickle
 
 # Identify GPX file location and set up the parameter list
 gpxFile = '11BM_Si_640C_Refinement1_2thetaLims.gpx'
@@ -32,7 +34,6 @@ Calc = gsas.Calculator(GPXfile=gpxFile)
 #Prints which parameters are currently being refined in the GPX file
 print('Parameters from gpx file')
 print(Calc._varyList)
-
 
 # Delete parameters you do not want to refine from the paramList
 paramList = [key for key in Calc._varyList if (key!=':0:DisplaceX' and key!='0::AUiso:0' and 'Back;' not in key)]
@@ -87,7 +88,7 @@ params, curr_keep, varS1, sig2, gamma, mins, accept_rate1, accept_rate2 = dram.n
 #SetupOutput Folder
 filename = os.path.split(gpxFile)
 foldername = filename[1].split('.')
-path = './results/' + foldername[0] + 'test2' # + other identifying information if desired
+path = './results/' + foldername[0] + 'test' # + other identifying information if desired
 
 os.mkdir(path)
 
@@ -135,3 +136,6 @@ np.savetxt(path + '/Stage 2 acceptance', accept_rate2)
 f= open(path + "\DRAM_inputs.txt","w+")
 f.write("shrinkage: %05.2f\r\n adaption interval: %10.0f\r\n number of samples: %10.0f\r\n burn-in: %10.0f\r\n" % (shrinkage, adapt, samples, burn))
 f.close()
+
+with open(path + '\parameter_list', 'wb') as fp:
+    pickle.dump(paramList, fp)
