@@ -40,6 +40,7 @@ from scipy.stats import norm
 from scipy.stats import multivariate_normal as mvnorm
 import statsmodels.api as sm  # Library for lowess smoother
 lowess = sm.nonparametric.lowess  # Lowess smoothing function
+
 try:  # Bspline function
     from .bspline import Bspline
 except ModuleNotFoundError:
@@ -69,23 +70,21 @@ def estimatecovariance(paramList, start, init_z, Calc, upper, lower,
 
     Args:
         * **paramList** (:py:class:`list`): List of parameter names for
-          refinement - size (qx1).
+          refinement - size (q,).
         * **start** (:class:`~numpy.ndarray`): Initial parameter values
-          in parameter space - size (qx1).
+          in parameter space - size (q,). 
         * **init_z** (:class:`~numpy.ndarray`): Initial parameter values
-          in z-space - size (qx1).
+          in z-space - size (q,).
         * **Calc** (:class:`.Calculator`): calculator operator that interacts
           with the designated GPX file by referencing GSAS-II libraries.
-        * **upper** (:class:`~numpy.ndarray`): Vector of upper limits on a
-          uniform prior distribution in the parameter space - size (qx1).
-        * **lower** (:class:`~numpy.ndarray`): Vector of lower limits on a
-          uniform prior distribution in the parameter space - size (qx1).
-        * **x** (:class:`~numpy.ndarray`): Vector of 2-theta values -
-          size (nx1).
+        * **upper** (:class:`~numpy.ndarray`): Vector of upper limits on a 
+          uniform prior distribution in the parameter space - size (q,).
+        * **lower** (:class:`~numpy.ndarray`): Vector of lower limits on a 
+          uniform prior distribution in the parameter space - size (q,).
+        * **x** (:class:`~numpy.ndarray`): Vector of 2-theta values - size (n,).
           Will be created from the GPX file if not user-defined.
-        * **y** (:class:`~numpy.ndarray`): Vector of diffraction pattern
-          intensities - size (nx1). Will be created from the GPX file if
-          not user-defined.
+        * **y** (:class:`~numpy.ndarray`): Vector of diffraction pattern 
+          intensities - size (n,). Created from the GPX file if not user-defined.
         * **L** (:py:class:`int`): Number of cubic B-spline basis functions to
           model the background intensity. Default is 20.
         * **delta** (:py:class:`float`): Fraction by which the parameters are
@@ -139,18 +138,18 @@ def z2par(z, lower, upper, grad=False):
 
     Args:
         * **z** (:class:`~numpy.ndarray`): Array of parameter values in
-          z-space - size (qx1).
-        * **lower** (:class:`~numpy.ndarray`): Vector of lower limits on a
-          uniform prior distribution in the parameter space - size (qx1).
-        * **upper** (:class:`~numpy.ndarray`): Vector of upper limits on a
-          uniform prior distribution in the parameter space - size (qx1).
+          z-space - size (q,).
+        * **lower** (:class:`~numpy.ndarray`): Vector of lower limits on a 
+          uniform prior distribution in the parameter space - size (q,).
+        * **upper** (:class:`~numpy.ndarray`): Vector of upper limits on a 
+          uniform prior distribution in the parameter space - size (q,).
         * **grad** (:py:class:`bool`): If False (default), converts from the
           z-space to the parameter space. If True, function converts
           WHAT DOES THIS DO???
 
     Returns:
-        * **par** (:class:`~numpy.ndarray`): Array of parameter values in
-          parameter space from the given z values- size (qx1).
+        * **par** (:class:`~numpy.ndarray`): Array of parameter values in 
+          parameter space from the given z values- size (q,).
     '''
     if (grad):
         d = (upper-lower)*norm.pdf(z)
@@ -172,11 +171,11 @@ def prior_loglike(par, m0, sd0):
 
     Args:
         * **par** (:class:`~numpy.ndarray`): Array of parameter values in
-          z-space - size (qx1).
+          z-space - size (q,).
         * **m0** (:py:class:`float`): Mean of prior normal distribution on
-          z. Default is 0.
+          z. Default is 0. 
         * **sd0** (:py:class:`float`): Standard deviation of prior normal
-          distribution on z. Default is 1.
+          distribution on z. Default is 1. 
 
     Returns:
         * **prior** (:py:class:`float`): Value of prior distribution given
@@ -195,21 +194,21 @@ def log_post(y, x, BG, Calc, paramList, z, lower,
 
     Args:
         * **y** (:class:`~numpy.ndarray`): Vector of diffraction pattern
-          intensities - size (nx1).
+          intensities - size (n,).
         * **x** (:class:`~numpy.ndarray`): Vector of 2-theta values - size
-          (nx1).
+          (n,).
         * **BG** (:class:`~numpy.ndarray`): Vector of background intensity
-          values - size (nx1).
+          values - size (n,).
         * **Calc** (:class:`~.Calculator`): calculator operator that interacts
           with the designated GPX file by referencing GSAS-II libraries.
         * **paramList** (:py:class:`list`): List of parameter names for
-          refinement - size (qx1).
+          refinement - size (q,). 
         * **z** (:class:`~numpy.ndarray`): Current parameter values in
-          z-space - size (qx1).
-        * **lower** (:class:`~numpy.ndarray`): Vector of lower limits on a
-          uniform prior distribution in the parameter space - size (qx1).
-        * **upper** (:class:`~numpy.ndarray`): Vector of upper limits on a
-          uniform prior distribution in the parameter space - size (qx1).
+          z-space - size (q,). 
+        * **lower** (:class:`~numpy.ndarray`): Vector of lower limits on a 
+          uniform prior distribution in the parameter space - size (q,).
+        * **upper** (:class:`~numpy.ndarray`): Vector of upper limits on a 
+          uniform prior distribution in the parameter space - size (q,).   
         * **scale** (:class:`~numpy.ndarray`): Vector that scales with the
           intensity of data, heteroscedastic. See function
           :meth:`~initialize_intensity_weight`
@@ -241,14 +240,13 @@ def calculate_bsplinebasis(x, L):
     Calculate a B-spline basis for the 2-theta values.
 
     Args:
-        * **x** (:class:`~numpy.ndarray`): Vector of 2-theta values - size
-          (nx1).
+        * **x** (:class:`~numpy.ndarray`): Vector of 2-theta values - size (n,). 
         * **L** (:py:class:`int`): Number of cubic B-spline basis functions to
           model the background intensity. Default is 20.
 
     Returns:
-        * **B** (:class:`~numpy.ndarray`): B-spline basis for data - size (nxL)
-    '''
+        * **B** (:class:`~numpy.ndarray`): B-spline basis for data - size (n, L)
+    ''' 
     # Calculate a B-spline basis for the range of x
     unique_knots = np.percentile(a=x, q=np.linspace(0, 100, num=(L - 2)))
     knots = augknt(unique_knots, 3)
@@ -274,9 +272,9 @@ def diffraction_file_data(x, y, Calc):
         * 2-tuple containing the diffraction data. Tuple entries are
 
         #. **x** (:class:`~numpy.ndarray`): Vector of 2-theta values
-           - size (nx1).
+           - size (n,).
         #. **y** (:class:`~numpy.ndarray`): Vector of diffraction pattern
-           intensities - size (nx1).
+           intensities - size (n,).
 
     '''
     # Assign the intensity vector (y) from the GPX file, if necessary
@@ -306,14 +304,14 @@ def smooth_ydata(x, y):
 
     Args:
         * **y** (:class:`~numpy.ndarray`): Vector of diffraction pattern
-          intensities - size (nx1).
+          intensities - size (n,).
         * **x** (:class:`~numpy.ndarray`): Vector of 2-theta values from
-          diffraction pattern- size (nx1).
+          diffraction pattern- size (n,).
 
     Returns:
         * **y_sm** (:class:`~numpy.ndarray`): Vector of smoothed intensity
-          data - size (nx1).
-    '''
+          data - size (n,).
+    ''' 
     # Smooth the observed Ys on the Xs, patch for negative or 0 values
     y_sm = lowess(endog=y.reshape(y.size,), exog=x.reshape(x.size,),
                   frac=6.0/len(x), return_sorted=False)
@@ -327,13 +325,13 @@ def initialize_cov(initCov, q):
     distribution.
 
     Args:
-        * **initCov** (:class:`~numpy.ndarray`): Pre-defined initial covariance
-          matrix in z-space - size (qxq).
+        * **initCov** (:class:`~numpy.ndarray`): Pre-defined initial covariance 
+          matrix in z-space - size (q, q).
         * **q** (:py:class:`int`): Number of parameters.
 
     Returns:
         * **varS1** (:class:`~numpy.ndarray`): Covariance matrix in z-space
-          - size (qxq).
+          - size (q, q).
     '''
     if initCov is None:
         varS1 = np.diag(0.05*np.ones(q))
@@ -364,11 +362,10 @@ def update_background(B, var_scale, tau_y, tau_b, L, Calc, y):
     Update the basis function loadings and then background values.
 
     Args:
-        * **B** (:py:class:`float`): B-spline basis for 2-theta range -
-          size (nxL).
-          See :meth:`~calculate_bsplinebasis`.
-        * **var_scale** (:class:`~numpy.ndarray`): Vector of scaling factors
-          corresponding to intensity data- size (nx1).
+        * **B** (:py:class:`float`): B-spline basis for 2-theta range - size (n, L).
+          See :meth:`~calculate_bsplinebasis`. 
+        * **var_scale** (:class:`~numpy.ndarray`): Vector of scaling factors 
+          corresponding to intensity data- size (n,). 
           See function :meth:`~initialize_intensity_weight`
         * **tau_y** (:py:class:`float`): Model precision. See
           :meth:`~updat_tauy`
@@ -386,9 +383,9 @@ def update_background(B, var_scale, tau_y, tau_b, L, Calc, y):
           the data. Tuple entries are
 
         #. **gamma** (:class:`~numpy.ndarray`): Vector of updated basis
-           loadings - size (Lx1)
+           loadings - size (L,)
         #. **BG** (:class:`~numpy.ndarray`): Vector of updated background
-           intensity values - size (nx1).
+           intensity values - size (n,).
 
     '''
     BtB = np.matmul(np.transpose(B)/var_scale, B)
@@ -407,23 +404,22 @@ def stage1_acceptprob(z, varS1, y, x, BG, Calc, paramList, lower, upper,
 
     Args:
         * **z** (:class:`~numpy.ndarray`): Vector of current parameter
-          values in z-space - size(qx1).
+          values in z-space - size(q,).
         * **varS1** (:class:`~numpy.ndarray`): Current covariance matrix
-          - size(qxq).
+          - size(q, q).
         * **y** (:class:`~numpy.ndarray`): Vector of diffraction pattern
-          intensities - size (nx1).
-        * **x** (:class:`~numpy.ndarray`): Vector of 2-theta values -
-          size (nx1).
-        * **BG** (:class:`~numpy.ndarray`): Vector of background intensity
-          values - size (nx1).
+          intensities - size (n,).
+        * **x** (:class:`~numpy.ndarray`): Vector of 2-theta values - size (n,).
+        * **BG** (:class:`~numpy.ndarray`): Vector of background intensity values
+          - size (n,).
         * **Calc** (:class:`~.Calculator`): calculator operator that interacts
           with the designated GPX file by referencing GSAS-II libraries.
         * **paramList** (:py:class:`list`): List of parameter names for
-          refinement - size (qx1).
-        * **lower** (:class:`~numpy.ndarray`): Vector of lower limits on a
-          uniform prior distribution in the parameter space - size (qx1).
-        * **upper** (:class:`~numpy.ndarray`): Vector of upper limits on a
-          uniform prior distribution in the parameter space - size (qx1).
+          refinement - size (q,). 
+        * **lower** (:class:`~numpy.ndarray`): Vector of lower limits on a 
+          uniform prior distribution in the parameter space - size (q,).
+        * **upper** (:class:`~numpy.ndarray`): Vector of upper limits on a 
+          uniform prior distribution in the parameter space - size (q,).   
         * **var_scale** (:class:`~numpy.ndarray`): Vector that scales with the
           intensity of data, heteroscedastic. See function
           :meth:`~initialize_intensity_weight`
@@ -438,10 +434,10 @@ def stage1_acceptprob(z, varS1, y, x, BG, Calc, paramList, lower, upper,
         * 4-tuple containing the stage 1 acceptance probability, candidates,
           and respective log posterior values. Tuple entries are
 
-        #. **can_z1** (:class:`~numpy.ndarray`): Vector of candidate 1
-           parameter values in z-space - size(qx1). The candidate is
-           constructed from a multivariate normal distribution with mean z and
-           covariance of varS1. :math:`can\\_z1 = N_q(z,varS1)`.
+        #. **can_z1** (:class:`~numpy.ndarray`): Vector of candidate 1 parameter
+           values in z-space - size(q,). The candidate is constructed from a
+           multivariate normal distribution with mean z and covariance of varS1.
+           :math:`can\\_z1 = N_q(z,varS1)`.
         #. **can1_post** (:py:class:`float`): Value of the log posterior
            probability for candidate 1 parameter values, can_z1. Computed with
            :meth:`~log_post`.
@@ -474,17 +470,17 @@ def stage2_acceptprob(can1_post, can2_post, cur_post,
 
     Args:
         * **z** (:class:`~numpy.ndarray`): Vector of current parameter
-          values in z-space - size(qx1).
+          values in z-space - size(q,).
         * **cur_post** (:py:class:`float`): Value of the log posterior
           probability for the current parameter values.
         * **varS1** (:class:`~numpy.ndarray`): Current covariance matrix
-          - size(qxq).
+          - size(q, q).
         * **can_z1** (:class:`~numpy.ndarray`): Vector of candidate 1 parameter
-          values in z-space - size(qx1). The candidate is constructed from a
+          values in z-space - size(q,). The candidate is constructed from a
           multivariate normal distribution with mean z and covariance of varS1.
           :math:`can\\_z1 = N_q(z,varS1)`.
         * **can_z2** (:class:`~numpy.ndarray`): Vector of candidate 2 parameter
-          values in z-space - size(qx1). The candidate is constructed from a
+          values in z-space - size(q,). The candidate is constructed from a
           multivariate normal distribution with mean z and covariance of
           shrinkage*varS1. :math:`can\\_z2 = N_q(z,shrinkage*varS1)`
         * **can1_post** (:py:class:`float`): Value of the log posterior
@@ -520,22 +516,22 @@ def adapt_covariance(i, adapt, s_p, all_Z, epsilon, q, varS1):
     Args:
         * **i** (:py:class:`int`): Iteration number.
         * **adapt** (:py:class:`int`): Adaption interval, user-defined.
-          Default is 20.
+          Default is 20. 
         * **s_p** (:py:class:`float`): Scaling parameter for adapting the
-          covariance.  Default is :math:`\\frac{2.4^2}{q}` where q is the
-          size of the parameter space.
-        * **all_Z** (:class:`~numpy.ndarray`): Storage of z-space samples for
-          each iteration - size(iters x q)
+          covariance. Default is :math:`\\frac{2.4^2}{q}` where q is the size of
+          the parameter space.
+        * **all_Z** (:class:`~numpy.ndarray`): Storage of z-space samples for each
+          iteration - size(iters, q)
         * **epsilon** (:py:class:`float`): Constant to prevent singularity of
-          adaptive covariance.  Default is 0.0001.
-        * **q** (:py:class:`int`): Number of parameters.
-        * **varS1** (:class:`~numpy.ndarray`): Current covariance matrix -
-          size(qxq).
+          adaptive covariance. Default is 0.0001. 
+        * **q** (:py:class:`int`): Number of parameters. 
+        * **varS1** (:class:`~numpy.ndarray`): Current covariance matrix
+          - size(q, q).           
 
     Returns:
-        * **varS1** (:class:`~numpy.ndarray`): Adapted covariance matrix -
-          size(qxq).
-    '''
+        * **varS1** (:class:`~numpy.ndarray`): Adapted covariance matrix
+          - size(q, q).
+    '''  
     if (0 < i) & (i % adapt == 0):
         varS1 = s_p*np.cov(all_Z[range(i+1)].transpose()) + s_p*epsilon*np.diag(np.ones(q))
     else:
@@ -549,15 +545,14 @@ def update_taub(d_g, gamma, c_g, L):
 
     Args:
         * **d_g** (:py:class:`float`): Scale parameter for Gamma distribution
-          for the error in the prior distribution for the basis function
-          loadings.  Default is 0.1.
-        * **gamma** (:class:`~numpy.ndarray`): Basis function loadings -
-          size (Lx1).
-        * **c_g** (:py:class:`float`): Shape parameter for Gamma distribution
-          for the error in the prior distribution for the basis function
-          loadings.  Default is 0.1.
-        * **L** (:py:class:`int`): Number of cubic B-spline basis functions to
-          model the background intensity. Default is 20.
+          for the error in the prior distribution for the basis function loadings.
+          Default is 0.1. 
+        * **gamma** (:class:`~numpy.ndarray`): Basis function loadings - size (L,). 
+        * **c_g** (:py:class:`float`): Shape parameter for Gamma distribution 
+          for the error in the prior distribution for the basis function loadings. 
+          Default is 0.1.
+        * **L** (:py:class:`int`): Number of cubic B-spline basis functions to 
+          model the background intensity. Default is 20. 
 
     Returns:
         * **tau_b** (:py:class:`float`): Loadings precision for background.
@@ -573,9 +568,9 @@ def update_tauy(y, BG, Calc, var_scale, d_y, c_y, n):
 
     Args:
         * **y** (:class:`~numpy.ndarray`): Vector of diffraction pattern
-          intensities - size (nx1).
+          intensities - size (n,).
         * **BG** (:class:`~numpy.ndarray`): Vector of background intensity
-          values - size (nx1).
+          values - size (n,).
         * **Calc** (:class:`~.Calculator`): calculator operator that interacts
           with the designated GPX file by referencing GSAS-II libraries.
         * **var_scale** (:class:`~numpy.ndarray`): Vector that scales with the
@@ -653,15 +648,15 @@ def initialize_intensity_weight(x, y, scaling_factor=1):
 
     Args:
         * **y** (:class:`~numpy.ndarray`): Vector of diffraction pattern
-          intensities - size (nx1).
+          intensities - size (n,).
         * **x** (:class:`~numpy.ndarray`): Vector of 2-theta values from
-          diffraction pattern- size (nx1).
+          diffraction pattern- size (n,).
         * **scaling factor** (:py:class:`float`): Contribution of smoothed
           intensity data. Default is 1.
 
     Returns:
         * **var_scale** (:class:`~numpy.ndarray`): Vector of scaling factors
-          corresponding to intensity data - size (nx1).
+          corresponding to intensity data - size (n,).
     '''
     y_sm = smooth_ydata(x=x, y=y)
     var_scale = scaling_factor*y_sm + 1  # Scale for y_sm/tau_y
@@ -679,27 +674,29 @@ def nlDRAM(GPXfile, paramList, variables, init_z, lower, upper, initCov=None,
         * **GPXfile** (:py:class:`str`):
           Filepath for the GPX file underlying the current data
         * **paramList** (:py:class:`list`):
-          (q x 1) list of GSASII parameter names in the same order
+          (q) list of GSASII parameter names in the same order
           as the upper and lower limits being provided
+        * **variables** (:class:`~numpy.ndarray`):
+          (q,) vector of parameter names that matches 'paramList'
         * **init_z** (:class:`~numpy.ndarray`):
-          (q x 1) vector of initial values in the z-space
+          (q,) vector of initial values in the z-space
         * **lower** (:class:`~numpy.ndarray`):
-          (q x 1) vector of lower bounds for the parameter values
+          (q,) vector of lower bounds for the parameter values
         * **upper** (:class:`~numpy.ndarray`):
-          (q x 1) vector of upper bounds for the parameter values
+          (q,) vector of upper bounds for the parameter values
 
     Kwargs:
-        * **initCov** (:class:`~numpy.ndarray`) - `None`: (q x q) matrix to
-          be used as the covariance matrix for the
-          proposal distribution, default value is None.  If there is no
-          matrix specified, the function will use a diagonal matrix with
-          0.05 on the diagonal
+        * **initCov** (:class:`~numpy.ndarray`) - `None`: (q, q) matrix to
+          be used as the covariance matrix for the proposal distribution,
+          default value is None. Covariance matrix can be specified with the
+          estimate covariance function. If there is no matrix specified, the
+          function will use a diagonal matrix with 0.05 on the diagonal
         * **y** (:class:`~numpy.ndarray`) - `None`:
-          (n x 1) vector of intensities. If no values
+          (n,) vector of intensities. If no values
           are specified, the function uses the values from the provided GPX
           file
         * **x** (:class:`~numpy.ndarray`) - `None`:
-          (n x 1) vector of angles (2*theta). If no
+          (n,) vector of angles (2*theta). If no
           values are specified, the function uses the values from the provided
           GPX file
         * **L** (:py:class:`float`) - `20`:
@@ -708,35 +705,30 @@ def nlDRAM(GPXfile, paramList, variables, init_z, lower, upper, initCov=None,
         * **shrinkage** (:py:class:`float`) - `0.2`:
           Governs covariance change between proposal stages,
           default is 0.2
-        * **s_p** (:py:class:`float`): `2.4**2/d`
+        * **s_p** (:py:class:`float`): :math:`\\frac{2.4^2}{q}`
           Scaling parameter for the adaptive covariance, default is
-          set to (2.4**2)/d as in Gelman (1995), where d is the dimension of
-          the parameter space
+          set to :math:`\\frac{2.4^2}{q}` as in Gelman (1995), where q is the
+          dimension of the parameter space
         * **epsilon** (:py:class:`float`) - `0.0001`:
           Ridge constant to prevent singularity of the adaptive
           covariance.
-        * **m0** (:py:class:`float`) - `0`: Governs the mean value on the
-          latent Zs.
+        * **m0** (:py:class:`float`) - `0`: Governs the mean value on the latent
+          z-space of the parameters.
         * **sd0** (:py:class:`float`) - `1`: Governs the standard deviation
-          on the latent Zs
-        * **c_y** (:py:class:`float`) - 0.1: Shape parameter for Gamma
-          distribution of the error variance.
-        * **d_y** (:py:class:`float`) - 0.1: Scale parameter for Gamma
-          distribution of the error variance.
-        * **c_g** (:py:class:`float`) - 0.1: Shape parameter for Gamma
-          distribution for the error in the prior distribution for the basis
-          function loadings.
-        * **d_g** (:py:class:`float`) - 0.1: Scale parameter for Gamma
-          distribution for the error in the prior distribution for the basis
-          function loadings.
-        * **c_b** (:py:class:`float`) - 0.1: Shape parameter for Gamma
-          distribution for scale of the proportional constribution to the
-          error variance.
-        * **d_b** (:py:class:`float`) - 0.1: Scale parameter for Gamma
-          distribution for scale of the proportional constribution to the
-          error variance.
-        * **adapt** (:py:class:`float`): `20`
-          Controls the adaptation period.
+          on the latent z-space of the parameters.
+        * **c_y** (:py:class:`float`) - 0.1: Shape parameter for Gamma distribution
+          of the error variance.
+        * **d_y** (:py:class:`float`) - 0.1: Scale parameter for Gamma distribution
+          of the error variance.
+        * **c_g** (:py:class:`float`) - 0.1: Shape parameter for Gamma distribution
+          for the error in the prior distribution for the basis function loadings.
+        * **d_g** (:py:class:`float`) - 0.1: Scale parameter for Gamma distribution
+          for the error in the prior distribution for the basis function loadings.
+        * **c_b** (:py:class:`float`) - 0.1: Shape parameter for Gamma distribution
+          for scale of the proportional constribution to the error variance.
+        * **d_b** (:py:class:`float`) - 0.1: Scale parameter for Gamma distribution
+          for scale of the proportional constribution to the error variance.
+        * **adapt** (:py:class:`float`): `20`: Controls the adaptation period.
         * **thin** (:py:class:`float`) - `1`: Degree of thinning.
         * **iters** (:py:class:`float`) - `5000`: Number of total iterations
           to run.
@@ -748,26 +740,24 @@ def nlDRAM(GPXfile, paramList, variables, init_z, lower, upper, initCov=None,
           create trace plots as the sampler progresses.
 
     Returns:
-        * 5-tuple containing the posterior samples for the parameters and
+        * 8-tuple containing the posterior samples for the parameters and
           the model timing, tuple entries are
 
         #. **keep_params** (:class:`~numpy.ndarray`): Matrix of posterior
-           samples for the mean process parameters of interest - (nSamples x q)
+           samples for the mean process parameters of interest - (nSamples, q)
         #. **curr_keep** (:py:class:`int`): Number of samples kept. Equivalent
            to (iters - burn) if thin=1.
-        #. **varS1** (:class:`~numpy.ndarray`): Final adapated covariance
-           matrix. - size(qxq).
+        #. **varS1** (:class:`~numpy.ndarray`): Final adapated covariance matrix.
+           - size(q, q).
         #. **1.0/keep_tau_y** (:class:`~numpy.ndarray`): Vector of posterior
-           samples for the overall model variance - size(nSamples x 1)
-        #. **keep_gamma** (:class:`~numpy.ndarray`): Matrix of posterior
-           samples for the basis function loadings modeling the background
-           intensity - (nSamples x L)
+           samples for the overall model variance - size(nSamples,)
+        #. **keep_gamma** (:class:`~numpy.ndarray`): Matrix of posterior samples
+           for the basis function loadings modeling the background intensity
+           - (nSamples, L)
         #. **mins** (:py:class:`float`): Number of minutes the sampler took to
            complete.
-        #. **accept_rate_S1** (:py:class:`float`): Acceptance rate of stage 1
-           DRAM.
-        #. **accept_rate_S2** (:py:class:`float`): Acceptance rate of stage 2
-           DRAM.
+        #. **accept_rate_S1** (:py:class:`float`): Acceptance rate of stage 1 DRAM. 
+        #. **accept_rate_S2** (:py:class:`float`): Acceptance rate of stage 2 DRAM.
 
     '''
     Calc = gsas_calculator(GPXfile=GPXfile)
