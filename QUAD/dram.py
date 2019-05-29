@@ -283,7 +283,7 @@ def diffraction_file_data(x, y, Calc):
     # Assign the intensity vector (y) from the GPX file, if necessary
     if y is None:
         Index = np.where((Calc._tth > Calc._lowerLimit) &
-                         (Calc._tth < Calc._upperLimit) == True)
+                         (Calc._tth < Calc._upperLimit) == True)  # noqa: E712
         y = np.array(Calc._Histograms[list(Calc._Histograms.keys())[0]]['Data'][1][Index], copy=True)
 
     # Assign the grid of angles (x) from the GPX file, if no values are
