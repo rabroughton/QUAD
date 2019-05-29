@@ -8,6 +8,8 @@ Created on Tue Apr  9 13:51:37 2019
 import unittest
 from QUAD import dram
 import numpy as np
+from mock import patch
+
 
 class PriorLogLike(unittest.TestCase):
 
@@ -82,3 +84,18 @@ class SmoothYData(unittest.TestCase):
         y_sm = dram.smooth_ydata(x, y)
         self.assertTrue(isinstance(y, np.ndarray), msg='Expect numpy array')
         self.assertEqual(y_sm.shape, (10,), msg='Expect matching size array')
+
+
+class LogPost(unittest.TestCase):
+
+    @patch('QUAD.gsas_tools.Calculator.UpdateParameters', return_value=None)
+    @patch('QUAD.gsas_tools.Calculator.Calculate', return_value=np.zeros((100, 1)))
+    def test_io(self, mock1, mock2):
+        y = np.random.random_sample((100,))
+        x = y.copy()
+        BG = np.random.random_sample((100,))
+        Calc = None
+        paramList = ['a']
+        
+        a = dram.log_post(y, x, BG, Calc, paramList, z, lower,
+                          upper, scale, tau_y, m0, sd0)
