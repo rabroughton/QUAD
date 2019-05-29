@@ -27,7 +27,7 @@ class Calculator:
     This script calls the neccessary functions for QUAD from
     the GSAS-II program which are regularly updated by the GSAS-II developers.
     (https://subversion.xray.aps.anl.gov/trac/pyGSAS)
-    
+
     How it works:
 
     Variables are stored in various python dictionaries
@@ -51,7 +51,7 @@ class Calculator:
     Phases contains information about the phases in the material
     (Space group, atom positions, Debye-Waller factors,
     preferred orientation, ....)
-    
+
     Change between isotropic and anisotropic Debye-Waller factors:
         Phases[Phases.keys()[0]]['Atoms'][X][9] = 'I' (isotropic)
         or 'A' (anisotropic) [X represents atom number (0 to n-1)]
@@ -63,7 +63,6 @@ class Calculator:
     Histograms contains information about the diffraction data
     file (this should not be changed)
     '''
-    
     def __init__(self, GPXfile=None):
         '''
         Initialize the setup using an existing GPXfile
@@ -134,7 +133,6 @@ class Calculator:
             self._Fcsq = 0
             self._SingleXtal = True
 
-
     def Calculate(self):
         '''
         Calculate the profile fit for the current parameter setup
@@ -154,7 +152,6 @@ class Calculator:
                 self._Histograms[list(self._Histograms.keys())[0]],
                 self._Phases, self._calcControls, self._pawleyLookup)[0]
         return yc1
-
 
     def UpdateLattice(self, parmVarDict):
         '''
@@ -182,7 +179,8 @@ class Calculator:
                 parmVarDict.pop(key, None)
 
 # Symmetry Options:
-# Cubic, Tetragonal, Hexagonal, Rhombohedral, Orthorhombic, Monoclinic, Triclinic
+# Cubic, Tetragonal, Hexagonal, Rhombohedral,
+# Orthorhombic, Monoclinic, Triclinic
 
         if self.Symmetry == 'Cubic':
             b = a
