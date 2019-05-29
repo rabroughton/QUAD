@@ -70,10 +70,10 @@ def estimatecovariance(paramList, start, init_z, Calc, upper, lower,
 
     Args:
         * **paramList** (:py:class:`list`): List of parameter names for
-          refinement - size (q,).
-        * **start** (:class:`~numpy.ndarray`): Initial parameter values
-          in parameter space - size (q,). 
-        * **init_z** (:class:`~numpy.ndarray`): Initial parameter values
+          refinement - size (q).
+        * **start** (:py:class:`list`): List of initial parameter values
+          in parameter space - size (q). 
+        * **init_z** (:class:`~numpy.ndarray`): Vector of initial parameter values
           in z-space - size (q,).
         * **Calc** (:class:`.Calculator`): calculator operator that interacts
           with the designated GPX file by referencing GSAS-II libraries.
@@ -280,7 +280,7 @@ def diffraction_file_data(x, y, Calc):
     # Assign the intensity vector (y) from the GPX file, if necessary
     if y is None:
         Index = np.where((Calc._tth > Calc._lowerLimit) &
-                         (Calc._tth < Calc._upperLimit) is True)
+                         (Calc._tth < Calc._upperLimit) == True)
         y = np.array(Calc._Histograms[list(Calc._Histograms.keys())[0]]['Data'][1][Index], copy=True)
 
     # Assign the grid of angles (x) from the GPX file, if no values are
