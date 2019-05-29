@@ -125,7 +125,7 @@ class Calculator:
                     (self._tth > self._lowerLimit) &
                     (self._tth < self._upperLimit) == True)]  # noqa: E712
             self._SingleXtal = False
-        except:
+        except:  # noqa: E722
             self._tth = None
             self._MaxDiffSig = None
             self._Fosq = 0
