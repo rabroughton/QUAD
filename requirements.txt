@@ -1,7 +1,8 @@
 sphinxcontrib-bibtex
 sphinx_rtd_theme
-scipy>=1.0
+scipy==1.2
 statsmodels>=0.9.0
 matplotlib>=2.2.0
 bspline>=0.1.1
+seaborn>=0.9.0
 coveralls
