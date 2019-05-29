@@ -284,7 +284,7 @@ def diffraction_file_data(x, y, Calc):
     if y is None:
         Index = np.where((Calc._tth > Calc._lowerLimit) &
                          (Calc._tth < Calc._upperLimit) == True)  # noqa: E712
-        y = np.array(Calc._Histograms[list(Calc._Histograms.keys())[0]]['Data'][1][Index], copy=True)
+        y = np.array(Calc._Histograms[list(Calc._Histograms.keys())[0]]['Data'][1][Index], copy=True)  # noqa: E501
 
     # Assign the grid of angles (x) from the GPX file, if no values are
     # provided.
@@ -505,8 +505,10 @@ def stage2_acceptprob(can1_post, can2_post, cur_post,
     inner_d = inner_d + 1e-10 if inner_d == 0 else inner_d
     inner_d = inner_d - 1e-10 if inner_d == 1 else inner_d
     # Caclculate stage 2 acceptance probability
-    numer = can2_post + mvnorm.logpdf(x=can_z1, mean=can_z2, cov=varS1) + np.log(inner_n)
-    denom = cur_post + mvnorm.logpdf(x=can_z1, mean=z, cov=varS1) + np.log(inner_d)
+    numer = (can2_post + mvnorm.logpdf(x=can_z1, mean=can_z2, cov=varS1)
+             + np.log(inner_n))
+    denom = (cur_post + mvnorm.logpdf(x=can_z1, mean=z, cov=varS1)
+             + np.log(inner_d))
     R2 = numer - denom
     return R2
 
@@ -635,7 +637,8 @@ def traceplots(plot, q, keep_params, curr_keep, paramList, n_keep, update):
 
 def _check_parameter_specification(Calc, paramList):
     # Get indices of parameters to refine, even if they are "fixed" by bounds
-    useInd = [np.asscalar(np.where(np.array(Calc._varyList) == par)[0]) for par in paramList]
+    useInd = [np.asscalar(np.where(np.array(Calc._varyList) == par)[0])
+              for par in paramList]
     if (any(np.array(Calc._varyList)[useInd] != paramList)):
         raise ValueError("Parameter list specification is not valid.")
 
