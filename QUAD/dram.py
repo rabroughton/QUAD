@@ -883,7 +883,7 @@ def dram_twostage(GPXfile, paramList, variables, init_z, lower, upper,
             if (i-burn) % thin == 0:
                 keep_params[curr_keep] = params
                 keep_gamma[curr_keep] = gamma
-                #keep_b[curr_keep] = b
+                # keep_b[curr_keep] = b
                 keep_tau_y[curr_keep] = tau_y
                 keep_tau_b[curr_keep] = tau_b
                 curr_keep += 1
