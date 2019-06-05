@@ -7,9 +7,8 @@ Created on Tue Apr  9 13:51:37 2019
 
 import unittest
 from QUAD import dram
-from pseudo_GSASII import Calculator
+from pseudo_gsas_tools import Calculator
 import numpy as np
-from mock import patch
 
 
 class PriorLogLike(unittest.TestCase):
