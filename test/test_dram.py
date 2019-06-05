@@ -39,7 +39,10 @@ def setup_problem(q=9, n=100, L=20):
             scale=np.ones((n,)),
             varS1=np.random.random_sample((q, q)),
             L=L,
-            B=np.random.random_sample((n, L))
+            B=np.random.random_sample((n, L)),
+            delta=1e-3,
+            start=np.random.random_sample((q,)),
+            init_z=np.random.random_sample((q,)),
             )
 
 
@@ -50,19 +53,27 @@ def setup_args(tmp, keys):
     return items
 
 
-class PriorLogLike(unittest.TestCase):
+class EstimateCovariance(unittest.TestCase):
 
     def test_io(self):
-        a = dram.prior_loglike(par=0.0, m0=0, sd0=1)
-        self.assertTrue(isinstance(a, float), msg="Expected output of float")
-        a = dram.prior_loglike(par=np.ones(10), m0=0, sd0=1)
-        self.assertTrue(isinstance(a, float), msg="Expected output of float")
-
-    def test_expected_behavior(self):
-        a = dram.prior_loglike(par=1.0, m0=1.0, sd0=1)
-        self.assertEqual(a, 0, msg='Expect 0 if par = m0')
-        a = dram.prior_loglike(par=np.ones(10), m0=1.0, sd0=1)
-        self.assertEqual(a, 0, msg='Expect 0 if par = m0')
+        tmp = setup_problem()
+        q = tmp['q']
+        # this list much match the order of input arguments
+        keys = ['paramList', 'start', 'init_z', 'Calc', 'upper', 'lower',
+                'x', 'y', 'L', 'delta']
+        items = setup_args(tmp, keys)
+        a = dram.estimatecovariance(**items)
+        self.assertTrue(isinstance(a, dict),
+                        msg='Expect dict return')
+        self.assertEqual(a['cov'].shape, (q, q),
+                         msg='Expect (q, q) array')
+        self.assertTrue(isinstance(a['s2'], float),
+                         msg='Expect float')
+        self.assertTrue(isinstance(a['evals'], tuple))
+        self.assertEqual(a['evals'][0].shape, (q,),
+                         msg='Expect eigenval. as vector')
+        self.assertEqual(a['evals'][1].shape, (q, q),
+                         msg='Expect eigenvec. as square-mtx.')
 
 
 class Z2Par(unittest.TestCase):
@@ -98,6 +109,33 @@ class Z2Par(unittest.TestCase):
         self.assertEqual(a.shape, z.shape, msg='Expect matching size array')
 
 
+class PriorLogLike(unittest.TestCase):
+
+    def test_io(self):
+        a = dram.prior_loglike(par=0.0, m0=0, sd0=1)
+        self.assertTrue(isinstance(a, float), msg="Expected output of float")
+        a = dram.prior_loglike(par=np.ones(10), m0=0, sd0=1)
+        self.assertTrue(isinstance(a, float), msg="Expected output of float")
+
+    def test_expected_behavior(self):
+        a = dram.prior_loglike(par=1.0, m0=1.0, sd0=1)
+        self.assertEqual(a, 0, msg='Expect 0 if par = m0')
+        a = dram.prior_loglike(par=np.ones(10), m0=1.0, sd0=1)
+        self.assertEqual(a, 0, msg='Expect 0 if par = m0')
+
+
+class LogPost(unittest.TestCase):
+
+    def test_io(self):
+        tmp = setup_problem()
+        # this list much match the order of input arguments
+        keys = ['y', 'x', 'BG', 'Calc', 'paramList', 'z', 'lower',
+                'upper', 'scale', 'tau_y', 'm0', 'sd0']
+        items = setup_args(tmp, keys)
+        a = dram.log_post(**items)
+        self.assertTrue(isinstance(a, float), msg='Explect float return')
+
+
 class CalcBSplineBasis(unittest.TestCase):
 
     def test_io(self):
@@ -123,35 +161,6 @@ class SmoothYData(unittest.TestCase):
         y_sm = dram.smooth_ydata(x, y)
         self.assertTrue(isinstance(y, np.ndarray), msg='Expect numpy array')
         self.assertEqual(y_sm.shape, (10,), msg='Expect matching size array')
-
-
-class LogPost(unittest.TestCase):
-
-    def test_io(self):
-        tmp = setup_problem()
-        # this list much match the order of input arguments
-        keys = ['y', 'x', 'BG', 'Calc', 'paramList', 'z', 'lower',
-                'upper', 'scale', 'tau_y', 'm0', 'sd0']
-        items = setup_args(tmp, keys)
-        a = dram.log_post(**items)
-        self.assertTrue(isinstance(a, float), msg='Explect float return')
-
-
-class UpdateBackground(unittest.TestCase):
-
-    def test_io(self):
-        tmp = setup_problem()
-        n = tmp['n']
-        # this list much match the order of input arguments
-        keys = ['B', 'var_scale', 'tau_y', 'tau_b', 'L', 'Calc', 'y']
-        items = setup_args(tmp, keys)
-        a = dram.update_background(**items)
-        self.assertTrue(isinstance(a, tuple), msg='Explect tuple return')
-        self.assertEqual(len(a), 2, msg='Explect tuple of length 2')
-        self.assertEqual(a[0].shape, (items['L'],),
-                         msg='Expect array shape (L,)')
-        self.assertEqual(a[1].shape, (n,),
-                         msg='Expect array shape matching y')
 
 
 class InitializeCov(unittest.TestCase):
@@ -230,6 +239,45 @@ class InitializeOutput(unittest.TestCase):
         self.items(iters, q, n_keep, L, update, res)
 
 
+class UpdateBackground(unittest.TestCase):
+
+    def test_io(self):
+        tmp = setup_problem()
+        n = tmp['n']
+        # this list much match the order of input arguments
+        keys = ['B', 'var_scale', 'tau_y', 'tau_b', 'L', 'Calc', 'y']
+        items = setup_args(tmp, keys)
+        a = dram.update_background(**items)
+        self.assertTrue(isinstance(a, tuple), msg='Explect tuple return')
+        self.assertEqual(len(a), 2, msg='Explect tuple of length 2')
+        self.assertEqual(a[0].shape, (items['L'],),
+                         msg='Expect array shape (L,)')
+        self.assertEqual(a[1].shape, (n,),
+                         msg='Expect array shape matching y')
+
+
+class State1AcceptProb(unittest.TestCase):
+
+    def test_io(self):
+        tmp = setup_problem()
+        q = tmp['q']
+        # this list much match the order of input arguments
+        keys = ['z', 'varS1', 'y', 'x', 'BG', 'Calc', 'paramList', 'lower',
+                'upper', 'var_scale', 'tau_y', 'm0', 'sd0']
+        items = setup_args(tmp, keys)
+        a = dram.stage1_acceptprob(**items)
+        self.assertTrue(isinstance(a, tuple), msg='Explect tuple return')
+        self.assertEqual(len(a), 4, msg='Explect tuple of length 4')
+        self.assertEqual(a[0].shape, (q,),
+                         msg='Expect array shape (q,)')
+        self.assertTrue(isinstance(a[1], float),
+                         msg='Expect float return')
+        self.assertTrue(isinstance(a[2], float),
+                 msg='Expect float return')
+        self.assertTrue(isinstance(a[3], float),
+         msg='Expect float return')
+
+
 class State2AcceptProb(unittest.TestCase):
 
     def test_io(self):
@@ -255,25 +303,3 @@ class State2AcceptProb(unittest.TestCase):
         R2 = dram.stage2_acceptprob(can1_post, can2_post, cur_post, can_z1,
                                     can_z2, z, varS1)
         self.assertTrue(isinstance(R2, float), msg='Expect float return')
-
-
-class State1AcceptProb(unittest.TestCase):
-
-    def test_io(self):
-        tmp = setup_problem()
-        q = tmp['q']
-        # this list much match the order of input arguments
-        keys = ['z', 'varS1', 'y', 'x', 'BG', 'Calc', 'paramList', 'lower',
-                'upper', 'var_scale', 'tau_y', 'm0', 'sd0']
-        items = setup_args(tmp, keys)
-        a = dram.stage1_acceptprob(**items)
-        self.assertTrue(isinstance(a, tuple), msg='Explect tuple return')
-        self.assertEqual(len(a), 4, msg='Explect tuple of length 4')
-        self.assertEqual(a[0].shape, (q,),
-                         msg='Expect array shape (q,)')
-        self.assertTrue(isinstance(a[1], float),
-                         msg='Expect float return')
-        self.assertTrue(isinstance(a[2], float),
-                 msg='Expect float return')
-        self.assertTrue(isinstance(a[3], float),
-         msg='Expect float return')
