@@ -673,11 +673,11 @@ def initialize_intensity_weight(x, y, scaling_factor=1):
 
 
 # MCMC function
-def nlDRAM(GPXfile, paramList, variables, init_z, lower, upper, initCov=None,
-           y=None, x=None, L=20, shrinkage=0.2, s_p=(2.4**2), epsilon=1e-4,
-           m0=0, sd0=1, c_y=0.1, d_y=0.1, c_g=0.1, d_g=0.1, c_b=0.1, d_b=0.1,
-           adapt=20, thin=1, iters=5000, burn=2000, update=500, plot=True,
-           fix=False):
+def dram_twostage(GPXfile, paramList, variables, init_z, lower, upper,
+                  initCov=None, y=None, x=None, L=20, shrinkage=0.2,
+                  s_p=(2.4**2), epsilon=1e-4, m0=0, sd0=1, c_y=0.1, d_y=0.1,
+                  c_g=0.1, d_g=0.1, c_b=0.1, d_b=0.1, adapt=20, thin=1,
+                  iters=5000, burn=2000, update=500, plot=True, fix=False):
     '''
     Args:
         * **GPXfile** (:py:class:`str`):
@@ -883,7 +883,7 @@ def nlDRAM(GPXfile, paramList, variables, init_z, lower, upper, initCov=None,
             if (i-burn) % thin == 0:
                 keep_params[curr_keep] = params
                 keep_gamma[curr_keep] = gamma
-                # keep_b[curr_keep] = b
+                #keep_b[curr_keep] = b
                 keep_tau_y[curr_keep] = tau_y
                 keep_tau_b[curr_keep] = tau_b
                 curr_keep += 1
@@ -902,5 +902,5 @@ def nlDRAM(GPXfile, paramList, variables, init_z, lower, upper, initCov=None,
     tock = timer()
     # Gather output into a tuple
     output = (keep_params, curr_keep, varS1, 1.0/keep_tau_y, keep_gamma,
-              (tock-tick)/60, accept_rate_S1, accept_rate_S2)
+              (tock-tick)/60, accept_rate_S1, accept_rate_S2, BG)
     return output
