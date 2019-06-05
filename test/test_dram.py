@@ -104,3 +104,21 @@ class LogPost(unittest.TestCase):
         a = dram.log_post(y, x, BG, Calc, paramList, z, lower,
                           upper, scale, tau_y, m0, sd0)
         self.assertTrue(isinstance(a, float), msg='Explect float return')
+
+
+class UpdateBackground(unittest.TestCase):
+
+    def test_io(self):
+        y = np.random.random_sample((100,))
+        Calc = Calculator(shape=y.shape)
+        tau_y = 1.
+        tau_b = 1.
+        L = 20
+        B = np.random.random_sample((y.size, L))
+        var_scale = np.ones((100, ))
+        a = dram.update_background(B, var_scale, tau_y, tau_b, L, Calc, y)
+        self.assertTrue(isinstance(a, tuple), msg='Explect tuple return')
+        self.assertEqual(a[0].shape, (L,),
+                         msg='Expect array shape (L,)')
+        self.assertEqual(a[1].shape, y.shape,
+                         msg='Expect array shape matching y')
