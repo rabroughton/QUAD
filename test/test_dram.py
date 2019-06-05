@@ -7,6 +7,7 @@ Created on Tue Apr  9 13:51:37 2019
 
 import unittest
 from QUAD import dram
+from pseudo_GSASII import Calculator
 import numpy as np
 from mock import patch
 
@@ -88,14 +89,19 @@ class SmoothYData(unittest.TestCase):
 
 class LogPost(unittest.TestCase):
 
-    @patch('QUAD.gsas_tools.Calculator.UpdateParameters', return_value=None)
-    @patch('QUAD.gsas_tools.Calculator.Calculate', return_value=np.zeros((100, 1)))
-    def test_io(self, mock1, mock2):
+    def test_io(self):
         y = np.random.random_sample((100,))
         x = y.copy()
         BG = np.random.random_sample((100,))
-        Calc = None
+        Calc = Calculator(shape=y.shape)
         paramList = ['a']
-        
+        z = np.random.random_sample((9,))
+        lower = np.array([1000.0, 0.0, 0.0, 0.0, -50.0, 0, -10, -0.1, 500])
+        upper = np.array([2000.0, 20.0, 1.0, 0.5, -19.0, 100, 0, 0.1, 1500])
+        m0 = 0.
+        sd0 = 1.
+        tau_y = 1.
+        scale = np.ones((100, ))
         a = dram.log_post(y, x, BG, Calc, paramList, z, lower,
                           upper, scale, tau_y, m0, sd0)
+        self.assertTrue(isinstance(a, float), msg='Explect float return')
