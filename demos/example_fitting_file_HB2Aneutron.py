@@ -47,7 +47,7 @@ print (paramList)
 print('Starting Values:')
 print(start)
 
-# Set up the lower and upper bounds on the parameters. Best to define individually. 
+# Set up the lower and upper bounds on the parameters. Best to define individually.
 lower = np.array([0.0, 0.0, 1.53, 0.0, 200.0, -400.0, 125.0, -0.10, 1000.0])
 upper = np.array([1200.0, 1.5, 1.55, 0.5, 300.0, -250.0, 225.0, 0.10, 2000.0])
 
