@@ -365,10 +365,10 @@ def update_background(B, var_scale, tau_y, tau_b, L, Calc, y):
     Update the basis function loadings and then background values.
 
     Args:
-        * **B** (:class:`~numpy.ndarray`): B-spline basis for 2-theta range - size (n, L).
-          See :meth:`~calculate_bsplinebasis`. 
-        * **var_scale** (:class:`~numpy.ndarray`): Vector of scaling factors 
-          corresponding to intensity data- size (n,). 
+        * **B** (:class:`~numpy.ndarray`): B-spline basis for 2-theta
+          range - size (n, L). See :meth:`~calculate_bsplinebasis`.
+        * **var_scale** (:class:`~numpy.ndarray`): Vector of scaling factors
+          corresponding to intensity data- size (n,).
           See function :meth:`~initialize_intensity_weight`
         * **tau_y** (:py:class:`float`): Model precision. See
           :meth:`~updat_tauy`
