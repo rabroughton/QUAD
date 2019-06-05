@@ -12,9 +12,9 @@ before_script: # configure a headless display to test plot generation
   - "sh -e /etc/init.d/xvfb start"
   - sleep 3 # give xvfb some time to start
 script:
-  - flake8 pyfod
+  - flake8 QUAD
   - coverage run --source=QUAD -m unittest discover -s "test" -p "test*.py"
-  - coverage report --fail-under=80
+#  - coverage report --fail-under=50
 notifications:
   email: 
     - prmiles@ncsu.edu

@@ -62,7 +62,7 @@ samples = 100
 burn = 10
 update = 50
 
-# Set initial values
+# Set initial z-space values
 init_z = norm.ppf((start-lower)/(upper-lower))
 
 # Set initial covariance for the proposal distribution of z, choose from the following options
@@ -81,9 +81,21 @@ shrinkage = 0.2
 adapt = 100 #adaption interval
 
 ################################ RUN DRAM #####################################
-np.random.seed(1220)
 print('DRAM with iters={} and burn={}'.format(samples, burn))
-params, curr_keep, varS1, sig2, gamma, mins, accept_rate1, accept_rate2 = dram.nlDRAM(GPXfile=gpxFile, paramList=paramList, variables=variables, init_z=init_z, lower=lower, upper=upper, initCov=init_cov, shrinkage=shrinkage, adapt=adapt, iters=samples, burn=burn, update=update, plot=True)
+(params, curr_keep, varS1, sig2, 
+ gamma, mins, accept_rate1, accept_rate2) = dram.nlDRAM(GPXfile=gpxFile, 
+                                                        paramList=paramList, 
+                                                        variables=variables, 
+                                                        init_z=init_z, 
+                                                        lower=lower, 
+                                                        upper=upper, 
+                                                        initCov=init_cov, 
+                                                        shrinkage=shrinkage, 
+                                                        adapt=adapt, 
+                                                        iters=samples, 
+                                                        burn=burn, 
+                                                        update=update, 
+                                                        plot=True)
 ############################ PROCESS RESULTS #####################################
 #SetupOutput Folder
 filename = os.path.split(gpxFile)
@@ -137,5 +149,5 @@ f= open(path + "\DRAM_inputs.txt","w+")
 f.write("shrinkage: %05.2f\r\n adaption interval: %10.0f\r\n number of samples: %10.0f\r\n burn-in: %10.0f\r\n" % (shrinkage, adapt, samples, burn))
 f.close()
 
-with open(path + '\parameter_list', 'wb') as fp:
+with open(path + '/parameter_list', 'wb') as fp:
     pickle.dump(paramList, fp)

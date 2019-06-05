@@ -6,8 +6,10 @@ Created on Fri May 17 20:23:02 2019
 @author: prmiles
 """
 
+
 def gsas_install_display(module):
-    print('When importing {} a "ModuleNotFoundError" occured. \n'.format(module)
+    print('When importing {} a "ModuleNotFoundError" occured. \n'.format(
+            module)
           + 'This usually occurs when GSAS-II has not been installed\n'
           + 'or it has not been correctly added to the Python search '
           + 'path.')
