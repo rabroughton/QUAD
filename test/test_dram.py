@@ -11,6 +11,45 @@ from pseudo_gsas_tools import Calculator
 import numpy as np
 
 
+def setup_problem(q=9, n=100, L=20):
+    return dict(
+            q=q,
+            n=n,
+            y=np.random.random_sample((n,)),
+            x=np.random.random_sample((n,)),
+            BG=np.random.random_sample((n,)),
+            Calc=Calculator(shape=(n,)),
+            paramList=['0:0:Mustrain;i',
+                         '0:0:Size;i',
+                         ':0:Lam',
+                         ':0:SH/L',
+                         ':0:U',
+                         ':0:V',
+                         ':0:W',
+                         ':0:Zero',
+                         ':0:Scale'],
+            z=np.random.random_sample((q,)),
+            lower=np.array([1000.0, 0.0, 0.0, 0.0, -50.0, 0, -10, -0.1, 500]),
+            upper=np.array([2000.0, 20.0, 1.0, 0.5, -19.0, 100, 0, 0.1, 1500]),
+            m0=0.,
+            sd0=1.,
+            tau_y=1.,
+            tau_b=1.,
+            var_scale=np.ones((n, )),
+            scale=np.ones((n,)),
+            varS1=np.random.random_sample((q, q)),
+            L=L,
+            B=np.random.random_sample((n, L))
+            )
+
+
+def setup_args(tmp, keys):
+    items = {}
+    for key in keys:
+        items[key]=tmp[key]
+    return items
+
+
 class PriorLogLike(unittest.TestCase):
 
     def test_io(self):
@@ -89,38 +128,29 @@ class SmoothYData(unittest.TestCase):
 class LogPost(unittest.TestCase):
 
     def test_io(self):
-        y = np.random.random_sample((100,))
-        x = y.copy()
-        BG = np.random.random_sample((100,))
-        Calc = Calculator(shape=y.shape)
-        paramList = ['a']
-        z = np.random.random_sample((9,))
-        lower = np.array([1000.0, 0.0, 0.0, 0.0, -50.0, 0, -10, -0.1, 500])
-        upper = np.array([2000.0, 20.0, 1.0, 0.5, -19.0, 100, 0, 0.1, 1500])
-        m0 = 0.
-        sd0 = 1.
-        tau_y = 1.
-        scale = np.ones((100, ))
-        a = dram.log_post(y, x, BG, Calc, paramList, z, lower,
-                          upper, scale, tau_y, m0, sd0)
+        tmp = setup_problem()
+        # this list much match the order of input arguments
+        keys = ['y', 'x', 'BG', 'Calc', 'paramList', 'z', 'lower',
+                'upper', 'scale', 'tau_y', 'm0', 'sd0']
+        items = setup_args(tmp, keys)
+        a = dram.log_post(**items)
         self.assertTrue(isinstance(a, float), msg='Explect float return')
 
 
 class UpdateBackground(unittest.TestCase):
 
     def test_io(self):
-        y = np.random.random_sample((100,))
-        Calc = Calculator(shape=y.shape)
-        tau_y = 1.
-        tau_b = 1.
-        L = 20
-        B = np.random.random_sample((y.size, L))
-        var_scale = np.ones((100, ))
-        a = dram.update_background(B, var_scale, tau_y, tau_b, L, Calc, y)
+        tmp = setup_problem()
+        n = tmp['n']
+        # this list much match the order of input arguments
+        keys = ['B', 'var_scale', 'tau_y', 'tau_b', 'L', 'Calc', 'y']
+        items = setup_args(tmp, keys)
+        a = dram.update_background(**items)
         self.assertTrue(isinstance(a, tuple), msg='Explect tuple return')
-        self.assertEqual(a[0].shape, (L,),
+        self.assertEqual(len(a), 2, msg='Explect tuple of length 2')
+        self.assertEqual(a[0].shape, (items['L'],),
                          msg='Expect array shape (L,)')
-        self.assertEqual(a[1].shape, y.shape,
+        self.assertEqual(a[1].shape, (n,),
                          msg='Expect array shape matching y')
 
 
@@ -225,3 +255,25 @@ class State2AcceptProb(unittest.TestCase):
         R2 = dram.stage2_acceptprob(can1_post, can2_post, cur_post, can_z1,
                                     can_z2, z, varS1)
         self.assertTrue(isinstance(R2, float), msg='Expect float return')
+
+
+class State1AcceptProb(unittest.TestCase):
+
+    def test_io(self):
+        tmp = setup_problem()
+        q = tmp['q']
+        # this list much match the order of input arguments
+        keys = ['z', 'varS1', 'y', 'x', 'BG', 'Calc', 'paramList', 'lower',
+                'upper', 'var_scale', 'tau_y', 'm0', 'sd0']
+        items = setup_args(tmp, keys)
+        a = dram.stage1_acceptprob(**items)
+        self.assertTrue(isinstance(a, tuple), msg='Explect tuple return')
+        self.assertEqual(len(a), 4, msg='Explect tuple of length 4')
+        self.assertEqual(a[0].shape, (q,),
+                         msg='Expect array shape (q,)')
+        self.assertTrue(isinstance(a[1], float),
+                         msg='Expect float return')
+        self.assertTrue(isinstance(a[2], float),
+                 msg='Expect float return')
+        self.assertTrue(isinstance(a[3], float),
+         msg='Expect float return')
