@@ -769,10 +769,10 @@ def nlDRAM(GPXfile, paramList, variables, init_z, lower, upper, initCov=None,
            intensity - (nSamples, L)
         #. **mins** (:py:class:`float`): Number of minutes the sampler took to
            complete.
-        #. **accept_rate_S1** (:class:`~numpy.ndarray`): Acceptance rate of stage 1
-           DRAM - size(n_keep//update,).
-        #. **accept_rate_S2** (:class:`~numpy.ndarray`): Acceptance rate of stage 2
-           DRAM - size(n_keep//update).
+        #. **accept_rate_S1** (:class:`~numpy.ndarray`): Acceptance rate of
+           stage 1 DRAM - size(n_keep//update,).
+        #. **accept_rate_S2** (:class:`~numpy.ndarray`): Acceptance rate of
+           stage 2 DRAM - size(n_keep//update).
     '''
     Calc = gsas_calculator(GPXfile=GPXfile)
     Calc._varyList = variables
