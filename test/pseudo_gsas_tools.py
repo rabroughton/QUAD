@@ -1,14 +1,30 @@
 # -*- coding: utf-8 -*-
 import numpy as np
-
+import pickle
+import os
 
 class Calculator:
     
-    def __init__(self, shape=(100,)):
-        self.shape = shape
+    def __init__(self, path='gsas_objects'):
+        # load histogram
+        with open(path + os.sep + "histograms.pkl", "rb") as input_file:
+            self._Histograms = pickle.load(input_file)
+        # load lower limit
+        self._lowerLimit = np.load(path + os.sep + 'lowerlimit')
+        # load upper limit
+        self._upperLimit = np.load(path + os.sep + 'upperlimit')
+        # load tth
+        self._tth = np.load(path + os.sep + 'tth')
+        # load tthsample
+        self._tthsample = np.load(path + os.sep + 'tthsample')
+        # load x
+        self._x = np.load(path + os.sep + 'x')
+        self._y = np.load(path + os.sep + 'y')
+        self._shape = self._y.shape
+        self._n = self._y.size
 
     def Calculate(self):
-        return np.random.random_sample(size=self.shape)
+        return np.random.random_sample(size=self._shape)
 
     def UpdateLattice(self, parmVarDict):
         for key in parmVarDict.keys():
@@ -29,3 +45,9 @@ class Calculator:
 
     def UpdateParameters(self, parmVarDict=None):
         self._updatedparameters = True
+
+
+if __name__ == "__main__":
+    Calc = Calculator()
+    print(Calc._Histograms)
+    print(Calc._lowerLimit)
