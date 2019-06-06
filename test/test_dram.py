@@ -9,6 +9,7 @@ import unittest
 from QUAD import dram
 from pseudo_gsas_tools import Calculator
 import numpy as np
+import os
 
 
 def setup_problem(q=9, n=100, L=20):
@@ -303,3 +304,101 @@ class State2AcceptProb(unittest.TestCase):
         R2 = dram.stage2_acceptprob(can1_post, can2_post, cur_post, can_z1,
                                     can_z2, z, varS1)
         self.assertTrue(isinstance(R2, float), msg='Expect float return')
+
+
+class AdaptCovariance(unittest.TestCase):
+
+    def test_no_adapt(self):
+        tmp = setup_problem()
+        q, varS1 = tmp['q'], tmp['varS1']
+        adapt = 20
+        s_p = 2.4**2/q
+        iters = 1000
+        all_Z = np.random.random_sample((iters, q))
+        epsilon = 0.0001
+        i = 0        
+        a = dram.adapt_covariance(i, adapt, s_p, all_Z,
+                                  epsilon, q, varS1)
+        self.assertTrue(np.array_equal(a, varS1),
+                        msg='Expect array equal')
+
+    def test_adapt(self):
+        tmp = setup_problem()
+        q, varS1 = tmp['q'], tmp['varS1']
+        adapt = 20
+        s_p = 2.4**2/q
+        iters = 1000
+        all_Z = np.random.random_sample((iters, q))
+        epsilon = 0.0001
+        i = adapt      
+        a = dram.adapt_covariance(i, adapt, s_p, all_Z,
+                                  epsilon, q, varS1)
+        self.assertFalse(np.array_equal(a, varS1),
+                        msg='Expect array equal')
+
+
+class UpdateTauB(unittest.TestCase):
+
+    def test_io(self):
+        d_g, c_g, L = 0.1, 0.1, 20
+        gamma = np.random.random_sample((L,))
+        a = dram.update_taub(d_g, gamma, c_g, L)
+        self.assertTrue(isinstance(a, float),
+                        msg='Expect float return')
+
+
+class UpdateTauY(unittest.TestCase):
+
+    def test_io(self):
+        d_y, c_y = 0.1, 0.1
+        tmp = setup_problem()
+        y, BG, Calc, var_scale, n = (
+                tmp['y'], tmp['BG'], tmp['Calc'],
+                tmp['var_scale'], tmp['n'])
+        a = dram.update_tauy(y, BG, Calc, var_scale, d_y, c_y, n)
+        self.assertTrue(isinstance(a, float),
+                        msg='Expect float return')
+
+
+class Traceplots(unittest.TestCase):
+
+    def test_no_plot(self):
+        plot = False
+        tmp = setup_problem()
+        q, paramList = tmp['q'], tmp['paramList']
+        iters = 100
+        keep_params = np.random.random_sample((iters, q))
+        curr_keep = 20
+        n_keep = 50
+        update = 20
+        a = dram.traceplots(plot, q, keep_params, curr_keep, paramList,
+                     n_keep, update)
+        self.assertEqual(a, None)
+
+    def test_plot(self):
+        plot = True
+        tmp = setup_problem()
+        q, paramList = tmp['q'], tmp['paramList']
+        iters = 100
+        keep_params = np.random.random_sample((iters, q))
+        curr_keep = 20
+        n_keep = 50
+        update = 100
+        a = dram.traceplots(plot, q, keep_params, curr_keep, paramList,
+                     n_keep, update)
+        self.assertEqual(a, None)
+        fn = 'DRAM_Trace.png'
+        self.assertTrue(os.path.exists(fn))
+        os.remove(fn)
+
+
+class InitializeIntensityWeight(unittest.TestCase):
+
+    def test_io(self):
+        tmp = setup_problem()
+        x, y, n = tmp['x'], tmp['y'], tmp['n']
+        a = dram.initialize_intensity_weight(x, y)
+        self.assertTrue(isinstance(a, np.ndarray),
+                        msg='Expect array return')
+        self.assertEqual(a.shape, (n,),
+                         msg='Expect (n,) array')
