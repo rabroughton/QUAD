@@ -12,14 +12,18 @@ import numpy as np
 import os
 
 
-def setup_problem(q=9, n=100, L=20):
+Calc = Calculator(path='test' + os.sep + 'gsas_objects')
+
+
+def setup_problem(q=9, L=20):
+    n = Calc._n
     return dict(
             q=q,
             n=n,
-            y=np.random.random_sample((n,)),
-            x=np.random.random_sample((n,)),
+            y=Calc._y,
+            x=Calc._x,
+            Calc=Calc,
             BG=np.random.random_sample((n,)),
-            Calc=Calculator(shape=(n,)),
             paramList=['0:0:Mustrain;i',
                          '0:0:Size;i',
                          ':0:Lam',
