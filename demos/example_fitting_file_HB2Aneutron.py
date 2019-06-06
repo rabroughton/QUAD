@@ -6,14 +6,14 @@ import seaborn as sns
 import matplotlib.pyplot as plt
 import sys
 import os
-# Source the MCMC and GSAS calculator functions
-from QUAD import dram
-from QUAD import gsas_tools as gsas
 
 # Add GSAS-II filepath to the Python path
 sys.path.append('/Users/Rachel/g2conda/GSASII/bindist')
 sys.path.append('/Users/Rachel/g2conda/GSASII')
 
+# Source the MCMC and GSAS calculator functions
+from QUAD import dram  # noqa: E402
+from QUAD import gsas_tools as gsas  # noqa: E402
 # =============================================================================
 # INITIALIZE INPUTS
 # =============================================================================
