@@ -10,6 +10,7 @@ from QUAD import dram
 from pseudo_gsas_tools import Calculator
 import numpy as np
 import os
+from mock import patch
 
 
 Calc = Calculator(path='test' + os.sep + 'gsas_objects')
@@ -24,15 +25,8 @@ def setup_problem(q=9, L=20):
             x=Calc._x,
             Calc=Calc,
             BG=np.random.random_sample((n,)),
-            paramList=['0:0:Mustrain;i',
-                         '0:0:Size;i',
-                         ':0:Lam',
-                         ':0:SH/L',
-                         ':0:U',
-                         ':0:V',
-                         ':0:W',
-                         ':0:Zero',
-                         ':0:Scale'],
+            variables=Calc._variables,
+            paramList=list(Calc._paramList),
             z=np.random.random_sample((q,)),
             lower=np.array([1000.0, 0.0, 0.0, 0.0, -50.0, 0, -10, -0.1, 500]),
             upper=np.array([2000.0, 20.0, 1.0, 0.5, -19.0, 100, 0, 0.1, 1500]),
@@ -149,6 +143,41 @@ class CalcBSplineBasis(unittest.TestCase):
         B = dram.calculate_bsplinebasis(x, L)
         self.assertTrue(isinstance(B, np.ndarray), msg='Expect numpy array')
         self.assertEqual(B.shape, (x.size, L), msg='Expect nxL')
+
+
+class DiffractionFileData(unittest.TestCase):
+
+    def test_io(self):
+        x = Calc._x
+        y = Calc._y
+        n = Calc._n
+        a = dram.diffraction_file_data(x, y, Calc)
+        self.assertTrue(isinstance(a, tuple),
+                        msg='Expect tuple return')
+        self.assertEqual(len(a), 2,
+                         msg='Expect tuple of length 2')
+        self.assertEqual(a[0].shape, (n,),
+                         msg='Expect (n,) array')
+        self.assertEqual(a[1].shape, (n,),
+                         msg='Expect (n,) array')
+        self.assertTrue(np.array_equal(a[0], x),
+                         msg='Expect array match')
+        self.assertTrue(np.array_equal(a[1], y),
+                         msg='Expect array match')
+
+    def test_xy_none(self):
+        x = None
+        y = None
+        n = Calc._n
+        a = dram.diffraction_file_data(x, y, Calc)
+        self.assertTrue(isinstance(a, tuple),
+                        msg='Expect tuple return')
+        self.assertEqual(len(a), 2,
+                         msg='Expect tuple of length 2')
+        self.assertEqual(a[0].shape, (n,),
+                         msg='Expect (n,) array')
+        self.assertEqual(a[1].shape, (n,),
+                         msg='Expect (n,) array')
 
 
 class SmoothYData(unittest.TestCase):
@@ -406,3 +435,21 @@ class InitializeIntensityWeight(unittest.TestCase):
                         msg='Expect array return')
         self.assertEqual(a.shape, (n,),
                          msg='Expect (n,) array')
+
+
+class NLDRAM(unittest.TestCase):
+
+#    @patch('QUAD.gsas_tools.Calculator',
+#           return_value=Calc)
+    @patch('QUAD.dram.gsas_calculator',
+           return_value=Calc)
+    def test_io(self, mock_1):
+        tmp = setup_problem()
+        paramList, variables = tmp['paramList'], tmp['variables']
+        init_z, lower, upper = tmp['init_z'], tmp['lower'], tmp['upper']
+        a = dram.nlDRAM(None, paramList, variables, init_z, lower, upper,
+                        plot=False, iters=2000, burn=1000, adapt=200)
+        self.assertTrue(isinstance(a, tuple),
+                        msg='Expect tuple return')
+        self.assertEqual(len(a), 8,
+                        msg='Expect tuple of length 8')

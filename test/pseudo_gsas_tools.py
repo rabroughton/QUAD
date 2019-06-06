@@ -17,11 +17,14 @@ class Calculator:
         self._tth = np.load(path + os.sep + 'tth')
         # load tthsample
         self._tthsample = np.load(path + os.sep + 'tthsample')
-        # load x
+        # load x and y
         self._x = np.load(path + os.sep + 'x')
         self._y = np.load(path + os.sep + 'y')
         self._shape = self._y.shape
         self._n = self._y.size
+        # load variables
+        self._variables = np.load(path + os.sep + 'variables')
+        self._paramList = np.load(path + os.sep + 'paramlist')
 
     def Calculate(self):
         return np.random.random_sample(size=self._shape)
