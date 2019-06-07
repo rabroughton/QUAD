@@ -437,7 +437,7 @@ class InitializeIntensityWeight(unittest.TestCase):
                          msg='Expect (n,) array')
 
 
-class NLDRAM(unittest.TestCase):
+class DRAM2STAGE(unittest.TestCase):
 
 #    @patch('QUAD.gsas_tools.Calculator',
 #           return_value=Calc)
@@ -455,7 +455,7 @@ class NLDRAM(unittest.TestCase):
         varS1 = tmp['varS1']
         paramList, variables = tmp['paramList'], tmp['variables']
         init_z, lower, upper = tmp['init_z'], tmp['lower'], tmp['upper']
-        a = dram.nlDRAM(None, paramList, variables, init_z, lower, upper,
+        a = dram.dram_twostage(None, paramList, variables, init_z, lower, upper,
                         plot=False, iters=iters, burn=burn, thin=thin,
                         adapt=adapt)
         self.assertTrue(isinstance(a, tuple),
