@@ -365,8 +365,8 @@ def update_background(B, var_scale, tau_y, tau_b, L, Calc, y):
     Update the basis function loadings and then background values.
 
     Args:
-        * **B** (:py:class:`float`): B-spline basis for 2-theta range
-          - size (n, L). See :meth:`~calculate_bsplinebasis`.
+        * **B** (:class:`~numpy.ndarray`): B-spline basis for 2-theta
+          range - size (n, L). See :meth:`~calculate_bsplinebasis`.
         * **var_scale** (:class:`~numpy.ndarray`): Vector of scaling factors
           corresponding to intensity data- size (n,).
           See function :meth:`~initialize_intensity_weight`
@@ -769,10 +769,10 @@ def dram_twostage(GPXfile, paramList, variables, init_z, lower, upper,
            intensity - (nSamples, L)
         #. **mins** (:py:class:`float`): Number of minutes the sampler took to
            complete.
-        #. **accept_rate_S1** (:py:class:`float`): Acceptance rate of stage 1
-           DRAM.
-        #. **accept_rate_S2** (:py:class:`float`): Acceptance rate of stage 2
-           DRAM.
+        #. **accept_rate_S1** (:class:`~numpy.ndarray`): Acceptance rate of
+           stage 1 DRAM - size(n_keep//update,).
+        #. **accept_rate_S2** (:class:`~numpy.ndarray`): Acceptance rate of
+           stage 2 DRAM - size(n_keep//update).
     '''
     Calc = gsas_calculator(GPXfile=GPXfile)
     Calc._varyList = variables
