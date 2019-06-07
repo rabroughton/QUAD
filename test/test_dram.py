@@ -445,6 +445,7 @@ class DRAM2STAGE(unittest.TestCase):
            return_value=Calc)
     def test_io(self, mock_1):
         tmp = setup_problem()
+        n = tmp['n']
         iters = 2000
         burn = 1000
         thin = 1
@@ -460,8 +461,8 @@ class DRAM2STAGE(unittest.TestCase):
                         adapt=adapt)
         self.assertTrue(isinstance(a, tuple),
                         msg='Expect tuple return')
-        self.assertEqual(len(a), 8,
-                        msg='Expect tuple of length 8')
+        self.assertEqual(len(a), 9,
+                        msg='Expect tuple of length 9')
         self.assertEqual(a[0].shape, (n_keep, q),
                          msg='Expect (n_keep, q) array')
         self.assertEqual(a[1], n_keep,
@@ -478,5 +479,8 @@ class DRAM2STAGE(unittest.TestCase):
                          msg=str('Expect array - got {}'.format(type(a[6]))))
         self.assertTrue(isinstance(a[7], np.ndarray),
                          msg=str('Expect array - got {}'.format(type(a[7]))))
+        self.assertEqual(a[8].shape, (n,),
+                         msg=('Expect (n,) array'))
+
         
     
