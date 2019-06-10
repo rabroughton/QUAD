@@ -1,6 +1,6 @@
 Quantitative Uncertainty Analysis for Diffraction (QUAD)
 ========================================================
-|docs| |build|
+|docs| |build| |zenodo|
 
 This is a research tool that allows analysis of X-ray and neutron
 diffraction data to infer the structure of materials with quantifiable 
@@ -56,3 +56,6 @@ under Contract No. DE-AC02-06CH11357 with the Department of Energy.
    
 .. |build| image:: https://travis-ci.org/rabroughton/QUAD.svg?branch=master
    :target: https://travis-ci.org/rabroughton/QUAD
+   
+.. |zenodo| image:: https://zenodo.org/badge/178253900.svg
+   :target: https://zenodo.org/badge/latestdoi/178253900
