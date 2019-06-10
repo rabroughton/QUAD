@@ -673,7 +673,7 @@ def initialize_intensity_weight(x, y, scaling_factor=1):
 
 
 # MCMC function
-def dram_twostage(GPXfile, paramList, variables, init_z, lower, upper,
+def sample(GPXfile, paramList, variables, init_z, lower, upper,
                   initCov=None, y=None, x=None, L=20, shrinkage=0.2,
                   s_p=(2.4**2), epsilon=1e-4, m0=0, sd0=1, c_y=0.1, d_y=0.1,
                   c_g=0.1, d_g=0.1, c_b=0.1, d_b=0.1, adapt=20, thin=1,
