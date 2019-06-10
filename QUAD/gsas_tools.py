@@ -157,26 +157,9 @@ class Calculator:
         '''
         Update the lattice parameters in the current model
         '''
-        a, b, c, alpha, beta, gamma = None, None, None, None, None, None
-        for key in parmVarDict.keys():
-            if key == 'a':
-                a = parmVarDict[key]
-                parmVarDict.pop(key, None)
-            elif key == 'b':
-                b = parmVarDict[key]
-                parmVarDict.pop(key, None)
-            elif key == 'c':
-                c = parmVarDict[key]
-                parmVarDict.pop(key, None)
-            elif key == 'alpha':
-                alpha = parmVarDict[key]
-                parmVarDict.pop(key, None)
-            elif key == 'beta':
-                beta = parmVarDict[key]
-                parmVarDict.pop(key, None)
-            elif key == 'gamma':
-                gamma = parmVarDict[key]
-                parmVarDict.pop(key, None)
+        tmp = check_lattice_parameters(parmVarDict)
+        a, b, c, alpha, beta, gamma = tmp['lattice']
+        parmVarDict = tmp['parmVarDict']
 
 # Symmetry Options:
 # Cubic, Tetragonal, Hexagonal, Rhombohedral,
@@ -296,3 +279,29 @@ class Calculator:
             parmVarDict.pop('EXT', None)
 
         self._parmDict.update(parmVarDict)
+
+
+def check_lattice_parameters(parmVarDict):
+    a, b, c, alpha, beta, gamma = None, None, None, None, None, None
+    keys = list(parmVarDict.keys()).copy()
+    for key in keys:
+        if key == 'a':
+            a = parmVarDict[key]
+            parmVarDict.pop(key, None)
+        elif key == 'b':
+            b = parmVarDict[key]
+            parmVarDict.pop(key, None)
+        elif key == 'c':
+            c = parmVarDict[key]
+            parmVarDict.pop(key, None)
+        elif key == 'alpha':
+            alpha = parmVarDict[key]
+            parmVarDict.pop(key, None)
+        elif key == 'beta':
+            beta = parmVarDict[key]
+            parmVarDict.pop(key, None)
+        elif key == 'gamma':
+            gamma = parmVarDict[key]
+            parmVarDict.pop(key, None)
+    return dict(lattice=(a, b, c, alpha, beta, gamma),
+                parmVarDict=parmVarDict)
