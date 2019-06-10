@@ -146,8 +146,7 @@ def z2par(z, lower, upper, grad=False):
         * **upper** (:class:`~numpy.ndarray`): Vector of upper limits on a
           uniform prior distribution in the parameter space - size (q,).
         * **grad** (:py:class:`bool`): If False (default), converts from the
-          z-space to the parameter space. If True, function converts
-          WHAT DOES THIS DO???
+          z-space to the parameter space.
 
     Returns:
         * **par** (:class:`~numpy.ndarray`): Array of parameter values in
