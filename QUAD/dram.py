@@ -758,17 +758,17 @@ def sample(GPXfile, paramList, variables, init_z, lower, upper,
 
         #. **param_samples** (:class:`~numpy.ndarray`): Matrix of posterior
            samples for the mean process parameters of interest - (nSamples, q)
-        #. **number_samples** (:py:class:`int`): Number of samples kept. Equivalent
-           to (iters - burn) if thin=1.
-        #. **final_covariance** (:class:`~numpy.ndarray`): Final adapated covariance
-           matrix - size(q, q).
+        #. **number_samples** (:py:class:`int`): Number of samples kept.
+           Equivalent to (iters - burn) if thin=1.
+        #. **final_covariance** (:class:`~numpy.ndarray`): Final adapated
+           covariance matrix - size(q, q).
         #. **model_variance** (:class:`~numpy.ndarray`): Vector of posterior
            samples for the overall model variance - size(nSamples,)
         #. **gamma_samples** (:class:`~numpy.ndarray`): Matrix of posterior
            samples for the basis function loadings modeling the background
            intensity - (nSamples, L)
-        #. **run_time** (:py:class:`float`): Number of minutes the sampler took to
-           complete.
+        #. **run_time** (:py:class:`float`): Number of minutes the sampler
+           took to complete.
         #. **stage1_accept** (:class:`~numpy.ndarray`): Acceptance rate of
            stage 1 DRAM - size(n_keep//update,).
         #. **stage2_accept** (:class:`~numpy.ndarray`): Acceptance rate of

@@ -459,28 +459,21 @@ class Sample(unittest.TestCase):
         a = dram.sample(None, paramList, variables, init_z, lower, upper,
                         plot=False, iters=iters, burn=burn, thin=thin,
                         adapt=adapt)
-        self.assertTrue(isinstance(a, tuple),
-                        msg='Expect tuple return')
-        self.assertEqual(len(a), 9,
-                        msg='Expect tuple of length 9')
-        self.assertEqual(a[0].shape, (n_keep, q),
+        self.assertTrue(isinstance(a, dict),
+                        msg='Expect dict return')
+        self.assertEqual(a["param_samples"].shape, (n_keep, q),
                          msg='Expect (n_keep, q) array')
-        self.assertEqual(a[1], n_keep,
+        self.assertEqual(a["number_samples"], n_keep,
                          msg='Expect n_keep')
-        self.assertEqual(a[2].shape, varS1.shape,
+        self.assertEqual(a["final_covariance"].shape, varS1.shape,
                          msg='Expect matching shape')
-        self.assertEqual(a[3].shape, (iters-burn,),
+        self.assertEqual(a["model_variance"].shape, (iters-burn,),
                          msg='Expect (iters-burn,) array')
-        self.assertEqual(a[4].shape, (iters-burn, L),
+        self.assertEqual(a["gamma_samples"].shape, (iters-burn, L),
                          msg='Expect (iters-burn, L) array')
-        self.assertTrue(isinstance(a[5], float),
-                         msg=str('Expect float - got {}'.format(type(a[5]))))
-        self.assertTrue(isinstance(a[6], np.ndarray),
-                         msg=str('Expect array - got {}'.format(type(a[6]))))
-        self.assertTrue(isinstance(a[7], np.ndarray),
-                         msg=str('Expect array - got {}'.format(type(a[7]))))
-        self.assertEqual(a[8].shape, (n,),
-                         msg=('Expect (n,) array'))
-
-        
-    
+        self.assertTrue(isinstance(a["run_time"], float),
+                         msg=str('Expect float - got {}'.format(type(a["run_time"]))))
+        self.assertTrue(isinstance(a["stage1_accept"], np.ndarray),
+                         msg=str('Expect array - got {}'.format(type(a["stage1_accept"]))))
+        self.assertTrue(isinstance(a["stage2_accept"], np.ndarray),
+                         msg=str('Expect array - got {}'.format(type(a["stage2_accept"]))))
