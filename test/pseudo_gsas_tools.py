@@ -50,6 +50,17 @@ class Calculator:
         self._updatedparameters = True
 
 
+def save2pickle(obj, fn):
+    with open(fn + '.pkl', 'wb') as h:
+        pickle.dump(obj, h)
+
+
+def loadfrompickle(fn):
+    with open(fn + '.pkl', 'rb') as h:
+        tmp = pickle.load(h)
+    return tmp
+
+
 if __name__ == "__main__":
     Calc = Calculator()
     print(Calc._Histograms)
