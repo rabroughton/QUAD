@@ -753,25 +753,25 @@ def sample(GPXfile, paramList, variables, init_z, lower, upper,
           create trace plots as the sampler progresses.
 
     Returns:
-        * 8-tuple containing the posterior samples for the parameters and
-          the model timing, tuple entries are
+        * dictionary containing the posterior samples for the parameters and
+          the model timing, dict entries are
 
-        #. **keep_params** (:class:`~numpy.ndarray`): Matrix of posterior
+        #. **param_samples** (:class:`~numpy.ndarray`): Matrix of posterior
            samples for the mean process parameters of interest - (nSamples, q)
-        #. **curr_keep** (:py:class:`int`): Number of samples kept. Equivalent
+        #. **number_samples** (:py:class:`int`): Number of samples kept. Equivalent
            to (iters - burn) if thin=1.
-        #. **varS1** (:class:`~numpy.ndarray`): Final adapated covariance
+        #. **final_covariance** (:class:`~numpy.ndarray`): Final adapated covariance
            matrix - size(q, q).
-        #. **1.0/keep_tau_y** (:class:`~numpy.ndarray`): Vector of posterior
+        #. **model_variance** (:class:`~numpy.ndarray`): Vector of posterior
            samples for the overall model variance - size(nSamples,)
-        #. **keep_gamma** (:class:`~numpy.ndarray`): Matrix of posterior
+        #. **gamma_samples** (:class:`~numpy.ndarray`): Matrix of posterior
            samples for the basis function loadings modeling the background
            intensity - (nSamples, L)
-        #. **mins** (:py:class:`float`): Number of minutes the sampler took to
+        #. **run_time** (:py:class:`float`): Number of minutes the sampler took to
            complete.
-        #. **accept_rate_S1** (:class:`~numpy.ndarray`): Acceptance rate of
+        #. **stage1_accept** (:class:`~numpy.ndarray`): Acceptance rate of
            stage 1 DRAM - size(n_keep//update,).
-        #. **accept_rate_S2** (:class:`~numpy.ndarray`): Acceptance rate of
+        #. **stage2_accept** (:class:`~numpy.ndarray`): Acceptance rate of
            stage 2 DRAM - size(n_keep//update).
     '''
     Calc = gsas_calculator(GPXfile=GPXfile)
@@ -900,7 +900,9 @@ def sample(GPXfile, paramList, variables, init_z, lower, upper,
                            curr_keep=curr_keep, paramList=paramList,
                            n_keep=n_keep, update=update)
     tock = timer()
-    # Gather output into a tuple
-    output = (keep_params, curr_keep, varS1, 1.0/keep_tau_y, keep_gamma,
-              (tock-tick)/60, accept_rate_S1, accept_rate_S2, BG)
+    # Gather output into a dictionary
+    output = dict(param_samples=keep_params, number_samples=curr_keep,
+                  final_covariance=varS1, model_variance=1.0/keep_tau_y,
+                  gamma_samples=keep_gamma, run_time=(tock-tick)/60,
+                  stage1_accept=accept_rate_S1, stage2_accept=accept_rate_S2)
     return output
