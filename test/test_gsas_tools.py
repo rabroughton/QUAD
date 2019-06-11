@@ -34,13 +34,25 @@ class CheckLatticeParameters(unittest.TestCase):
 
 class CheckSymmetry(unittest.TestCase):
 
-    def test_cubic(self):
-        lattice = (0., 1., 2., 3., 4., 5.)
-        Calc = Calculator(path='test' + os.sep + 'gsas_objects')
-        parmDict = Calc._parmDict
-        tmp = gsas.check_symmetry(lattice=lattice, parmDict=parmDict,
-                                  symmetry='Cubic')
+    def check_output(self, tmp):
         self.assertTrue(isinstance(tmp, dict),
                         msg='Expect dict return')
         self.assertTrue(isinstance(tmp['lattice'], tuple),
                         msg='Expect lattice value as tuple')
+        self.assertEqual(len(tmp['lattice']), 6,
+                        msg='Expect 6 elements in lattice')
+        self.assertTrue(isinstance(tmp['parmDict'], dict),
+                        msg='Expect parmDict value as dict')
+
+    def test_cubic(self):
+        a = 0.
+        lattice = (a, 1., 2., 3., 4., 5.)
+        Calc = Calculator(path='test' + os.sep + 'gsas_objects')
+        parmDict = Calc._parmDict
+        tmp = gsas.check_symmetry(lattice=lattice, parmDict=parmDict,
+                                  symmetry='Cubic')
+        self.check_output(tmp)
+        self.assertEqual(parmDict['a'], a)
+        self.assertEqual(tmp['lattice'], (a, a, a, 90., 90., 90.),
+                         msg='Expect (a, a, a, 90, 90, 90)')
+        
