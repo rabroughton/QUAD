@@ -10,6 +10,7 @@ import unittest
 from QUAD import gsas_tools as gsas
 from pseudo_gsas_tools import Calculator
 import os
+import numpy as np
 
 
 class CheckLatticeParameters(unittest.TestCase):
@@ -234,4 +235,13 @@ def test_triclinic(self):
         with self.assertRaises(KeyError, msg='Missing gamma'):
             gsas.check_symmetry(lattice=lattice, parmDict=parmDict.copy(),
                                 symmetry=symmetry)
-        
+
+
+class G2Lattice(unittest.TestCase):
+
+    def test_io(self):
+        G = np.random.random_sample(size=(3, 3))
+        refL = {'0::A0': G[0, 0], '0::A1': G[1, 1], '0::A2': G[2, 2],
+                '0::A3': G[0, 1], '0::A4': G[0, 2], '0::A5': G[1, 2]}
+        Lat = gsas.G2lattice(G)
+        self.assertEqual(Lat, refL, msg='Expect matching dict')
