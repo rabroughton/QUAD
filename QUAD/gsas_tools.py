@@ -158,102 +158,13 @@ class Calculator:
         Update the lattice parameters in the current model
         '''
         tmp = check_lattice_parameters(parmVarDict)
-        a, b, c, alpha, beta, gamma = tmp['lattice']
         parmVarDict = tmp['parmVarDict']
 
-# Symmetry Options:
-# Cubic, Tetragonal, Hexagonal, Rhombohedral,
-# Orthorhombic, Monoclinic, Triclinic
-
-        if self.Symmetry == 'Cubic':
-            b = a
-            c = a
-            alpha = 90.
-            beta = 90.
-            gamma = 90.
-            self._parmDict['a'] = a
-        elif self.Symmetry == 'Tetragonal':
-            if a is None:
-                a = self._parmDict['a']
-            elif c is None:
-                c = self._parmDict['c']
-            b = a
-            alpha = 90.
-            beta = 90.
-            gamma = 90.
-            self._parmDict['a'] = a
-            self._parmDict['c'] = c
-
-        elif self.Symmetry == 'Hexagonal':
-            if a is None:
-                a = self._parmDict['a']
-            elif c is None:
-                c = self._parmDict['c']
-            b = a
-            alpha = 90.
-            beta = 120.
-            gamma = 90.
-            self._parmDict['a'] = a
-            self._parmDict['c'] = c
-        elif self.Symmetry == 'Rhombohedral':
-            if a is None:
-                a = self._parmDict['a']
-            elif alpha is None:
-                alpha = self._parmDict['beta']
-            b = a
-            c = a
-            beta = alpha
-            gamma = alpha
-            self._parmDict['a'] = a
-            self._parmDict['alpha'] = alpha
-        elif self.Symmetry == 'Orthorhombic':
-            if a is None:
-                a = self._parmDict['a']
-            elif b is None:
-                b = self._parmDict['b']
-            elif c is None:
-                c = self._parmDict['c']
-            alpha = 90.
-            beta = 90.
-            gamma = 90.
-            self._parmDict['a'] = a
-            self._parmDict['b'] = b
-            self._parmDict['c'] = c
-        elif self.Symmetry == 'Monoclinic':
-            if a is None:
-                a = self._parmDict['a']
-            elif b is None:
-                b = self._parmDict['b']
-            elif c is None:
-                c = self._parmDict['c']
-            elif beta is None:
-                beta = self._parmDict['beta']
-            alpha = 90.
-            gamma = 90.
-            self._parmDict['a'] = a
-            self._parmDict['b'] = b
-            self._parmDict['c'] = c
-            self._parmDict['beta'] = beta
-        elif self.Symmetry == 'Triclinic':
-            if a is None:
-                a = self._parmDict['a']
-            elif b is None:
-                b = self._parmDict['b']
-            elif c is None:
-                c = self._parmDict['c']
-            elif alpha is None:
-                alpha = self._parmDict['alpha']
-            elif beta is None:
-                beta = self._parmDict['beta']
-            elif gamma is None:
-                gamma = self._parmDict['gamma']
-            self._parmDict['a'] = a
-            self._parmDict['b'] = b
-            self._parmDict['c'] = c
-            self._parmDict['alpha'] = alpha
-            self._parmDict['beta'] = beta
-            self._parmDict['gamma'] = gamma
-
+        out = check_symmetry(lattice=tmp['lattice'], parmDict=self._parmDict,
+                       symmetry=self.Symmetry)
+        a, b, c, alpha, beta, gamma = out['lattice']
+        self._parmDict = out['parmDict']
+        
         [G, g] = G2latt.cell2Gmat([a, b, c, alpha, beta, gamma])[0]
 
         LatticeUpdate = {'0::A0': G[0, 0], '0::A1': G[1, 1], '0::A2': G[2, 2],
@@ -282,6 +193,21 @@ class Calculator:
 
 
 def check_lattice_parameters(parmVarDict):
+    '''
+    Check lattice parameters
+
+    Check contents of parameter dictionary and update lattice
+    constants accordingly.
+
+    Args:
+        * **parmVarDict** (:py:class:`dict`):
+
+    Returns:
+        * Dictionary with 2 elements.
+
+        #. `lattice` (:py:class:`tuple`): a, b, c, alpha, beta, gamma
+        #. `parmVarDict` (:py:class:`dict`): Updated dictionary        
+    '''
     a, b, c, alpha, beta, gamma = None, None, None, None, None, None
     keys = list(parmVarDict.keys()).copy()
     for key in keys:
@@ -305,3 +231,163 @@ def check_lattice_parameters(parmVarDict):
             parmVarDict.pop(key, None)
     return dict(lattice=(a, b, c, alpha, beta, gamma),
                 parmVarDict=parmVarDict)
+
+
+def check_symmetry(lattice, parmDict, symmetry):
+    '''
+    Check crystal symmetry
+
+    Symmetry Options:
+    - Cubic
+    - Tetragonal
+    - Hexagonal
+    - Rhombohedral
+    - Orthorhombic
+    - Monoclinic
+    - Triclinic
+
+    Args:
+        * **a** (:py:class:`float`):
+        * **b** (:py:class:`float`):
+        * **c** (:py:class:`float`):
+        * **alpha** (:py:class:`float`):
+        * **beta** (:py:class:`float`):
+        * **gamma** (:py:class:`float`):
+    '''
+    if symmetry.lower() == 'cubic':
+        out = _sym_cubic(lattice, parmDict)
+    elif symmetry.lower() == 'tetragonal':
+        out = _sym_tegragonal(lattice, parmDict)
+    elif symmetry.lower() == 'hexagonal':
+        out = _sym_hexagonal(lattice, parmDict)
+    elif symmetry.lower() == 'rhombohedral':
+        out = _sym_rhombohedral(lattice, parmDict)
+    elif symmetry.lower() == 'orthorhombic':
+        out = _sym_orthorhombic(lattice, parmDict)
+    elif symmetry.lower() == 'monoclinic':
+        out = _sym_monoclinic(lattice, parmDict)
+    elif symmetry.lower() == 'triclinic':
+        out = _sym_triclinic(lattice, parmDict)
+    return out
+
+
+def _sym_cubic(lattice, parmDict):
+    a, b, c, alpha, beta, gamma = lattice
+    b = a
+    c = a
+    alpha = 90.
+    beta = 90.
+    gamma = 90.
+    parmDict['a'] = a
+    return dict(lattice=(a, b, c, alpha, beta, gamma),
+                parmDict=parmDict)
+
+
+def _sym_tegragonal(lattice, parmDict):
+    a, b, c, alpha, beta, gamma = lattice
+    if a is None:
+        a = parmDict['a']
+    elif c is None:
+        c = parmDict['c']
+    b = a
+    alpha = 90.
+    beta = 90.
+    gamma = 90.
+    parmDict['a'] = a
+    parmDict['c'] = c
+    return dict(lattice=(a, b, c, alpha, beta, gamma),
+            parmDict=parmDict)
+
+
+def _sym_hexagonal(lattice, parmDict):
+    a, b, c, alpha, beta, gamma = lattice
+    if a is None:
+        a = parmDict['a']
+    elif c is None:
+        c = parmDict['c']
+    b = a
+    alpha = 90.
+    beta = 120.
+    gamma = 90.
+    parmDict['a'] = a
+    parmDict['c'] = c
+    return dict(lattice=(a, b, c, alpha, beta, gamma),
+            parmDict=parmDict)
+
+
+def _sym_rhombohedral(lattice, parmDict):
+    a, b, c, alpha, beta, gamma = lattice
+    if a is None:
+        a = parmDict['a']
+    elif alpha is None:
+        alpha = parmDict['beta']
+    b = a
+    c = a
+    beta = alpha
+    gamma = alpha
+    parmDict['a'] = a
+    parmDict['alpha'] = alpha
+    return dict(lattice=(a, b, c, alpha, beta, gamma),
+            parmDict=parmDict)
+
+
+def _sym_orthorhombic(lattice, parmDict):
+    a, b, c, alpha, beta, gamma = lattice
+    if a is None:
+        a = parmDict['a']
+    elif b is None:
+        b = parmDict['b']
+    elif c is None:
+        c = parmDict['c']
+    alpha = 90.
+    beta = 90.
+    gamma = 90.
+    parmDict['a'] = a
+    parmDict['b'] = b
+    parmDict['c'] = c
+    return dict(lattice=(a, b, c, alpha, beta, gamma),
+            parmDict=parmDict)
+
+
+def _sym_monoclinic(lattice, parmDict):
+    a, b, c, alpha, beta, gamma = lattice
+    if a is None:
+        a = parmDict['a']
+    elif b is None:
+        b = parmDict['b']
+    elif c is None:
+        c = parmDict['c']
+    elif beta is None:
+        beta = parmDict['beta']
+    alpha = 90.
+    gamma = 90.
+    parmDict['a'] = a
+    parmDict['b'] = b
+    parmDict['c'] = c
+    parmDict['beta'] = beta
+    return dict(lattice=(a, b, c, alpha, beta, gamma),
+            parmDict=parmDict)
+
+
+def _sym_triclinic(lattice, parmDict):
+    a, b, c, alpha, beta, gamma = lattice
+    if a is None:
+        a = parmDict['a']
+    elif b is None:
+        b = parmDict['b']
+    elif c is None:
+        c = parmDict['c']
+    elif alpha is None:
+        alpha = parmDict['alpha']
+    elif beta is None:
+        beta = parmDict['beta']
+    elif gamma is None:
+        gamma = parmDict['gamma']
+    parmDict['a'] = a
+    parmDict['b'] = b
+    parmDict['c'] = c
+    parmDict['alpha'] = alpha
+    parmDict['beta'] = beta
+    parmDict['gamma'] = gamma
+    return dict(lattice=(a, b, c, alpha, beta, gamma),
+            parmDict=parmDict)
