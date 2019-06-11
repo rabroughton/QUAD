@@ -204,7 +204,7 @@ def check_lattice_parameters(parmVarDict):
         * Dictionary with 2 elements.
 
         #. `lattice` (:py:class:`tuple`): a, b, c, alpha, beta, gamma
-        #. `parmVarDict` (:py:class:`dict`): Updated dictionary        
+        #. `parmVarDict` (:py:class:`dict`): Updated dictionary
     '''
     a, b, c, alpha, beta, gamma = None, None, None, None, None, None
     keys = list(parmVarDict.keys()).copy()
@@ -294,7 +294,7 @@ def _sym_tegragonal(lattice, parmDict):
     parmDict['a'] = a
     parmDict['c'] = c
     return dict(lattice=(a, b, c, alpha, beta, gamma),
-            parmDict=parmDict)
+                parmDict=parmDict)
 
 
 def _sym_hexagonal(lattice, parmDict):
@@ -310,7 +310,7 @@ def _sym_hexagonal(lattice, parmDict):
     parmDict['a'] = a
     parmDict['c'] = c
     return dict(lattice=(a, b, c, alpha, beta, gamma),
-            parmDict=parmDict)
+                parmDict=parmDict)
 
 
 def _sym_rhombohedral(lattice, parmDict):
@@ -326,7 +326,7 @@ def _sym_rhombohedral(lattice, parmDict):
     parmDict['a'] = a
     parmDict['alpha'] = alpha
     return dict(lattice=(a, b, c, alpha, beta, gamma),
-            parmDict=parmDict)
+                parmDict=parmDict)
 
 
 def _sym_orthorhombic(lattice, parmDict):
@@ -344,7 +344,7 @@ def _sym_orthorhombic(lattice, parmDict):
     parmDict['b'] = b
     parmDict['c'] = c
     return dict(lattice=(a, b, c, alpha, beta, gamma),
-            parmDict=parmDict)
+                parmDict=parmDict)
 
 
 def _sym_monoclinic(lattice, parmDict):
@@ -364,7 +364,7 @@ def _sym_monoclinic(lattice, parmDict):
     parmDict['c'] = c
     parmDict['beta'] = beta
     return dict(lattice=(a, b, c, alpha, beta, gamma),
-            parmDict=parmDict)
+                parmDict=parmDict)
 
 
 def _sym_triclinic(lattice, parmDict):
@@ -388,4 +388,4 @@ def _sym_triclinic(lattice, parmDict):
     parmDict['beta'] = beta
     parmDict['gamma'] = gamma
     return dict(lattice=(a, b, c, alpha, beta, gamma),
-            parmDict=parmDict)
+                parmDict=parmDict)
