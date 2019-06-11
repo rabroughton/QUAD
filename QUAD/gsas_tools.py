@@ -379,6 +379,7 @@ def setup_calcControls(Controls, atomIndx, Natoms, FFtables,
     calcControls['maxSSwave'] = maxSSwave
     return calcControls
 
+
 def setup_from_gpxfile(GPXfile):
     '''
     Setup problem using information found in GPX file.
