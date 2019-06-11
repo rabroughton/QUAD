@@ -7,8 +7,7 @@ class Calculator:
     
     def __init__(self, path='gsas_objects'):
         # load histogram
-        with open(path + os.sep + "histograms.pkl", "rb") as input_file:
-            self._Histograms = pickle.load(input_file)
+        self._Histograms = loadfrompickle(path + os.sep + 'histograms')
         # load lower limit
         self._lowerLimit = np.load(path + os.sep + 'lowerlimit')
         # load upper limit
@@ -25,8 +24,14 @@ class Calculator:
         # load variables
         self._variables = np.load(path + os.sep + 'variables')
         self._paramList = np.load(path + os.sep + 'paramlist')
-        with open(path + os.sep + "parmdict.pkl", "rb") as input_file:
-            self._parmDict = pickle.load(input_file)
+        self._parmDict = loadfrompickle(path + os.sep + 'parmdict')
+        self._Phases = loadfrompickle(path + os.sep + 'phases')
+        self._calcControls = loadfrompickle(path + os.sep + 'calccontrols')
+        self._pawleyLookup = loadfrompickle(path + os.sep + 'pawleylookup')
+        self._restraintDict = loadfrompickle(path + os.sep + 'restraintdict')
+        self._rigidbodyDict = loadfrompickle(path + os.sep + 'rigidbodydict')
+        self._rbIds = loadfrompickle(path + os.sep + 'rbids')
+        self._varyList = loadfrompickle(path + os.sep + 'varylist')
 
     def Calculate(self):
         return np.random.random_sample(size=self._shape)
@@ -51,6 +56,24 @@ class Calculator:
     def UpdateParameters(self, parmVarDict=None):
         self._updatedparameters = True
 
+    def mock_setup(self, base=True):
+        Histograms = self._Histograms
+        varyList = self._varyList
+        parmDict = self._parmDict
+        Phases = self._Phases
+        calcControls = self._calcControls
+        pawleyLookup = self._pawleyLookup
+        restraintDict = self._restraintDict
+        rigidbodyDict = self._rigidbodyDict
+        rbIds = self._rbIds
+        if base is True:
+            return (Histograms, varyList, parmDict, Phases,
+                    calcControls, pawleyLookup, restraintDict,
+                    rigidbodyDict, rbIds)
+        else:
+            return ([], varyList, parmDict, Phases,
+                    calcControls, pawleyLookup, restraintDict,
+                    rigidbodyDict, rbIds)
 
 def save2pickle(obj, fn):
     with open(fn + '.pkl', 'wb') as h:

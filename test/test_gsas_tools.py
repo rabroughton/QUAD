@@ -11,6 +11,9 @@ from QUAD import gsas_tools as gsas
 from pseudo_gsas_tools import Calculator
 import os
 import numpy as np
+from mock import patch
+
+pseudo_calc = Calculator(path='test' + os.sep + 'gsas_objects')
 
 
 class CheckLatticeParameters(unittest.TestCase):
@@ -245,3 +248,119 @@ class G2Lattice(unittest.TestCase):
                 '0::A3': G[0, 1], '0::A4': G[0, 2], '0::A5': G[1, 2]}
         Lat = gsas.G2lattice(G)
         self.assertEqual(Lat, refL, msg='Expect matching dict')
+
+
+class SetupParmDict(unittest.TestCase):
+
+    def test_io(self):
+        rbDict = dict(a=1, b='z')
+        phaseDict = dict(c=3, d='f')
+        hapDict = dict(e='f', f=300)
+        histDict = dict(g=hapDict, h='hello')        
+        parmDict = gsas.setup_parmDict(rbDict, phaseDict, hapDict, histDict)
+        tmp = {}
+        tmp.update(rbDict)
+        tmp.update(phaseDict)
+        tmp.update(hapDict)
+        tmp.update(histDict)
+        self.assertEqual(parmDict, tmp, msg='Expect matching dict')
+
+
+class SetupCalcControls(unittest.TestCase):
+
+    def test_io(self):
+        Controls = dict(c1=1, c2='z')
+        atomIndx = 0
+        Natoms = 2
+        FFtables = dict(ff1=1, ff2='hello')
+        BLtables = dict(bl1=1, bl2='hello')
+        MFtables = dict(mf1=1, mf2='hello')
+        maxSSwave = 8.0
+        parmDict = gsas.setup_calcControls(Controls, atomIndx, Natoms, FFtables,
+                       BLtables, MFtables, maxSSwave)
+        tmp = {}
+        tmp.update(Controls)
+        tmp['atomIndx'] = atomIndx
+        tmp['Natoms'] = Natoms
+        tmp['FFtables'] = FFtables
+        tmp['BLtables'] = BLtables
+        tmp['MFtables'] = MFtables
+        tmp['maxSSwave'] = maxSSwave
+        self.assertEqual(parmDict, tmp, msg='Expect matching dict')
+
+
+class GSASCalculator(unittest.TestCase):
+
+    def test_init_raises_error(self):
+        with self.assertRaises(NameError, msg='No GPXfile'):
+            gsas.Calculator(None)
+
+    @patch('QUAD.gsas_tools.setup_from_gpxfile',
+           return_value=pseudo_calc.mock_setup())
+    def test_init_try(self, mockcalc):
+        Calc = gsas.Calculator()
+        self.assertTrue(isinstance(Calc._Histograms, dict))
+        self.assertFalse(Calc._SingleXtal,
+                         msg='Expect try statement succeeds.')
+
+    @patch('QUAD.gsas_tools.setup_from_gpxfile',
+           return_value=pseudo_calc.mock_setup(False))
+    def test_init_except(self, mockcalc):
+        Calc = gsas.Calculator()
+        self.assertTrue(isinstance(Calc._Histograms, list))
+        self.assertTrue(Calc._SingleXtal,
+                         msg='Expect try statement succeeds.')
+
+
+class GSASCalculateUpdateParameters(unittest.TestCase):
+
+#    @patch('QUAD.gsas_tools.setup_from_gpxfile',
+#           return_value=pseudo_calc.mock_setup())
+#    def test_lattice_case(self, mockcalc, mockg2latt):
+#        Calc = gsas.Calculator()
+#        a = 10.0
+#        parmVarDict = dict(a=a)
+#        Calc.Symmetry = 'cubic'
+#        Calc.UpdateParameters(parmVarDict)
+#        self.assertEqual(Calc._parmDict['a'], a)
+#        self.assertEqual(Calc._parmDict['b'], a)
+#        self.assertEqual(Calc._parmDict['c'], a)
+#        self.assertEqual(Calc._parmDict['alpha'], a)
+#        self.assertEqual(Calc._parmDict['beta'], a)
+#        self.assertEqual(Calc._parmDict['gamma'], a)
+
+    @patch('QUAD.gsas_tools.setup_from_gpxfile',
+           return_value=pseudo_calc.mock_setup())
+    def test_non_lattice_case(self, mockcalc):
+        Calc = gsas.Calculator()
+        tmp = Calc._parmDict.copy()
+        testvar = 10.0
+        parmVarDict = dict(testvar=testvar)
+        Calc.UpdateParameters(parmVarDict)
+        tmp['testvar'] = testvar
+        self.assertEqual(Calc._parmDict, tmp,
+                         msg='Expect dict equal')
+
+    @patch('QUAD.gsas_tools.setup_from_gpxfile',
+           return_value=pseudo_calc.mock_setup())
+    def test_non_lattice_case_with_EXT(self, mockcalc):
+        Calc = gsas.Calculator()
+        tmp = Calc._parmDict.copy()
+        testvar = 10.0
+        parmVarDict = dict(testvar=testvar, EXT='hello')
+        Calc.UpdateParameters(parmVarDict)
+        tmp['testvar'] = testvar
+        self.assertEqual(Calc._parmDict, tmp,
+                         msg='Expect dict equal')
+
+#    @patch('QUAD.gsas_tools.setup_from_gpxfile',
+#           return_value=pseudo_calc.mock_setup())
+#    def test_non_lattice_case_with_EXT_and_Eg(self, mockcalc):
+#        Calc = gsas.Calculator()
+#        tmp = Calc._parmDict.copy()
+#        testvar = 10.0
+#        parmVarDict = dict(testvar=testvar, EXT='hello', kEg='test')
+#        Calc.UpdateParameters(parmVarDict)
+#        tmp['testvar'] = testvar
+#        self.assertEqual(Calc._parmDict, tmp,
+#                         msg='Expect dict equal')

@@ -67,44 +67,9 @@ class Calculator:
         '''
         Initialize the setup using an existing GPXfile
         '''
-        if not GPXfile:
-            # TO DO: Raise name error
-            raise NameError('Must input some GPX file')
-        # Initallizing variables from input file GPXfile
-        G2path.SetBinaryPath()
-        varyList = []
-        parmDict = {}
-        Controls = G2stIO.GetControls(GPXfile)
-        calcControls = {}
-        calcControls.update(Controls)
-        constrDict, fixedList = G2stIO.GetConstraints(GPXfile)
-        restraintDict = G2stIO.GetRestraints(GPXfile)
-        Histograms, Phases = G2stIO.GetUsedHistogramsAndPhases(GPXfile)
-        rigidbodyDict = G2stIO.GetRigidBodies(GPXfile)
-        rbIds = rigidbodyDict.get('RBIds', {'Vector': [], 'Residue': []})
-        rbVary, rbDict = G2stIO.GetRigidBodyModels(rigidbodyDict)
-        (Natoms, atomIndx, phaseVary, phaseDict, pawleyLookup,
-         FFtables, BLtables, MFtables, maxSSwave) = G2stIO.GetPhaseData(
-                 Phases, restraintDict, rbIds, Print=False)
-        calcControls['atomIndx'] = atomIndx
-        calcControls['Natoms'] = Natoms
-        calcControls['FFtables'] = FFtables
-        calcControls['BLtables'] = BLtables
-        calcControls['MFtables'] = MFtables
-        calcControls['maxSSwave'] = maxSSwave
-        hapVary, hapDict, controlDict = G2stIO.GetHistogramPhaseData(
-                Phases, Histograms, Print=False)
-        calcControls.update(controlDict)
-        histVary, histDict, controlDict = G2stIO.GetHistogramData(
-                Histograms, Print=False)
-        calcControls.update(controlDict)
-        varyList = rbVary + phaseVary + hapVary + histVary
-        parmDict.update(rbDict)
-        parmDict.update(phaseDict)
-        parmDict.update(hapDict)
-        parmDict.update(histDict)
-        G2stIO.GetFprime(calcControls, Histograms)
-
+        (Histograms, varyList, parmDict, Phases,
+         calcControls, pawleyLookup, restraintDict, rigidbodyDict,
+         rbIds) = setup_from_gpxfile(GPXfile)
         # Save the instance parameters
         self._Histograms = Histograms
         self._varyList = varyList
@@ -169,7 +134,7 @@ class Calculator:
 
     def UpdateParameters(self, parmVarDict=None):
         '''
-            Update parameters in the current model
+        Update parameters in the current model
         '''
         for key in parmVarDict.keys():
             if key in ['a', 'b', 'c', 'alpha', 'beta', 'gamma']:
@@ -180,9 +145,7 @@ class Calculator:
             for key in self._parmDict.keys():
                 if 'Eg' in key:
                     parmVarDict[key] = parmVarDict['EXT']
-
             parmVarDict.pop('EXT', None)
-
         self._parmDict.update(parmVarDict)
 
 
@@ -393,3 +356,88 @@ def G2lattice(G):
     '''
     return {'0::A0': G[0, 0], '0::A1': G[1, 1], '0::A2': G[2, 2],
             '0::A3': G[0, 1], '0::A4': G[0, 2], '0::A5': G[1, 2]}
+
+
+def setup_parmDict(rbDict, phaseDict, hapDict, histDict):
+    parmDict = {}
+    parmDict.update(rbDict)
+    parmDict.update(phaseDict)
+    parmDict.update(hapDict)
+    parmDict.update(histDict)
+    return parmDict
+
+
+def setup_calcControls(Controls, atomIndx, Natoms, FFtables,
+                       BLtables, MFtables, maxSSwave):
+    calcControls = {}
+    calcControls.update(Controls)
+    calcControls['atomIndx'] = atomIndx
+    calcControls['Natoms'] = Natoms
+    calcControls['FFtables'] = FFtables
+    calcControls['BLtables'] = BLtables
+    calcControls['MFtables'] = MFtables
+    calcControls['maxSSwave'] = maxSSwave
+    return calcControls
+
+def setup_from_gpxfile(GPXfile):
+    '''
+    Setup problem using information found in GPX file.
+
+    Reads in information from GPX file using methods found in
+    GSAS-II.  This method requires GSAS-II to be installed in
+    order to work.
+
+    Args:
+        * **GPXfile** (:py:class:`str`): Path/Name of GPX file for analysis.
+
+    Returns:
+        * 9-:py:class:`tuple` with the following elements:
+
+        #. `Histograms`:
+        #. `varylist`:
+        #. `parmDict`:
+        #. `Phases`:
+        #. `calcControls`:
+        #. `pawleyLookup`:
+        #. `restraintDict`:
+        #. `rigidbodyDict`:
+        #. `rbIds`:
+
+    '''
+    if not GPXfile:
+        # TO DO: Raise name error
+        raise NameError('Must input some GPX file')
+    # Initallizing variables from input file GPXfile
+    G2path.SetBinaryPath()
+    # Extract information from GPX files
+    Controls = G2stIO.GetControls(GPXfile)
+    constrDict, fixedList = G2stIO.GetConstraints(GPXfile)
+    restraintDict = G2stIO.GetRestraints(GPXfile)
+    Histograms, Phases = G2stIO.GetUsedHistogramsAndPhases(GPXfile)
+    rigidbodyDict = G2stIO.GetRigidBodies(GPXfile)
+    # Extract information from dictionaries
+    rbIds = rigidbodyDict.get('RBIds', {'Vector': [], 'Residue': []})
+    rbVary, rbDict = G2stIO.GetRigidBodyModels(rigidbodyDict)
+    (Natoms, atomIndx, phaseVary, phaseDict, pawleyLookup,
+     FFtables, BLtables, MFtables, maxSSwave) = G2stIO.GetPhaseData(
+             Phases, restraintDict, rbIds, Print=False)
+    # Setup calcControls dictionary
+    calcControls = setup_calcControls(
+            Controls, atomIndx, Natoms, FFtables,
+            BLtables, MFtables, maxSSwave)
+    hapVary, hapDict, controlDict = G2stIO.GetHistogramPhaseData(
+            Phases, Histograms, Print=False)
+    calcControls.update(controlDict)
+    histVary, histDict, controlDict = G2stIO.GetHistogramData(
+            Histograms, Print=False)
+    calcControls.update(controlDict)
+    # Setup variable list
+    varyList = []
+    varyList = rbVary + phaseVary + hapVary + histVary
+    # Setup parameter dictionary
+    parmDict = setup_parmDict(rbDict, phaseDict, hapDict, histDict)
+
+    G2stIO.GetFprime(calcControls, Histograms)
+    return (Histograms, varyList, parmDict, Phases,
+            calcControls, pawleyLookup, restraintDict, rigidbodyDict,
+            rbIds)
