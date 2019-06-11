@@ -25,6 +25,8 @@ class Calculator:
         # load variables
         self._variables = np.load(path + os.sep + 'variables')
         self._paramList = np.load(path + os.sep + 'paramlist')
+        with open(path + os.sep + "parmdict.pkl", "rb") as input_file:
+            self._parmDict = pickle.load(input_file)
 
     def Calculate(self):
         return np.random.random_sample(size=self._shape)
