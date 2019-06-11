@@ -98,7 +98,7 @@ class Calculator:
         histVary, histDict, controlDict = G2stIO.GetHistogramData(
                 Histograms, Print=False)
         calcControls.update(controlDict)
-        varyList = rbVary+phaseVary+hapVary+histVary
+        varyList = rbVary + phaseVary + hapVary + histVary
         parmDict.update(rbDict)
         parmDict.update(phaseDict)
         parmDict.update(hapDict)
@@ -159,14 +159,12 @@ class Calculator:
         '''
         tmp = check_lattice_parameters(parmVarDict)
         parmVarDict = tmp['parmVarDict']
-
-        out = check_symmetry(lattice=tmp['lattice'], parmDict=self._parmDict,
-                       symmetry=self.Symmetry)
+        out = check_symmetry(lattice=tmp['lattice'],
+                             parmDict=self._parmDict,
+                             symmetry=self.Symmetry)
         a, b, c, alpha, beta, gamma = out['lattice']
         self._parmDict = out['parmDict']
-        
         [G, g] = G2latt.cell2Gmat([a, b, c, alpha, beta, gamma])[0]
-
         LatticeUpdate = {'0::A0': G[0, 0], '0::A1': G[1, 1], '0::A2': G[2, 2],
                          '0::A3': G[0, 1], '0::A4': G[0, 2], '0::A5': G[1, 2]}
         # print G
