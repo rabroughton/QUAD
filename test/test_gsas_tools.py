@@ -52,7 +52,27 @@ class CheckSymmetry(unittest.TestCase):
         tmp = gsas.check_symmetry(lattice=lattice, parmDict=parmDict,
                                   symmetry='Cubic')
         self.check_output(tmp)
-        self.assertEqual(parmDict['a'], a)
+        self.assertEqual(tmp['parmDict']['a'], a)
         self.assertEqual(tmp['lattice'], (a, a, a, 90., 90., 90.),
                          msg='Expect (a, a, a, 90, 90, 90)')
+
+    def test_tetragonal(self):
+        a = 0.
+        c = 5.
+        lattice = (a, 1., c, 3., 4., 5.)
+        Calc = Calculator(path='test' + os.sep + 'gsas_objects')
+        parmDict = Calc._parmDict.copy()
+        tmp = gsas.check_symmetry(lattice=lattice, parmDict=parmDict.copy(),
+                                  symmetry='Tetragonal')
+        self.check_output(tmp)
+        self.assertEqual(tmp['parmDict']['a'], a)
+        self.assertEqual(tmp['parmDict']['c'], c)
+        self.assertEqual(tmp['lattice'], (a, a, c, 90., 90., 90.),
+                         msg='Expect (a, a, a, 90, 90, 90)')
+        
+        a = None
+        lattice = (a, 1., c, 3., 4., 5.)
+        with self.assertRaises(KeyError):
+            gsas.check_symmetry(lattice=lattice, parmDict=parmDict.copy(),
+                                symmetry='Tetragonal')
         
