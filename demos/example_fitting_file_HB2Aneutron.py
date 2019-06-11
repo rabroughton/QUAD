@@ -73,9 +73,9 @@ init_cov = eco["cov"]
 # init_cov = 0.95*eco["cov"] + 0.05*np.identity(len(init_z))
 
 # Set the chain length parameters
-samples = 1000
+samples = 100
 burn = 0
-update = 100
+update = 50
 
 # Set remaining input values for DRAM
 shrinkage = 0.2
@@ -86,21 +86,19 @@ adapt = 100     # adaption interval
 # =============================================================================
 
 print('DRAM with iters={} and burn={}'.format(samples, burn))
-(params, curr_keep,
- varS1, sig2, gamma, mins,
- accept_rate1, accept_rate2, BG) = dram.dram_twostage(GPXfile=gpxFile,
-                                                      paramList=paramList,
-                                                      variables=variables,
-                                                      init_z=init_z,
-                                                      lower=lower,
-                                                      upper=upper,
-                                                      initCov=init_cov,
-                                                      shrinkage=shrinkage,
-                                                      adapt=adapt,
-                                                      iters=samples,
-                                                      burn=burn,
-                                                      update=update,
-                                                      plot=True)
+results = dram.sample(GPXfile=gpxFile,
+                      paramList=paramList,
+                      variables=variables,
+                      init_z=init_z,
+                      lower=lower,
+                      upper=upper,
+                      initCov=init_cov,
+                      shrinkage=shrinkage,
+                      adapt=adapt,
+                      iters=samples,
+                      burn=burn,
+                      update=update,
+                      plot=True)
 
 # =============================================================================
 # PROCESS RESULTS
@@ -109,11 +107,13 @@ print('DRAM with iters={} and burn={}'.format(samples, burn))
 # SetupOutput Folder
 filename = os.path.split(gpxFile)
 foldername = filename[1].split('.')
-path = './results/' + foldername[0] + '_test1'    # + other naming information
+path = './results/' + foldername[0] + '_test2'    # + other naming information
 os.mkdir(path)
 
 # Calculate mean parameter estimates from the posterior and compare to
 # GSAS-II fit
+mins = results["run_time"]
+params = results["param_samples"]
 post_param_mean = np.mean(params, axis=0)
 
 # Print true versus estimated values for the mean process parameters
@@ -138,17 +138,17 @@ plt.savefig(path + '/PosteriorDensities')
 
 # Save results to output folder
 np.savetxt(path + '/parameter samples', params)
-np.savetxt(path + '/final proposal covariance', varS1)
+np.savetxt(path + '/final proposal covariance', results["final_covariance"])
 np.savetxt(path + '/initial proposal covariance', init_cov)
-np.savetxt(path + '/gamma', gamma)
-np.savetxt(path + '/sig2', sig2)
+np.savetxt(path + '/gamma', results["gamma_samples"])
+np.savetxt(path + '/sig2', results["model_variance"])
 np.savetxt(path + '/run time', np.array([mins]))
 np.savetxt(path + '/posterior parameter mean', post_param_mean)
 np.savetxt(path + '/parameter starting values', start)
 np.savetxt(path + '/lower bounds', lower)
 np.savetxt(path + '/upper bounds', upper)
-np.savetxt(path + '/Stage 1 acceptance', accept_rate1)
-np.savetxt(path + '/Stage 2 acceptance', accept_rate2)
+np.savetxt(path + '/Stage 1 acceptance', results["stage1_accept"])
+np.savetxt(path + '/Stage 2 acceptance', results["stage2_accept"])
 
 # Save DRAM fitting input values
 f = open(path + "/DRAM_inputs.txt", "w+")
