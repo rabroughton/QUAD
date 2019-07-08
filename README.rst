@@ -48,6 +48,12 @@ under Contract No. DE-AC02-06CH11357 with the Department of Energy.
 
   * `NCSU`_
 
+Citing QUAD
+===========
+Fancher, C. M., Han, Z., Levin, I., Page, K., Reich, B. J., Smith, R. C., Wilson, A. G., Jones, J. L. (2016). Use of Bayesian Inference in Crystallographic Structure Refinement via Full Diffraction Profile Analysis. Scientific Reports, 6, 31625. Retrieved from https://doi.org/10.1038/srep31625
+
+Additionally, please cite the appropriate `Zenodo archive <https://zenodo.org/badge/latestdoi/178253900>`_ for the version of QUAD that you are using. 
+
 .. _NCSU: license.txt
 
 .. |docs| image:: https://readthedocs.org/projects/quad/badge/?version=latest
@@ -59,3 +65,5 @@ under Contract No. DE-AC02-06CH11357 with the Department of Energy.
    
 .. |zenodo| image:: https://zenodo.org/badge/178253900.svg
    :target: https://zenodo.org/badge/latestdoi/178253900
+   
+ 
