@@ -28,8 +28,10 @@ def setup_problem(q=9, L=20):
             variables=Calc._variables,
             paramList=list(Calc._paramList),
             z=np.random.random_sample((q,)),
-            lower=np.array([1000.0, 0.0, 0.0, 0.0, -50.0, 0, -10, -0.1, 500]),
-            upper=np.array([2000.0, 20.0, 1.0, 0.5, -19.0, 100, 0, 0.1, 1500]),
+#            lower=np.array([1000.0, 0.0, 0.0, 0.0, -50.0, 0, -10, -0.1, 500]),
+#            upper=np.array([2000.0, 20.0, 1.0, 0.5, -19.0, 100, 0, 0.1, 1500]),
+            lower=np.array([-0.01, -0.01, -0.01, -0.01, -0.01, -0.01, -0.01, -0.01, -0.01]),
+            upper=np.array([1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0]),
             m0=0.,
             sd0=1.,
             tau_y=1.,
@@ -41,7 +43,7 @@ def setup_problem(q=9, L=20):
             B=np.random.random_sample((n, L)),
             delta=1e-3,
             start=np.random.random_sample((q,)),
-            init_z=np.random.random_sample((q,)),
+#            init_z=np.random.random_sample((q,)),
             )
 
 

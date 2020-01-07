@@ -77,7 +77,7 @@ def start2z(start, lower, upper):
     '''
 
     if len(start) != len(lower):
-        raise ValueError("Number of lower bounds provided is not valid.")   
+        raise ValueError("Number of lower bounds provided is not valid.")
     if len(start) != len(upper):
         raise ValueError("Number of upper bounds provided is not valid.")
 
