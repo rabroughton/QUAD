@@ -28,8 +28,10 @@ def setup_problem(q=9, L=20):
             variables=Calc._variables,
             paramList=list(Calc._paramList),
             z=np.random.random_sample((q,)),
-            lower=np.array([1000.0, 0.0, 0.0, 0.0, -50.0, 0, -10, -0.1, 500]),
-            upper=np.array([2000.0, 20.0, 1.0, 0.5, -19.0, 100, 0, 0.1, 1500]),
+#            lower=np.array([1000.0, 0.0, 0.0, 0.0, -50.0, 0, -10, -0.1, 500]),
+#            upper=np.array([2000.0, 20.0, 1.0, 0.5, -19.0, 100, 0, 0.1, 1500]),
+            lower=np.array([-0.01, -0.01, -0.01, -0.01, -0.01, -0.01, -0.01, -0.01, -0.01]),
+            upper=np.array([1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0]),
             m0=0.,
             sd0=1.,
             tau_y=1.,
@@ -41,7 +43,7 @@ def setup_problem(q=9, L=20):
             B=np.random.random_sample((n, L)),
             delta=1e-3,
             start=np.random.random_sample((q,)),
-            init_z=np.random.random_sample((q,)),
+#            init_z=np.random.random_sample((q,)),
             )
 
 
@@ -58,7 +60,7 @@ class EstimateCovariance(unittest.TestCase):
         tmp = setup_problem()
         q = tmp['q']
         # this list much match the order of input arguments
-        keys = ['paramList', 'start', 'init_z', 'Calc', 'upper', 'lower',
+        keys = ['paramList', 'start', 'Calc', 'upper', 'lower',
                 'x', 'y', 'L', 'delta']
         items = setup_args(tmp, keys)
         a = dram.estimatecovariance(**items)
@@ -455,8 +457,8 @@ class Sample(unittest.TestCase):
         L = tmp['L']
         varS1 = tmp['varS1']
         paramList, variables = tmp['paramList'], tmp['variables']
-        init_z, lower, upper = tmp['init_z'], tmp['lower'], tmp['upper']
-        a = dram.sample(None, paramList, variables, init_z, lower, upper,
+        start, lower, upper = tmp['start'], tmp['lower'], tmp['upper']
+        a = dram.sample(None, paramList, variables, start, lower, upper,
                         plot=False, iters=iters, burn=burn, thin=thin,
                         adapt=adapt)
         self.assertTrue(isinstance(a, dict),
