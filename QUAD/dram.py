@@ -57,12 +57,13 @@ try:
 except ModuleNotFoundError:
     gsas_install_display(module='gsas_tools')
 
+
 def start2z(start, lower, upper):
     '''
     Transform starting parameter values to latent z-space for calculations.
     Check the compatibility of the dimensions and values for the lower and
     upper prior bounds.
-    
+
     Args:
         * **start** (:py:class:`list`): List of initial parameter values
           in parameter space - size (q).
@@ -76,25 +77,28 @@ def start2z(start, lower, upper):
     '''
 
     if len(start) != len(lower):
-        raise ValueError("Number of lower bounds provided is not valid.")
-        
+        raise ValueError("Number of lower bounds provided is not valid.")   
     if len(start) != len(upper):
         raise ValueError("Number of upper bounds provided is not valid.")
-    
-    jj=0
+
+    jj = 0
     for value in start:
         if value > upper[jj]:
-            raise ValueError(f"Upper bound is less than starting value. Check entry number {jj}.")
+            raise ValueError(f"""Upper bound is less than starting value.
+            Check entry number {jj}.""")
         elif value < lower[jj]:
-            raise ValueError(f"Lower bound is greater than starting value. Check entry number {jj}.")
+            raise ValueError(f"""Lower bound is greater than starting value.
+            Check entry number {jj}.""")
         elif abs(upper[jj] - value) == abs(value - lower[jj]):
-            raise ValueError(f"Starting value must not be exaclty in the middle of bound range. Check entry number {jj}.")
+            raise ValueError(f"""Starting value must not be exactly in the
+            middle of bound range. Check entry {jj}.""")
         else:
             jj = jj + 1
 
     # Set initial z-space values
     init_z = norm.ppf((start-lower)/(upper-lower))
     return init_z
+
 
 def estimatecovariance(paramList, start, Calc, upper, lower,
                        x=None, y=None, L=20, delta=1e-3):
