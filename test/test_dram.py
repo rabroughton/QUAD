@@ -28,8 +28,10 @@ def setup_problem(q=9, L=20):
             variables=Calc._variables,
             paramList=list(Calc._paramList),
             z=np.random.random_sample((q,)),
-            lower=np.array([1000.0, 0.0, 0.0, 0.0, -50.0, 0, -10, -0.1, 500]),
-            upper=np.array([2000.0, 20.0, 1.0, 0.5, -19.0, 100, 0, 0.1, 1500]),
+#            lower=np.array([1000.0, 0.0, 0.0, 0.0, -50.0, 0, -10, -0.1, 500]),
+#            upper=np.array([2000.0, 20.0, 1.0, 0.5, -19.0, 100, 0, 0.1, 1500]),
+            lower=np.array([-0.01, -0.01, -0.01, -0.01, -0.01, -0.01, -0.01, -0.01, -0.01]),
+            upper=np.array([1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0]),
             m0=0.,
             sd0=1.,
             tau_y=1.,
@@ -41,7 +43,7 @@ def setup_problem(q=9, L=20):
             B=np.random.random_sample((n, L)),
             delta=1e-3,
             start=np.random.random_sample((q,)),
-            init_z=np.random.random_sample((q,)),
+#            init_z=np.random.random_sample((q,)),
             )
 
 
@@ -58,7 +60,7 @@ class EstimateCovariance(unittest.TestCase):
         tmp = setup_problem()
         q = tmp['q']
         # this list much match the order of input arguments
-        keys = ['paramList', 'start', 'init_z', 'Calc', 'upper', 'lower',
+        keys = ['paramList', 'start', 'Calc', 'upper', 'lower',
                 'x', 'y', 'L', 'delta']
         items = setup_args(tmp, keys)
         a = dram.estimatecovariance(**items)
@@ -399,26 +401,28 @@ class Traceplots(unittest.TestCase):
         plot = False
         tmp = setup_problem()
         q, paramList = tmp['q'], tmp['paramList']
+        path = './results'
         iters = 100
         keep_params = np.random.random_sample((iters, q))
         curr_keep = 20
         n_keep = 50
         update = 20
         a = dram.traceplots(plot, q, keep_params, curr_keep, paramList,
-                     n_keep, update)
+                     n_keep, update, path)
         self.assertEqual(a, None)
 
     def test_plot(self):
         plot = True
         tmp = setup_problem()
         q, paramList = tmp['q'], tmp['paramList']
+        path_name = '.'
         iters = 100
         keep_params = np.random.random_sample((iters, q))
         curr_keep = 20
         n_keep = 50
         update = 100
         a = dram.traceplots(plot, q, keep_params, curr_keep, paramList,
-                     n_keep, update)
+                     n_keep, update, path_name)
         self.assertEqual(a, None)
         fn = 'DRAM_Trace.png'
         self.assertTrue(os.path.exists(fn))
@@ -455,8 +459,9 @@ class Sample(unittest.TestCase):
         L = tmp['L']
         varS1 = tmp['varS1']
         paramList, variables = tmp['paramList'], tmp['variables']
-        init_z, lower, upper = tmp['init_z'], tmp['lower'], tmp['upper']
-        a = dram.sample(None, paramList, variables, init_z, lower, upper,
+        start, lower, upper = tmp['start'], tmp['lower'], tmp['upper']
+        path = './results'
+        a = dram.sample(None, paramList, variables, start, lower, upper, path,
                         plot=False, iters=iters, burn=burn, thin=thin,
                         adapt=adapt)
         self.assertTrue(isinstance(a, dict),

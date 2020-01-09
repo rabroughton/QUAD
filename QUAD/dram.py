@@ -34,11 +34,10 @@ from .utilities import gsas_install_display
 # Import modules
 import numpy as np
 import matplotlib.pyplot as plt
+import seaborn as sns
 from timeit import default_timer as timer  # Timing function
-# Normal distribution
-from scipy.stats import norm
-# Multivariate normal distribution
-from scipy.stats import multivariate_normal as mvnorm
+from scipy.stats import norm  # Normal distribution
+from scipy.stats import multivariate_normal as mvnorm  # Multivariate normal
 import statsmodels.api as sm  # Library for lowess smoother
 lowess = sm.nonparametric.lowess  # Lowess smoothing function
 
@@ -58,7 +57,49 @@ except ModuleNotFoundError:
     gsas_install_display(module='gsas_tools')
 
 
-def estimatecovariance(paramList, start, init_z, Calc, upper, lower,
+def start2z(start, lower, upper):
+    '''
+    Transform starting parameter values to latent z-space for calculations.
+    Check the compatibility of the dimensions and values for the lower and
+    upper prior bounds.
+
+    Args:
+        * **start** (:py:class:`list`): List of initial parameter values
+          in parameter space - size (q).
+        * **upper** (:class:`~numpy.ndarray`): Vector of upper limits on a
+          uniform prior distribution in the parameter space - size (q,).
+        * **lower** (:class:`~numpy.ndarray`): Vector of lower limits on a
+          uniform prior distribution in the parameter space - size (q,).
+    Returns:
+        * **init_z** (:class:`~numpy.ndarray`): Vector of initial parameter
+          values in z-space - size (q,).
+    '''
+
+    if len(start) != len(lower):
+        raise ValueError("Number of lower bounds provided is not valid.")
+    if len(start) != len(upper):
+        raise ValueError("Number of upper bounds provided is not valid.")
+
+    jj = 0
+    for value in start:
+        if value > upper[jj]:
+            raise ValueError(f"""Upper bound is less than starting value.
+            Check entry number {jj}.""")
+        elif value < lower[jj]:
+            raise ValueError(f"""Lower bound is greater than starting value.
+            Check entry number {jj}.""")
+        elif abs(upper[jj] - value) == abs(value - lower[jj]):
+            raise ValueError(f"""Starting value must not be exactly in the
+            middle of bound range. Check entry {jj}.""")
+        else:
+            jj = jj + 1
+
+    # Set initial z-space values
+    init_z = norm.ppf((start-lower)/(upper-lower))
+    return init_z
+
+
+def estimatecovariance(paramList, start, Calc, upper, lower,
                        x=None, y=None, L=20, delta=1e-3):
     '''
     Estimate the covariance of the initial parameter values to initialize the
@@ -73,8 +114,6 @@ def estimatecovariance(paramList, start, init_z, Calc, upper, lower,
           refinement - size (q).
         * **start** (:py:class:`list`): List of initial parameter values
           in parameter space - size (q).
-        * **init_z** (:class:`~numpy.ndarray`): Vector of initial parameter
-          values in z-space - size (q,).
         * **Calc** (:class:`.Calculator`): calculator operator that interacts
           with the designated GPX file by referencing GSAS-II libraries.
         * **upper** (:class:`~numpy.ndarray`): Vector of upper limits on a
@@ -101,6 +140,7 @@ def estimatecovariance(paramList, start, init_z, Calc, upper, lower,
           significantly close to zero in value.
     '''
     # Initialize inputs
+    init_z = start2z(start=start, lower=lower, upper=upper)
     Calc.UpdateParameters(dict(zip(paramList, start)))
     f0 = Calc.Calculate()
     x, y = diffraction_file_data(x=x, y=y, Calc=Calc)
@@ -616,21 +656,22 @@ def _print_update(curr_keep, update, n_keep, accept_S1, attempt_S1, accept_S2,
     return accept_rate_S1, accept_rate_S2
 
 
-def traceplots(plot, q, keep_params, curr_keep, paramList, n_keep, update):
+def traceplots(plot, q, keep_params, curr_keep, paramList, n_keep, update,
+               path):
     '''
     Produce traceplots of sampling at the update intervals. Plot in the console
     window and save final traceplot in the current folder.
     '''
     if plot is True:
-        plt.figure(1, figsize=(20, 10))
-        plt.subplots_adjust(wspace=0.4)
+        plt.figure(1, figsize=(20, 12))
+        plt.subplots_adjust(wspace=0.8)
         for index in range(q):
             plt.subplot(2, np.ceil(q/2.0), index+1)
             plt.plot(keep_params[range(curr_keep), index], 'k')
             plt.xlabel("Iteration")
             plt.ylabel(paramList[index])
         if ((n_keep-curr_keep) < update):
-            plt.savefig('DRAM_Trace.png')
+            plt.savefig(path + '/DRAM_Trace.png')
         plt.pause(0.1)
 
 
@@ -672,7 +713,7 @@ def initialize_intensity_weight(x, y, scaling_factor=1):
 
 
 # MCMC function
-def sample(GPXfile, paramList, variables, init_z, lower, upper,
+def sample(GPXfile, paramList, variables, start, lower, upper, path,
            initCov=None, y=None, x=None, L=20, shrinkage=0.2,
            s_p=(2.4**2), epsilon=1e-4, m0=0, sd0=1, c_y=0.1, d_y=0.1,
            c_g=0.1, d_g=0.1, c_b=0.1, d_b=0.1, adapt=20, thin=1,
@@ -686,19 +727,22 @@ def sample(GPXfile, paramList, variables, init_z, lower, upper,
           as the upper and lower limits being provided
         * **variables** (:class:`~numpy.ndarray`):
           (q,) vector of parameter names that matches 'paramList'
-        * **init_z** (:class:`~numpy.ndarray`):
-          (q,) vector of initial values in the z-space
+        * **start** (:py:class:`list`): List of initial parameter values
+          in parameter space - size (q)
         * **lower** (:class:`~numpy.ndarray`):
           (q,) vector of lower bounds for the parameter values
         * **upper** (:class:`~numpy.ndarray`):
           (q,) vector of upper bounds for the parameter values
+        * **path** (:py:class:`str`): File path to folder where results and
+          final plots from run will be saved. Folder must be created before
+          calling.
 
     Kwargs:
         * **initCov** (:class:`~numpy.ndarray`) - `None`: (q, q) matrix to
           be used as the covariance matrix for the proposal distribution,
           default value is None. Covariance matrix can be specified with the
           estimate covariance function. If there is no matrix specified, the
-          function will use a diagonal matrix with 0.05 on the diagonal
+          function will use a diagonal matrix with 0.05 on the diagonal.
         * **y** (:class:`~numpy.ndarray`) - `None`:
           (n,) vector of intensities. If no values
           are specified, the function uses the values from the provided GPX
@@ -773,6 +817,8 @@ def sample(GPXfile, paramList, variables, init_z, lower, upper,
         #. **stage2_accept** (:class:`~numpy.ndarray`): Acceptance rate of
            stage 2 DRAM - size(n_keep//update).
     '''
+    # Calculate starting values in z-space and check the lower and upper bounds
+    init_z = start2z(start=start, lower=lower, upper=upper)
     Calc = gsas_calculator(GPXfile=GPXfile)
     Calc._varyList = variables
     # Set the scaling parameter based on the number of parameters
@@ -897,7 +943,7 @@ def sample(GPXfile, paramList, variables, init_z, lower, upper,
                 # Produce trace plots
                 traceplots(plot=plot, q=q, keep_params=keep_params,
                            curr_keep=curr_keep, paramList=paramList,
-                           n_keep=n_keep, update=update)
+                           n_keep=n_keep, update=update, path=path)
     tock = timer()
     # Gather output into a dictionary
     output = dict(param_samples=keep_params, number_samples=curr_keep,
@@ -905,3 +951,87 @@ def sample(GPXfile, paramList, variables, init_z, lower, upper,
                   gamma_samples=keep_gamma, run_time=(tock-tick)/60,
                   stage1_accept=accept_rate_S1, stage2_accept=accept_rate_S2)
     return output
+
+
+def run_summary(results, start, paramList, path):
+    '''
+    Print information to the console about the DRAM run after the sampling is
+    completed.
+
+    Args:
+        * **results** (:py:class:`dict`): Array of parameter values in
+          z-space - size (q,).
+        * **start** (:py:class:`list`): List of initial parameter values
+          in parameter space - size (q).
+        * **paramList** (:py:class:`list`): List of parameter names for
+          refinement - size (q).
+        * **path** (:py:class:`str`): File path to folder where results and
+          final plots from run will be saved.
+    '''
+    mins = results["run_time"]
+    params = results["param_samples"]
+    post_param_mean = np.mean(params, axis=0)
+    # Print true versus estimated values for the mean process parameters
+    print('Mean parameter estimates:')
+    for q in range(len(start)):
+        print(paramList[q] + ' Rietveld: %03.4f, QUAD: %03.4f' % (start[q],
+              post_param_mean[q]))
+    # Print run time
+    print("Model Time: %03.2f minutes (DRAM)" % (mins))
+    # Plot parameter posterior distributions
+    plt.figure(2, figsize=(25, 20))
+    plt.subplots_adjust(wspace=0.65)
+    sns.set_context("talk")
+    for index in range(0, len(start)):
+        plt.subplot(3, np.ceil((len(start)+1)/3.0), index+1)
+        sns.distplot(params[:, index])
+        plt.xlabel(paramList[index])
+        plt.ylabel('Probability')
+    plt.savefig(path + '/PosteriorDensities')
+
+
+def save_results(results, start, lower, upper, paramList, init_cov, path):
+    '''
+    Save DRAM results to individual files in selected file path. Also save the
+    input values of prior bounds, parameter starting values, and initial
+    proposal covariance. A text file of a list of the refined parameter names
+    is saved to the indicated file path.
+
+    Args:
+        * **results** (:py:class:`dict`): Array of parameter values in
+          z-space - size (q,).
+        * **start** (:py:class:`list`): List of initial parameter values
+          in parameter space - size (q).
+        * **lower** (:class:`~numpy.ndarray`): Vector of lower limits on a
+          uniform prior distribution in the parameter space - size (q,).
+        * **upper** (:class:`~numpy.ndarray`): Vector of upper limits on a
+          uniform prior distribution in the parameter space - size (q,).
+        * **paramList** (:py:class:`list`): List of parameter names for
+          refinement - size (q).
+        * **initCov** (:class:`~numpy.ndarray`): (q, q) matrix used as the
+          initial covariance matrix for the proposal distribution. Covariance
+          matrix can be specified with the estimate covariance function.
+        * **path** (:py:class:`str`): File path to folder where results and
+          final plots from run will be saved.
+    '''
+    mins = results["run_time"]
+    params = results["param_samples"]
+    post_param_mean = np.mean(params, axis=0)
+
+    # Save results to output folder
+    np.savetxt(path + '/parameter_samples', params)
+    np.savetxt(path + '/final_covariance', results["final_covariance"])
+    np.savetxt(path + '/initial_proposal_covariance', init_cov)
+    np.savetxt(path + '/gamma_samples', results["gamma_samples"])
+    np.savetxt(path + '/model_variance', results["model_variance"])
+    np.savetxt(path + '/run_time_mins', np.array([mins]))
+    np.savetxt(path + '/posterior_parameter_means', post_param_mean)
+    np.savetxt(path + '/parameter_starting_values', start)
+    np.savetxt(path + '/lower_prior_bounds', lower)
+    np.savetxt(path + '/upper_prior_bounds', upper)
+    np.savetxt(path + '/Stage1_acceptance', results["stage1_accept"])
+    np.savetxt(path + '/Stage2_acceptance', results["stage2_accept"])
+    # Save list of refined parameter names to text file
+    with open(path + '/parameter_list.txt', 'w') as outfile:
+        for item in paramList:
+            outfile.write("%s\n" % item)
