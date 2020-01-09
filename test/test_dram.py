@@ -401,7 +401,7 @@ class Traceplots(unittest.TestCase):
         plot = False
         tmp = setup_problem()
         q, paramList = tmp['q'], tmp['paramList']
-        path = tmp['path']
+        path = './results'
         iters = 100
         keep_params = np.random.random_sample((iters, q))
         curr_keep = 20
@@ -415,7 +415,7 @@ class Traceplots(unittest.TestCase):
         plot = True
         tmp = setup_problem()
         q, paramList = tmp['q'], tmp['paramList']
-        path = tmp['path']
+        path = './results'
         iters = 100
         keep_params = np.random.random_sample((iters, q))
         curr_keep = 20
@@ -460,7 +460,7 @@ class Sample(unittest.TestCase):
         varS1 = tmp['varS1']
         paramList, variables = tmp['paramList'], tmp['variables']
         start, lower, upper = tmp['start'], tmp['lower'], tmp['upper']
-        path = tmp['path']
+        path = './results'
         a = dram.sample(None, paramList, variables, start, lower, upper, path,
                         plot=False, iters=iters, burn=burn, thin=thin,
                         adapt=adapt)
