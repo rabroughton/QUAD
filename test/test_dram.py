@@ -424,7 +424,7 @@ class Traceplots(unittest.TestCase):
         a = dram.traceplots(plot, q, keep_params, curr_keep, paramList,
                      n_keep, update, path_name)
         self.assertEqual(a, None)
-        fn = 'DRAM_Trace.png'
+        fn = path_name + '/DRAM_Trace.png'
         self.assertTrue(os.path.exists(fn))
         os.remove(fn)
 
