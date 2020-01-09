@@ -401,26 +401,28 @@ class Traceplots(unittest.TestCase):
         plot = False
         tmp = setup_problem()
         q, paramList = tmp['q'], tmp['paramList']
+        path = './results'
         iters = 100
         keep_params = np.random.random_sample((iters, q))
         curr_keep = 20
         n_keep = 50
         update = 20
         a = dram.traceplots(plot, q, keep_params, curr_keep, paramList,
-                     n_keep, update)
+                     n_keep, update, path)
         self.assertEqual(a, None)
 
     def test_plot(self):
         plot = True
         tmp = setup_problem()
         q, paramList = tmp['q'], tmp['paramList']
+        path_name = '.'
         iters = 100
         keep_params = np.random.random_sample((iters, q))
         curr_keep = 20
         n_keep = 50
         update = 100
         a = dram.traceplots(plot, q, keep_params, curr_keep, paramList,
-                     n_keep, update)
+                     n_keep, update, path_name)
         self.assertEqual(a, None)
         fn = 'DRAM_Trace.png'
         self.assertTrue(os.path.exists(fn))
@@ -458,7 +460,8 @@ class Sample(unittest.TestCase):
         varS1 = tmp['varS1']
         paramList, variables = tmp['paramList'], tmp['variables']
         start, lower, upper = tmp['start'], tmp['lower'], tmp['upper']
-        a = dram.sample(None, paramList, variables, start, lower, upper,
+        path = './results'
+        a = dram.sample(None, paramList, variables, start, lower, upper, path,
                         plot=False, iters=iters, burn=burn, thin=thin,
                         adapt=adapt)
         self.assertTrue(isinstance(a, dict),

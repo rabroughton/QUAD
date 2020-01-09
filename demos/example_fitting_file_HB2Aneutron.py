@@ -1,9 +1,6 @@
 from __future__ import division
 # Import modules
 import numpy as np
-from scipy.stats import norm
-import seaborn as sns
-import matplotlib.pyplot as plt
 import sys
 import os
 
@@ -78,6 +75,12 @@ update = 50
 shrinkage = 0.2
 adapt = 100     # adaption interval
 
+# SetupOutput Folder
+filename = os.path.split(gpxFile)
+foldername = filename[1].split('.')
+path = './results/' + foldername[0] + '_test1'    # + other naming information
+os.mkdir(path)
+
 # =============================================================================
 # RUN DRAM
 # =============================================================================
@@ -89,6 +92,7 @@ results = dram.sample(GPXfile=gpxFile,
                       start=start,
                       lower=lower,
                       upper=upper,
+                      path=path,
                       initCov=init_cov,
                       shrinkage=shrinkage,
                       adapt=adapt,
@@ -101,59 +105,18 @@ results = dram.sample(GPXfile=gpxFile,
 # PROCESS RESULTS
 # =============================================================================
 
-# SetupOutput Folder
-filename = os.path.split(gpxFile)
-foldername = filename[1].split('.')
-path = './results/' + foldername[0] + '_test2'    # + other naming information
-os.mkdir(path)
+# Print run information to console: compare initial Rietveld values and QUAD
+# mean estimates for process parameters, print total run time, plot and save
+# final histograms of posterior samples.
+dram.run_summary(results=results, start=start, paramList=paramList, path=path)
 
-# Calculate mean parameter estimates from the posterior and compare to
-# GSAS-II fit
-mins = results["run_time"]
-params = results["param_samples"]
-post_param_mean = np.mean(params, axis=0)
-
-# Print true versus estimated values for the mean process parameters
-print('Mean parameter estimates:')
-for q in range(len(start)):
-    print(paramList[q] + ' Rietveld: %03.4f, QUAD: %03.4f' % (start[q],
-          post_param_mean[q]))
-
-# Print run time
-print("Model Time: %03.2f (DRAM)" % (mins))
-
-# Plot parameter posterior distributions
-plt.figure(1, figsize=(25, 12))
-plt.subplots_adjust(wspace=0.9)
-for index in range(0, len(start)):
-    plt.subplot(2, np.ceil((q+1)/2.0), index+1)
-    sns.distplot(params[:, index])
-    sns.set_context("talk")
-    plt.xlabel(paramList[index])
-    plt.ylabel('Probability')
-plt.savefig(path + '/PosteriorDensities')
-
-# Save results to output folder
-np.savetxt(path + '/parameter samples', params)
-np.savetxt(path + '/final proposal covariance', results["final_covariance"])
-np.savetxt(path + '/initial proposal covariance', init_cov)
-np.savetxt(path + '/gamma', results["gamma_samples"])
-np.savetxt(path + '/sig2', results["model_variance"])
-np.savetxt(path + '/run time', np.array([mins]))
-np.savetxt(path + '/posterior parameter mean', post_param_mean)
-np.savetxt(path + '/parameter starting values', start)
-np.savetxt(path + '/lower bounds', lower)
-np.savetxt(path + '/upper bounds', upper)
-np.savetxt(path + '/Stage 1 acceptance', results["stage1_accept"])
-np.savetxt(path + '/Stage 2 acceptance', results["stage2_accept"])
+# Save DRAM output results and input values of prior bounds, starting values,
+# and initial covariance as individual files.
+dram.save_results(results=results, start=start, lower=lower, upper=upper,
+                  paramList=paramList, init_cov=init_cov, path=path) 
 
 # Save DRAM fitting input values
 f = open(path + "/DRAM_inputs.txt", "w+")
 f.write("shrinkage: %05.2f\r\n adaption interval: %10.0f\r\n number of samples:"
         "%10.0f\r\n burn-in: %10.0f\r\n" % (shrinkage, adapt, samples, burn))
 f.close()
-
-# Save list of refined parameter names to text file
-with open(path + '/parameter list.txt', 'w') as outfile:
-    for item in paramList:
-        outfile.write("%s\n" % item)
