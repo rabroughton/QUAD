@@ -415,7 +415,7 @@ class Traceplots(unittest.TestCase):
         plot = True
         tmp = setup_problem()
         q, paramList = tmp['q'], tmp['paramList']
-        path_name = None
+        path_name = '.'
         iters = 100
         keep_params = np.random.random_sample((iters, q))
         curr_keep = 20
