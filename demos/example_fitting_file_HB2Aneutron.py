@@ -149,7 +149,7 @@ np.savetxt(path + '/Stage 2 acceptance', results["stage2_accept"])
 
 # Save DRAM fitting input values
 f = open(path + "/DRAM_inputs.txt", "w+")
-f.write("shrinkage: %05.2f\r\n adaption interval: %10.0f\r\n number ofsamples:"
+f.write("shrinkage: %05.2f\r\n adaption interval: %10.0f\r\n number of samples:"
         "%10.0f\r\n burn-in: %10.0f\r\n" % (shrinkage, adapt, samples, burn))
 f.close()
 
