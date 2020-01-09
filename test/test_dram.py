@@ -458,7 +458,8 @@ class Sample(unittest.TestCase):
         varS1 = tmp['varS1']
         paramList, variables = tmp['paramList'], tmp['variables']
         start, lower, upper = tmp['start'], tmp['lower'], tmp['upper']
-        a = dram.sample(None, paramList, variables, start, lower, upper,
+        path = tmp['path']
+        a = dram.sample(None, paramList, variables, start, lower, upper, path,
                         plot=False, iters=iters, burn=burn, thin=thin,
                         adapt=adapt)
         self.assertTrue(isinstance(a, dict),
