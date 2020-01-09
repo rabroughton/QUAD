@@ -415,14 +415,14 @@ class Traceplots(unittest.TestCase):
         plot = True
         tmp = setup_problem()
         q, paramList = tmp['q'], tmp['paramList']
-        path = './results'
+        path_name = './results'
         iters = 100
         keep_params = np.random.random_sample((iters, q))
         curr_keep = 20
         n_keep = 50
         update = 100
         a = dram.traceplots(plot, q, keep_params, curr_keep, paramList,
-                     n_keep, update, path)
+                     n_keep, update, path_name)
         self.assertEqual(a, None)
         fn = 'DRAM_Trace.png'
         self.assertTrue(os.path.exists(fn))
