@@ -37,7 +37,7 @@ import matplotlib.pyplot as plt
 import seaborn as sns
 from timeit import default_timer as timer  # Timing function
 from scipy.stats import norm  # Normal distribution
-from scipy.stats import multivariate_normal as mvnorm # Multivariate normal
+from scipy.stats import multivariate_normal as mvnorm  # Multivariate normal
 import statsmodels.api as sm  # Library for lowess smoother
 lowess = sm.nonparametric.lowess  # Lowess smoothing function
 
@@ -975,7 +975,7 @@ def run_summary(results, start, paramList, path):
     print('Mean parameter estimates:')
     for q in range(len(start)):
         print(paramList[q] + ' Rietveld: %03.4f, QUAD: %03.4f' % (start[q],
-              post_param_mean[q])) 
+              post_param_mean[q]))
     # Print run time
     print("Model Time: %03.2f minutes (DRAM)" % (mins))
     # Plot parameter posterior distributions
@@ -988,7 +988,7 @@ def run_summary(results, start, paramList, path):
         plt.xlabel(paramList[index])
         plt.ylabel('Probability')
     plt.savefig(path + '/PosteriorDensities')
-   
+
 
 def save_results(results, start, lower, upper, paramList, init_cov, path):
     '''
