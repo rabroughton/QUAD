@@ -47,6 +47,11 @@ under Contract No. DE-AC02-06CH11357 with the Department of Energy.
 **License:**
 
   * `NCSU`_
+  
+Resources
+============
+- `Tutorial notebooks <https://nbviewer.jupyter.org/github/rabroughton/QUAD/blob/master/demos/index.ipynb>`_
+- - `Documentation <https://quad.readthedocs.io/en/latest/>`_
 
 Citing QUAD
 ===========
