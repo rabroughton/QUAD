@@ -1,5 +1,9 @@
 Changelog
 =========
+v0.2.0 (April 4, 2020)
+------------------------
+- Added updated tutorial notebooks.
+
 v0.1.0 (January 9, 2020)
 ------------------------
 .. image:: https://zenodo.org/badge/DOI/10.5281/zenodo.3603343.svg
