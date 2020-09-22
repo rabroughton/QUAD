@@ -31,8 +31,6 @@ For use in a python script, the GSAS-II path must be appended.
     # May need to append one or both of these paths
     sys.path.append('<path>/GSASII/fsource')
     sys.path.append('<path>/GSASII/bindist')
-    
-For more information on installation, please see the `tutorials page <https://nbviewer.jupyter.org/github/rabroughton/QUAD/blob/master/demos/index.ipynb>`_.
 
 **Authors:** Susheela Singh, Christopher M. Fancher, Alyson Wilson, Brian Reich, 
 Zhen Han, Ralph C. Smith, and Jacob L. Jones
