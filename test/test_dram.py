@@ -447,7 +447,8 @@ class Sample(unittest.TestCase):
 #           return_value=Calc)
 #   @patch('QUAD.dram.gsas_calculator',
 #           return_value=Calc)
-    def test_io(self, mock_1):
+#    def test_io(self, mock_1):
+    def test_io(self):
         tmp = setup_problem()
         n = tmp['n']
         iters = 2000
