@@ -443,10 +443,10 @@ class InitializeIntensityWeight(unittest.TestCase):
 
 class Sample(unittest.TestCase):
 
-    @patch('QUAD.gsas_tools.Calculator',
-           return_value=Calc)
-#   @patch('QUAD.dram.gsas_calculator',
+#    @patch('QUAD.gsas_tools.Calculator',
 #           return_value=Calc)
+   @patch('QUAD.dram.gsas_calculator',
+           return_value=Calc)
     def test_io(self, mock_1):
         tmp = setup_problem()
         n = tmp['n']

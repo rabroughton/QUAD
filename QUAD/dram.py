@@ -52,7 +52,7 @@ except ModuleNotFoundError:
     from bspline.splinelab import augknt
 
 try:
-    from .gsas_tools2 import Calculator as gsas_calculator
+    from .gsas_tools import Calculator as gsas_calculator
 except ModuleNotFoundError:
     gsas_install_display(module='gsas_tools')
 
