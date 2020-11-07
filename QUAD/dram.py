@@ -169,7 +169,7 @@ def define_lattice(paramList, Calc):
                                  "Thank you for shopping, please come again.")
     else:
         raise ValueError("No lattice parameters are refined. Lattice"
-                          "definition is not needed.")
+                         "definition is not needed.")
     return paramList, start
 
 

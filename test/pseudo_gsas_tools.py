@@ -10,22 +10,26 @@ class Calculator:
         with open(path + os.sep + "histograms.pkl", "rb") as input_file:
             self._Histograms = pickle.load(input_file)
         # load lower limit
-        self._lowerLimit = np.load((path + os.sep + 'lowerlimit'),
+        self._lowerLimit = np.load(path + os.sep + 'lowerlimit',
                                    allow_pickle=True)
         # load upper limit
-        self._upperLimit = np.load(path + os.sep + 'upperlimit')
+        self._upperLimit = np.load(path + os.sep + 'upperlimit',
+                                   allow_pickle=True)
         # load tth
-        self._tth = np.load(path + os.sep + 'tth')
+        self._tth = np.load(path + os.sep + 'tth', allow_pickle=True)
         # load tthsample
-        self._tthsample = np.load(path + os.sep + 'tthsample')
+        self._tthsample = np.load(path + os.sep + 'tthsample',
+                                  allow_pickle=True)
         # load x and y
-        self._x = np.load(path + os.sep + 'x')
-        self._y = np.load(path + os.sep + 'y')
+        self._x = np.load(path + os.sep + 'x', allow_pickle=True)
+        self._y = np.load(path + os.sep + 'y', allow_pickle=True)
         self._shape = self._y.shape
         self._n = self._y.size
         # load variables
-        self._variables = np.load(path + os.sep + 'variables')
-        self._paramList = np.load(path + os.sep + 'paramlist')
+        self._variables = np.load(path + os.sep + 'variables',
+                                  allow_pickle=True)
+        self._paramList = np.load(path + os.sep + 'paramlist',
+                                  allow_pickle=True)
 
     def Calculate(self):
         return np.random.random_sample(size=self._shape)
