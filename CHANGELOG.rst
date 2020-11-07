@@ -1,7 +1,9 @@
 Changelog
 =========
-v1.0.0 (April 4, 2020)
+v1.0.0 (November 6, 2020)
 ------------------------
+.. image:: https://zenodo.org/badge/DOI/10.5281/zenodo.4255218.svg
+   :target: https://doi.org/10.5281/zenodo.4255218
 - Added ability to refine lattice parameters (a, b, c, alpha, beta, gamma) for all crystal systems.
 - Changed lattice parameter conversion from A to unit cell for refinement interal within dram script.
 - Capable of refining multiple phases.
