@@ -57,6 +57,122 @@ except ModuleNotFoundError:
     gsas_install_display(module='gsas_tools')
 
 
+def define_lattice(paramList, Calc):
+    '''
+    Convert the A values refined in GSAS-II to  unit cell parameters
+    (a, b, c, alpha, beta, gamma). A = [G11, G22, G33, 2*G12, 2*G13, 2*G23]
+    where the G elements make up the reciprocal metric tensor. Add unit cell
+    parameters to the paramList to be refined in QUAD and add the respective
+    starting values to the starting parameter values list (start). Capabale of
+    handling crystal systems of cubic, tetragonal, hexagonal, rhombohedral,
+    trigonal, orthorhombic, monoclinic, and triclinic and can refine lattice
+    parameters of multiple phases.
+
+    Args:
+        * **paramList** (:py:class:`list`): List of parameter names for
+          refinement - size (q).
+        * **start** (:py:class:`list`): List of initial parameter values
+          in parameter space - size (q).
+        * **Calc** (:class:`.Calculator`): calculator operator that interacts
+          with the designated GPX file by referencing GSAS-II libraries.
+
+    Returns:
+        * 2-tuple. Tuple entries are
+
+        #. **paramList** (:py:class:`list`): Updated list of parameter names
+           for refinement - size (q).
+        #. **start** (:class:`~numpy.ndarray`): Updated list of initial
+           parameter values in parameter space - size (q).
+    '''
+    start = [Calc._parmDict[param] for param in paramList if (
+         '::A0' not in param and
+         '::A1' not in param and
+         '::A2' not in param and
+         '::A3' not in param and
+         '::A4' not in param and
+         '::A5' not in param)]
+    latparamList = []
+    for phase_index in range(len(Calc._phase)):
+        latparamList.append(str(phase_index) + '::A0')
+    check = any(item in paramList for item in latparamList)
+    if check is True:
+        for jj in range(len(Calc._phase)):
+            symmetry = Calc._symmetry[Calc._phase[jj]]
+            A = [Calc._parmDict[str(jj) + '::A0'],
+                 Calc._parmDict[str(jj) + '::A1'],
+                 Calc._parmDict[str(jj) + '::A2'],
+                 Calc._parmDict[str(jj) + '::A3'],
+                 Calc._parmDict[str(jj) + '::A4'],
+                 Calc._parmDict[str(jj) + '::A5']]
+            latparams = [str(jj) + '::A0',
+                         str(jj) + '::A1',
+                         str(jj) + '::A2',
+                         str(jj) + '::A3',
+                         str(jj) + '::A4',
+                         str(jj) + '::A5']
+            unitcell = Calc.convert_lattice(latparams, A)
+            paramList = [item for item in paramList if item not in latparams]
+            if symmetry == 'cubic':
+                paramList.append(str(jj) + '::a')
+                start.append(unitcell[0])
+            elif symmetry == 'tetragonal':
+                paramList.append(str(jj) + '::a')
+                paramList.append(str(jj) + '::c')
+                start.append(unitcell[0])
+                start.append(unitcell[2])
+            elif symmetry == 'orthorhombic':
+                paramList.append(str(jj) + '::a')
+                paramList.append(str(jj) + '::b')
+                paramList.append(str(jj) + '::c')
+                start.append(unitcell[0])
+                start.append(unitcell[1])
+                start.append(unitcell[2])
+            elif symmetry == 'hexagonal':
+                paramList.append(str(jj) + '::a')
+                paramList.append(str(jj) + '::c')
+                start.append(unitcell[0])
+                start.append(unitcell[2])
+            elif symmetry == 'trigonal':
+                paramList.append(str(jj) + '::a')
+                paramList.append(str(jj) + '::c')
+                start.append(unitcell[0])
+                start.append(unitcell[2])
+            elif symmetry == 'rhombohedral':
+                paramList.append(str(jj) + '::a')
+                paramList.append(str(jj) + '::alpha')
+                start.append(unitcell[0])
+                start.append(unitcell[3])
+            elif symmetry == 'monoclinic':
+                paramList.append(str(jj) + '::a')
+                paramList.append(str(jj) + '::b')
+                paramList.append(str(jj) + '::c')
+                paramList.append(str(jj) + '::beta')
+                start.append(unitcell[0])
+                start.append(unitcell[1])
+                start.append(unitcell[2])
+                start.append(unitcell[4])
+            elif symmetry == 'triclinic':
+                paramList.append(str(jj) + '::a')
+                paramList.append(str(jj) + '::b')
+                paramList.append(str(jj) + '::c')
+                paramList.append(str(jj) + '::alpha')
+                paramList.append(str(jj) + '::beta')
+                paramList.append(str(jj) + '::gamma')
+                start.append(unitcell[0])
+                start.append(unitcell[1])
+                start.append(unitcell[2])
+                start.append(unitcell[3])
+                start.append(unitcell[4])
+                start.append(unitcell[5])
+            else:
+                raise ValueError("You have entered an invlaid lattie system."
+                                 "Thank you for shopping, please come again.")
+    else:
+        raise ValueError("No lattice parameters are refined. Lattice"
+                         "definition is not needed.")
+    return paramList, start
+
+
 def start2z(start, lower, upper):
     '''
     Transform starting parameter values to latent z-space for calculations.

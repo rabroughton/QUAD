@@ -1,5 +1,12 @@
 Changelog
 =========
+v1.0.0 (April 4, 2020)
+------------------------
+- Added ability to refine lattice parameters (a, b, c, alpha, beta, gamma) for all crystal systems.
+- Changed lattice parameter conversion from A to unit cell for refinement interal within dram script.
+- Capable of refining multiple phases.
+- Added symmetry from GPX file to gsas calculator.
+
 v0.2.0 (April 4, 2020)
 ------------------------
 - Added updated tutorial notebooks.
