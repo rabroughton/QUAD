@@ -109,7 +109,7 @@ class Calculator:
         phase = G2stIO.GetPhaseNames(GPXfile)
         phaseData = {}
         for name in phase:
-            phaseData[name] =  G2stIO.GetAllPhaseData(GPXfile,name)
+            phaseData[name] = G2stIO.GetAllPhaseData(GPXfile, name)
             symmetry[name] = phaseData[name]['General']['SGData']['SGSys']
 
         # Save the instance parameters
@@ -173,53 +173,67 @@ class Calculator:
 
         if self._symmetry[self._phase[phase_index]] == 'cubic':
             a = parmVarDict[str(phase_index) + '::a']
-            b = a; c = a
-            alpha = 90.; beta = 90.; gamma = 90.  
-            
+            b = a
+            c = a
+            alpha = 90.
+            beta = 90.
+            gamma = 90.
+
         elif self._symmetry[self._phase[phase_index]] == 'tetragonal':
             a = parmVarDict[str(phase_index) + '::a']
             b = a
             c = parmVarDict[str(phase_index) + '::c']
-            alpha = 90.; beta = 90.; gamma = 90.
-            
+            alpha = 90.
+            beta = 90.
+            gamma = 90.
+
         elif self._symmetry[self._phase[phase_index]] == 'hexagonal':
             a = parmVarDict[str(phase_index) + '::a']
             b = a
             c = parmVarDict[str(phase_index) + '::c']
-            alpha = 90.; beta = 90.; gamma = 120.
-            
+            alpha = 90.
+            beta = 90.
+            gamma = 120.
+
         elif self._symmetry[self._phase[phase_index]] == 'trigonal':
             a = parmVarDict[str(phase_index) + '::a']
             b = a
             c = parmVarDict[str(phase_index) + '::c']
-            alpha = 90.; beta = 90.; gamma = 120.
-            
+            alpha = 90.
+            beta = 90.
+            gamma = 120.
+
         elif self._symmetry[self._phase[phase_index]] == 'rhombohedral':
             a = parmVarDict[str(phase_index) + '::a']
-            b = a; c = a
+            b = a
+            c = a
             alpha = parmVarDict[str(phase_index) + '::alpha']
-            beta = alpha; gamma = alpha  
-        
+            beta = alpha
+            gamma = alpha
+
         elif self._symmetry[self._phase[phase_index]] == 'orthorhombic':
             a = parmVarDict[str(phase_index) + '::a']
             b = parmVarDict[str(phase_index) + '::b']
             c = parmVarDict[str(phase_index) + '::c']
-            alpha = 90.; beta = 90.; gamma = 90.
-        
+            alpha = 90.
+            beta = 90.
+            gamma = 90.
+
         elif self._symmetry[self._phase[phase_index]] == 'monoclinic':
             a = parmVarDict[str(phase_index) + '::a']
             b = parmVarDict[str(phase_index) + '::b']
             c = parmVarDict[str(phase_index) + '::c']
             beta = parmVarDict[str(phase_index) + '::beta']
-            alpha = 90.; gamma = 90.            
-        
+            alpha = 90.
+            gamma = 90.
+
         elif self._symmetry[self._phase[phase_index]] == 'triclinic':
             a = parmVarDict[str(phase_index) + '::a']
             b = parmVarDict[str(phase_index) + '::b']
             c = parmVarDict[str(phase_index) + '::c']
             alpha = parmVarDict[str(phase_index) + '::alpha']
             beta = parmVarDict[str(phase_index) + '::beta']
-            gamma = parmVarDict[str(phase_index) + '::gamma']            
+            gamma = parmVarDict[str(phase_index) + '::gamma']
 
         A = G2latt.cell2A([a, b, c, alpha, beta, gamma])
 
@@ -229,7 +243,7 @@ class Calculator:
                          str(phase_index) + '::A3': A[3],
                          str(phase_index) + '::A4': A[4],
                          str(phase_index) + '::A5': A[5]}
-        
+
         self._parmDict.update(LatticeUpdate)
         return parmVarDict
 
@@ -238,9 +252,9 @@ class Calculator:
             Update parameters in the current model
         '''
         for phase_index in range(len(self._phase)):
-            if ((str(phase_index) + '::a') in parmVarDict.keys()) == True:
+            if ((str(phase_index) + '::a') in parmVarDict.keys()) is True:
                 parmVarDict = self.UpdateLattice(parmVarDict, phase_index)
-               
+
         if 'EXT' in parmVarDict.keys():
             for key in self._parmDict.keys():
                 if 'Eg' in key:
@@ -249,7 +263,7 @@ class Calculator:
             parmVarDict.pop('EXT', None)
 
         self._parmDict.update(parmVarDict)
-        
+
     def convert_lattice(self, paramList, params):
         '''
             Convert between A and unit cell parameters. A is defined in GSAS-II

@@ -56,6 +56,7 @@ try:
 except ModuleNotFoundError:
     gsas_install_display(module='gsas_tools')
 
+
 def define_lattice(paramList, Calc):
     '''
     Convert the A values refined in GSAS-II to  unit cell parameters
@@ -84,10 +85,10 @@ def define_lattice(paramList, Calc):
            parameter values in parameter space - size (q).
     '''
     start = [Calc._parmDict[param] for param in paramList if (
-         '::A0' not in param and 
+         '::A0' not in param and
          '::A1' not in param and
          '::A2' not in param and
-         '::A3' not in param and 
+         '::A3' not in param and
          '::A4' not in param and
          '::A5' not in param)]
     latparamList = []
@@ -105,9 +106,9 @@ def define_lattice(paramList, Calc):
                  Calc._parmDict[str(jj) + '::A5']]
             latparams = [str(jj) + '::A0',
                          str(jj) + '::A1',
-                         str(jj) + '::A2', 
-                         str(jj) + '::A3', 
-                         str(jj) + '::A4', 
+                         str(jj) + '::A2',
+                         str(jj) + '::A3',
+                         str(jj) + '::A4',
                          str(jj) + '::A5']
             unitcell = Calc.convert_lattice(latparams, A)
             paramList = [item for item in paramList if item not in latparams]
@@ -117,32 +118,39 @@ def define_lattice(paramList, Calc):
             elif symmetry == 'tetragonal':
                 paramList.append(str(jj) + '::a')
                 paramList.append(str(jj) + '::c')
-                start.append(unitcell[0]); start.append(unitcell[2])
+                start.append(unitcell[0])
+                start.append(unitcell[2])
             elif symmetry == 'orthorhombic':
                 paramList.append(str(jj) + '::a')
                 paramList.append(str(jj) + '::b')
                 paramList.append(str(jj) + '::c')
-                start.append(unitcell[0]); start.append(unitcell[1])
+                start.append(unitcell[0])
+                start.append(unitcell[1])
                 start.append(unitcell[2])
             elif symmetry == 'hexagonal':
                 paramList.append(str(jj) + '::a')
                 paramList.append(str(jj) + '::c')
-                start.append(unitcell[0]); start.append(unitcell[2])
+                start.append(unitcell[0])
+                start.append(unitcell[2])
             elif symmetry == 'trigonal':
                 paramList.append(str(jj) + '::a')
                 paramList.append(str(jj) + '::c')
-                start.append(unitcell[0]); start.append(unitcell[2])
+                start.append(unitcell[0])
+                start.append(unitcell[2])
             elif symmetry == 'rhombohedral':
                 paramList.append(str(jj) + '::a')
                 paramList.append(str(jj) + '::alpha')
-                start.append(unitcell[0]); start.append(unitcell[3])
+                start.append(unitcell[0])
+                start.append(unitcell[3])
             elif symmetry == 'monoclinic':
                 paramList.append(str(jj) + '::a')
                 paramList.append(str(jj) + '::b')
                 paramList.append(str(jj) + '::c')
                 paramList.append(str(jj) + '::beta')
-                start.append(unitcell[0]); start.append(unitcell[1])
-                start.append(unitcell[2]); start.append(unitcell[4])
+                start.append(unitcell[0])
+                start.append(unitcell[1])
+                start.append(unitcell[2])
+                start.append(unitcell[4])
             elif symmetry == 'triclinic':
                 paramList.append(str(jj) + '::a')
                 paramList.append(str(jj) + '::b')
@@ -150,15 +158,18 @@ def define_lattice(paramList, Calc):
                 paramList.append(str(jj) + '::alpha')
                 paramList.append(str(jj) + '::beta')
                 paramList.append(str(jj) + '::gamma')
-                start.append(unitcell[0]); start.append(unitcell[1])
-                start.append(unitcell[2]); start.append(unitcell[3])
-                start.append(unitcell[4]); start.append(unitcell[5])
+                start.append(unitcell[0])
+                start.append(unitcell[1])
+                start.append(unitcell[2])
+                start.append(unitcell[3])
+                start.append(unitcell[4])
+                start.append(unitcell[5])
             else:
-                raise ValueError(f"""You have entered an invlaid lattie system.
-                                 Thank you for shopping, please come again.""")
+                raise ValueError("You have entered an invlaid lattie system."
+                                 "Thank you for shopping, please come again.")
     else:
-         raise ValueError(f"""No lattice parameters are refined. Lattice
-                           definition is not needed.""")
+        raise ValueError("No lattice parameters are refined. Lattice"
+                          "definition is not needed.")
     return paramList, start
 
 

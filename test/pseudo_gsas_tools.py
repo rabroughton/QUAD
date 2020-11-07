@@ -10,7 +10,8 @@ class Calculator:
         with open(path + os.sep + "histograms.pkl", "rb") as input_file:
             self._Histograms = pickle.load(input_file)
         # load lower limit
-        self._lowerLimit = np.load(path + os.sep + 'lowerlimit')
+        self._lowerLimit = np.load((path + os.sep + 'lowerlimit'),
+                                   allow_pickle=True)
         # load upper limit
         self._upperLimit = np.load(path + os.sep + 'upperlimit')
         # load tth
