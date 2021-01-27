@@ -782,7 +782,7 @@ def traceplots(plot, q, keep_params, curr_keep, paramList, n_keep, update,
         plt.figure(1, figsize=(20, 12))
         plt.subplots_adjust(wspace=0.8)
         for index in range(q):
-            plt.subplot(2, np.ceil(q/2.0), index+1)
+            plt.subplot(2, np.ceil(q/2.0).astype('int'), index+1)
             plt.plot(keep_params[range(curr_keep), index], 'k')
             plt.xlabel("Iteration")
             plt.ylabel(paramList[index])
@@ -1099,10 +1099,10 @@ def run_summary(results, start, paramList, path):
     plt.subplots_adjust(wspace=0.65)
     sns.set_context("talk")
     for index in range(0, len(start)):
-        plt.subplot(3, np.ceil((len(start)+1)/3.0), index+1)
-        sns.distplot(params[:, index])
+        plt.subplot(3, np.ceil((len(start)+1)/3.0).astype('int'), index+1)
+        sns.histplot(params[:, index], kde=True)
         plt.xlabel(paramList[index])
-        plt.ylabel('Probability')
+        plt.ylabel('Posterior Probability Density')
     plt.savefig(path + '/PosteriorDensities')
 
 
