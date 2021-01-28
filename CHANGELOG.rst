@@ -2,8 +2,8 @@ Changelog
 =========
 v1.0.1 (January 26, 2021)
 ------------------------
-.. image:: https://zenodo.org/badge/DOI/10.5281/zenodo.4255218.svg
-   :target: https://doi.org/10.5281/zenodo.4255218
+.. image:: https://zenodo.org/badge/DOI/10.5281/zenodo.4474424.svg
+   :target: https://doi.org/10.5281/zenodo.4474424
 - Updated matplotlib commands to accommodate deprecations.
 - Replaced seaborn deprecated function distplot with histplot.
 - Edited tutorials to note Python 3.7 is necessary for compatibility with the current GSAS-II.
