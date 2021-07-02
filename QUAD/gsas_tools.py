@@ -83,7 +83,7 @@ class Calculator:
         Histograms, Phases = G2stIO.GetUsedHistogramsAndPhases(GPXfile)
         rigidbodyDict = G2stIO.GetRigidBodies(GPXfile)
         rbIds = rigidbodyDict.get('RBIds', {'Vector': [], 'Residue': []})
-        rbVary, rbDict = G2stIO.GetRigidBodyModels(rigidbodyDict)
+        rbVary, rbDict = G2stIO.GetRigidBodyModels(rigidbodyDict, Print=False)
         (Natoms, atomIndx, phaseVary, phaseDict, pawleyLookup,
          FFtables, BLtables, MFtables, maxSSwave) = G2stIO.GetPhaseData(
                  Phases, restraintDict, rbIds, Print=False)
