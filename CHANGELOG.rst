@@ -1,5 +1,11 @@
 Changelog
 =========
+v1.0.2 (July 2, 2021)
+------------------------
+.. image:: https://zenodo.org/badge/DOI/10.5281/zenodo.4474424.svg
+   :target: https://doi.org/10.5281/zenodo.4474424
+- Corrected bug within gsas_tools from G2stIO.GetRigidBodyModels.
+
 v1.0.1 (January 26, 2021)
 ------------------------
 .. image:: https://zenodo.org/badge/DOI/10.5281/zenodo.4474424.svg
